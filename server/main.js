@@ -1,5 +1,9 @@
 // [LOAD PACKAGES]
 import express from 'express';
+import api from './routes'
+
+require('dotenv').config();
+
 var app         = express();
 var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
@@ -15,9 +19,11 @@ var port = process.env.PORT || 8080;
 
 
 // [RUN SERVER]
-var server = app.listen(port, function(){
- console.log("Express server has started on port " + port)
-});
+// var server = app.listen(port, function(){
+//  console.log("Express server has started on port " + port)
+// });
+app.listen(port, () => console.log(`Server listening on port ${port}`));
+
 
 // [ CONFIGURE mongoose ]
 
@@ -29,10 +35,9 @@ db.once('open', function(){
     console.log("Connected to mongod server");
 });
 
-mongoose.connect('mongodb://snuaaa:snuaaa18@ds263740.mlab.com:63740/snuaaa_proto');
-
-// DEFINE MODEL
-var Book = require('./models/book');
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
+.then(() => console.log('Successfully connected to mongodb'))
+.catch(e => console.error(e));
 
 // [CONFIGURE ROUTER]
-var router = require('./routes')(app, Book);
+app.use('/api', api);

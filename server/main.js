@@ -17,11 +17,7 @@ app.use('/', express.static(__dirname + '/../../snuaaa-react/build'));
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;
 
-
 // [RUN SERVER]
-// var server = app.listen(port, function(){
-//  console.log("Express server has started on port " + port)
-// });
 app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 

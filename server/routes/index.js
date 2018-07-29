@@ -1,18 +1,9 @@
  import express from 'express';
  import signup from './signup'
- import Book from '../models/book'
 
 const router = express.Router();
 router.use('/signup', signup);
 //router.use('/login', login);
-
-router.get('/books', function(req,res){
-    Book.find(function(err, books){
-        if(err) return res.status(500).send({error: 'database failure'});
-        res.json(books);
-    })
-});
-
 
 export default router;
 

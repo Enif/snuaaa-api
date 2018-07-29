@@ -21,7 +21,7 @@ router.post('/', (req, res) => {
     // CHECK USERNAME FORMAT
     let usernameRegex = /^[a-z0-9]+$/;
 
-    console.log("hello signup post");
+    console.log('[signup] ' + JSON.stringify(req.body));
 
     if(!usernameRegex.test(req.body.id)) {
         return res.status(400).json({
@@ -31,7 +31,7 @@ router.post('/', (req, res) => {
     }
 
     // CHECK PASS LENGTH
-    if(req.body.pw.length < 4 || typeof req.body.pw !== "string") {
+    if(req.body.password.length < 4 || typeof req.body.password !== "string") {
         return res.status(400).json({
             error: "BAD PASSWORD",
             code: 2
@@ -48,14 +48,23 @@ router.post('/', (req, res) => {
             });
         }
 
+
         // CREATE ACCOUNT
         let account = new Account({
-            username: req.body.id,
-            password: req.body.pw
+            id: req.body.id,
+            password: req.body.password,
+            passwordCf: req.body.passwordCf,
+            username: req.body.username,
+            aaaNum: req.body.aaaNum,
+            schoolNum: req.body.schoolNum,
+            major: req.body.major,
+            email: req.body.email,
+            mobile: req.body.mobile,
+            introduction: req.body.introduction
         });
 
-        // account.password = account.generateHash(account.password);
-
+        account.password = account.generateHash(account.password);
+        
         // SAVE IN THE DATABASE
         account.save( err => {
             if(err) throw err;

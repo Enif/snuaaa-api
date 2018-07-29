@@ -1,3 +1,7 @@
+/**
+ * TODO : Token 라이브러리화 검토
+ */
+
 const jwt = require('jsonwebtoken')
 
 const authMiddleware = (req, res, next) => {
@@ -38,3 +42,50 @@ const authMiddleware = (req, res, next) => {
 }
 
 module.exports = authMiddleware
+
+
+/* 
+const { verifyToken } = require('../lib/token');
+
+exports.isAuthenticated = (req, res, next) => {
+  // 토큰 취득
+  const token = req.body.token || req.query.token || req.headers.authorization;
+  // const token = req.body.token || req.query.token || req.headers.authorization.split(' ')[1];
+
+  // 토큰 미존재: 로그인하지 않은 사용자
+  if (!token) {
+    return res.status(403).json({ success: false, message: '토큰이 존재하지 않습니다.' });
+  }
+
+  // 토큰 검증
+  verifyToken(token)
+    .then(decodedToken => {
+      req.decodedToken = decodedToken;
+      next();
+    })
+    .catch(err => res.status(403).json({ success: false, message: err.message }));
+};
+
+const jwt = require('jsonwebtoken');
+
+// JWT 토큰 생성
+exports.createToken = payload => {
+  const jwtOption = { expiresIn: '7d' };
+
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, process.env.JWT_SECRET, jwtOption, (error, token) => {
+      if (error) reject(error);
+      resolve(token);
+    });
+  });
+};
+
+// JWT 토큰 검증
+exports.verifyToken = token => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+      if (error) reject(error);
+      resolve(decoded);
+    });
+  });
+}; */

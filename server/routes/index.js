@@ -1,9 +1,10 @@
  import express from 'express';
- import signup from './signup'
+ import signup from './signup';
+ import login from './login';
 
 const router = express.Router();
 router.use('/signup', signup);
-//router.use('/login', login);
+router.use('/login', login);
 
 export default router;
 

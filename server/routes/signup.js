@@ -5,17 +5,12 @@ const router = express.Router();
 
 /*
     ACCOUNT SIGNUP: POST /api/account/signup
-    BODY SAMPLE: { "username": "test", "password": "test" }
+    BODY SAMPLE: { "id": "test", "password": "test" }
     ERROR CODES:
-        1: BAD USERNAME
+        1: BAD ID
         2: BAD PASSWORD
-        3: USERNAM EXISTS
+        3: ID EXISTS
 */
-
-router.get('/', (req, res) => {
-    console.log("hello signup get");
-    return res.json({ success: true });
-})
 
 router.post('/', (req, res) => {
     // CHECK USERNAME FORMAT

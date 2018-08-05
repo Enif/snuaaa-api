@@ -2,7 +2,7 @@
  * TODO : Token 라이브러리화 검토
  */
 
-const jwt = require('jsonwebtoken')
+/* const jwt = require('jsonwebtoken')
 
 const authMiddleware = (req, res, next) => {
     // read the token from header or url 
@@ -41,10 +41,10 @@ const authMiddleware = (req, res, next) => {
     }).catch(onError)
 }
 
-module.exports = authMiddleware
+module.exports = authMiddleware */
 
 
-/* 
+
 const { verifyToken } = require('../lib/token');
 
 exports.isAuthenticated = (req, res, next) => {
@@ -66,7 +66,7 @@ exports.isAuthenticated = (req, res, next) => {
     .catch(err => res.status(403).json({ success: false, message: err.message }));
 };
 
-const jwt = require('jsonwebtoken');
+/* const jwt = require('jsonwebtoken');
 
 // JWT 토큰 생성
 exports.createToken = payload => {

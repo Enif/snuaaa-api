@@ -25,4 +25,21 @@ Account.methods.validateHash = function(password) {
     return bcrypt.compareSync(password, this.password);
 }
 
+Account.statics.findOneByUserid = function (id) {
+    return this.findOne({ id });
+  };
+
 export default mongoose.model('account', Account);
+
+/*** Schema TYPE ****
+ * 
+ * String
+ * Number
+ * Date
+ * Buffer
+ * Boolean
+ * Mixed
+ * Objectid
+ * Array
+ * 
+ */

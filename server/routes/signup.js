@@ -34,11 +34,11 @@ router.post('/', (req, res) => {
     }
 
     // CHECK USER EXISTANCE
-    Account.findOne({ username: req.body.id }, (err, exists) => {
+    Account.findOne({ id: req.body.id }, (err, exists) => {
         if (err) throw err;
         if(exists){
             return res.status(409).json({
-                error: "USERNAME EXISTS",
+                error: "ID EXISTS",
                 code: 3
             });
         }

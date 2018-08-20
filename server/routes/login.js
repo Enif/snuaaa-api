@@ -75,11 +75,14 @@ router.post('/', (req, res) => {
                 code: 1
             });
         }
+
+        console.log(`[routes>login] : ${JSON.stringify(user)}`);
   
         // userid가 존재하고 패스워드가 일치하면 토큰 발행
         return createToken({
-          userid: user.userid,
-          admin: user.admin
+          user_id: user._id,
+          id: user.id,
+          username: user.username
         });
       })
       .then(token => res.json({ sucess: true, token }))

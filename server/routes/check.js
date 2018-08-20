@@ -1,8 +1,13 @@
+import express from 'express';
+
+const router = express.Router();
+
 /*
     GET /api/auth/check
 */
 
-exports.check = (req, res) => {
+router.get('/', (req, res) => {
+
     // read the token from header or url 
     const token = req.headers['x-access-token'] || req.query.token
 
@@ -42,4 +47,8 @@ exports.check = (req, res) => {
 
     // process the promise
     p.then(respond).catch(onError)
-}
+
+})
+
+export default router;
+    

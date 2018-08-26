@@ -1,19 +1,28 @@
 import express from 'express';
+import Account from '../models/account'
 import Post from '../models/post';
 import { verifyToken } from '../lib/token';
 
 const router = express.Router();
 
-router.get('/retrieve', (req, res) => {
-    console.log('[retrivepost] ' + JSON.stringify(req.body));
-    Post.find({}, function(err, posts){
+router.get('/', (req, res) => {
+    console.log('[retrivepost] ');
+    Post.find({},'_id author_id author_name title created', function(err, posts){
         if(err) return res.status(500).json({error: err});
         res.json(posts)
     })
-
 })
 
-router.post('/save', (req, res) => {
+router.get('/:id', (req, res) => {
+    console.log('[retrivepost] ');
+    console.log(req.param.id);
+    Post.findById(req.param.id, function(err, post){
+        if(err) return res.status(500).json({error: err});
+        res.json(post)
+    })
+})
+
+router.post('/', (req, res) => {
 
     console.log('[savepost] ' + JSON.stringify(req.body));
 
@@ -35,18 +44,30 @@ router.post('/save', (req, res) => {
     .then(decodedToken => {
         console.log(`[savepost] ${JSON.stringify(decodedToken)}`)
 
-        // CREATE POST
-        let post = new Post({
-            user_id: decodedToken.user_id,
-            title: req.body.title,
-            contents: req.body.contents
-        });
-
-        // SAVE IN THE DATABASE
-        post.save( err => {
+        Account.findById( decodedToken.user_id, (err, accRes) => {
             if(err) throw err;
-            return res.json({ success: true });
-        });
+            if(!accRes) {
+                return res.status(409).json({
+                    error: 'ID NOT EXISTS',
+                    code: 1
+                });
+            }
+            let author_name = accRes.username;
+
+            // CREATE POST
+            let post = new Post({
+                author_id: decodedToken.user_id,
+                author_name: author_name,
+                title: req.body.title,
+                contents: req.body.contents
+            });
+
+            // SAVE IN THE DATABASE
+            post.save( err => {
+                if(err) throw err;
+                return res.json({ success: true });
+            });
+        })
     })
     .catch(err => res.status(403).json({
         success: false,

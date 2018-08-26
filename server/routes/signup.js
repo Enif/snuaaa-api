@@ -43,6 +43,7 @@ router.post('/', (req, res) => {
             });
         }
 
+        let nickname = req.body.schoolNum + req.body.username;
 
         // CREATE ACCOUNT
         let account = new Account({
@@ -50,6 +51,7 @@ router.post('/', (req, res) => {
             password: req.body.password,
             passwordCf: req.body.passwordCf,
             username: req.body.username,
+            nickname: nickname,
             aaaNum: req.body.aaaNum,
             schoolNum: req.body.schoolNum,
             major: req.body.major,

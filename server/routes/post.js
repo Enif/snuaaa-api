@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     console.log('[retrivepost] ');
-    Post.find({},'_id author_id author_name title created', function(err, posts){
+    Post.find({},'_id post_no author_id author_name title created', function(err, posts){
         if(err) return res.status(500).json({error: err});
         res.json(posts)
     })
@@ -15,8 +15,8 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     console.log('[retrivepost] ');
-    console.log(req.param.id);
-    Post.findById(req.param.id, function(err, post){
+    console.log(req.params.id);
+    Post.findById(req.params.id, function(err, post){
         if(err) return res.status(500).json({error: err});
         res.json(post)
     })
@@ -54,19 +54,30 @@ router.post('/', (req, res) => {
             }
             let author_name = accRes.username;
 
-            // CREATE POST
-            let post = new Post({
-                author_id: decodedToken.user_id,
-                author_name: author_name,
-                title: req.body.title,
-                contents: req.body.contents
-            });
-
-            // SAVE IN THE DATABASE
-            post.save( err => {
+            let post_no = 0;
+            Post.findOne({}, null, {sort: {"post_no":-1}}).exec((err, pRes) => {
                 if(err) throw err;
-                return res.json({ success: true });
-            });
+                //post 없을 경우 예외처리 추가 필요
+                if(!accRes) post_no = 1;
+                else {
+                    post_no = pRes.post_no + 1;
+                }
+
+                // CREATE POST
+                let post = new Post({
+                    post_no: post_no,
+                    author_id: decodedToken.user_id,
+                    author_name: author_name,
+                    title: req.body.title,
+                    contents: req.body.contents
+                });
+
+                // SAVE IN THE DATABASE
+                post.save( err => {
+                    if(err) throw err;
+                    return res.json({ success: true });
+                });
+            })
         })
     })
     .catch(err => res.status(403).json({

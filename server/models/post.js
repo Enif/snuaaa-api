@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const Post = new Schema({
+    post_no: Number,
     author_id: String,
     author_name: String,
     title: String,

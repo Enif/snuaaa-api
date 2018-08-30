@@ -6,6 +6,7 @@ const Post = new Schema({
     post_no: Number,
     author_id: String,
     author_name: String,
+    board_no: String,
     title: String,
     contents: String,
     created: { type: Date, default: Date.now }

@@ -1,6 +1,6 @@
 import express from 'express';
 import Account from '../models/account';
-
+import multer from 'multer'
 const router = express.Router();
 
 /*
@@ -12,11 +12,21 @@ const router = express.Router();
         3: ID EXISTS
 */
 
-router.post('/', (req, res) => {
+const storage = multer.diskStorage({
+    destination: './upload/profile',
+    filename(req, file, cb) {
+        cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
+    },
+});
+
+const upload = multer({storage})
+
+router.post('/', upload.single('profile'), (req, res) => {
     // CHECK USERNAME FORMAT
     let usernameRegex = /^[a-z0-9]+$/;
 
     console.log('[signup] ' + JSON.stringify(req.body));
+    console.log('[signup] ' + req.file);
 
     if(!usernameRegex.test(req.body.id)) {
         return res.status(400).json({

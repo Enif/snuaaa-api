@@ -68,6 +68,7 @@ router.post('/', (req, res) => {
                     post_no: post_no,
                     author_id: decodedToken.user_id,
                     author_name: author_name,
+                    board_no: req.body.boardNo,
                     title: req.body.title,
                     contents: req.body.contents
                 });

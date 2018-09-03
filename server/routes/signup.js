@@ -15,7 +15,8 @@ const router = express.Router();
 const storage = multer.diskStorage({
     destination: './upload/profile',
     filename(req, file, cb) {
-        cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
+        cb(null, req.body.id + "-" + file.originalname);
+        //cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
     },
 });
 
@@ -71,7 +72,7 @@ router.post('/', upload.single('profile'), (req, res) => {
         });
 
         account.password = account.generateHash(account.password);
-        
+        account.profilePath = '/upload/profile/' + account.id + "-" + req.file.originalname;
         // SAVE IN THE DATABASE
         account.save( err => {
             if(err) throw err;

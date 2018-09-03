@@ -14,6 +14,7 @@ const Account = new Schema({
     email: String,
     mobile: String,
     introduction: String,
+    profilePath: String,
     created: { type: Date, default: Date.now }
 });
 

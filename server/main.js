@@ -1,6 +1,7 @@
 // [LOAD PACKAGES]
 import express from 'express';
-import api from './routes'
+import api from './routes';
+import cors from 'cors';
 
 require('dotenv').config();
 
@@ -13,6 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use('/', express.static(__dirname + '/../../snuaaa-react/build'));
+
+// [TODO] SET CORS OPTIONS AFTER PUBLISHING
+app.use(cors())
 
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;

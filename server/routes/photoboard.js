@@ -5,6 +5,14 @@ import { verifyToken } from '../lib/token';
 
 const router = express.Router();
 
+router.get('/:pbno', (req, res) => {
+    console.log('[Retrieve Albums] ' + JSON.stringify(req.body));
+    Album.find({}, '_id title', function(err, albums){
+        if(err) return res.status(500).json({error: err});
+        res.json(albums) 
+    })
+})
+
 router.post('/:pbno', (req, res) => {
     console.log('[Create Album] ' + JSON.stringify(req.body));
     const auth = req.headers.authorization.split(" ");

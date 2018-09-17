@@ -1,20 +1,32 @@
 import express from 'express';
 import Account from '../models/account'
-import Album from '../models/album';
+//import Album from '../models/album';
+import Photo from '../models/photo';
+import multer from 'multer'
 import { verifyToken } from '../lib/token';
 
 const router = express.Router();
 
-router.get('/:pbNo', (req, res) => {
-    console.log('[Retrieve Albums] ' + JSON.stringify(req.body));
-    Album.find({board_no: req.params.pbNo}, '_id title', function(err, albums){
+const storage = multer.diskStorage({
+    destination: './upload/album/',
+    filename(req, file, cb) {
+        cb(null, req.body.title + "-" + file.originalname);
+        //cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
+    },
+});
+
+const upload = multer({storage})
+
+router.get('/:aNo', (req, res) => {
+    console.log('[retrivePhotos] ');
+    Photo.find({},'_id author_id author_name title created', function(err, posts){
         if(err) return res.status(500).json({error: err});
-        res.json(albums) 
+        res.json(posts)
     })
 })
 
-router.post('/:pbNo', (req, res) => {
-    console.log('[Create Album] ' + JSON.stringify(req.body));
+router.post('/:aNo', upload.single('uploadPhoto'), (req, res) => {
+    console.log('[Create Photo] ' + JSON.stringify(req.body));
     const auth = req.headers.authorization.split(" ");
     let token;
 
@@ -42,16 +54,18 @@ router.post('/:pbNo', (req, res) => {
             }
             let author_name = accRes.username;
 
-            // CREATE POST
-            let album = new Album({
+            // CREATE Photo
+            let photo = new Photo({
                 author_id: decodedToken.user_id,
                 author_name: author_name,
-                board_no: req.params.pbNo,
+                album_no: req.body.albumNo,
                 title: req.body.title
             });
 
+            photo.path = '/upload/album'
+
             // SAVE IN THE DATABASE
-            album.save( err => {
+            photo.save( err => {
                 if(err) throw err;
                 return res.json({ success: true });
             });
@@ -64,8 +78,4 @@ router.post('/:pbNo', (req, res) => {
     }));
 
 })
-
-
-
-
 export default router;

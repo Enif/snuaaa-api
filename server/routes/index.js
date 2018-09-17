@@ -7,6 +7,7 @@ import check from './check';
 import board from './board';
 import photoboard from './photoboard';
 import post from './post';
+import album from './album';
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use('/check', check);
 router.use('/board', board);
 router.use('/photoboard', photoboard);
 router.use('/post', post);
+router.use('/album', album);
 
 export default router;

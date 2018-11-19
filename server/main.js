@@ -14,10 +14,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // for local test
-// app.use('/', express.static(__dirname + '/../../snuaaa-react/build'));
+app.use('/', express.static(__dirname + '/../../snuaaa-react/build'));
 
 // for heroku
-app.use('/', express.static(__dirname));
+// app.use('/', express.static(__dirname));
 
 
 // [TODO] SET CORS OPTIONS AFTER PUBLISHING

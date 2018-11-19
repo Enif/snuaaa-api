@@ -8,6 +8,7 @@ import board from './board';
 import photoboard from './photoboard';
 import post from './post';
 import album from './album';
+import soundbox from './soundbox';
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/board', board);
 router.use('/photoboard', photoboard);
 router.use('/post', post);
 router.use('/album', album);
+router.use('/soundbox', soundbox);
 
 export default router;

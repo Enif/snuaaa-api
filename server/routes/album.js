@@ -2,13 +2,20 @@ import express from 'express';
 import Account from '../models/account'
 //import Album from '../models/album';
 import Photo from '../models/photo';
-import multer from 'multer'
+import multer from 'multer';
+import fs from 'fs';
 import { verifyToken } from '../lib/token';
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: './upload/album/',
+    // destination: './upload/album/',
+    destination: function(req, file, cb) {
+        if(!(fs.existsSync('./upload/album/' + req.params.aNo))) {
+            fs.mkdirSync('./upload/album/' + req.params.aNo)
+        }
+        cb(null, './upload/album/' + req.params.aNo + '/')
+    },
     filename(req, file, cb) {
         cb(null, req.body.title + "-" + file.originalname);
         //cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
@@ -19,7 +26,7 @@ const upload = multer({storage})
 
 router.get('/:aNo', (req, res) => {
     console.log('[retrivePhotos] ');
-    Photo.find({},'_id author_id author_name title created', function(err, posts){
+    Photo.find({album_no: req.params.aNo},'_id author_id author_name title created', function(err, posts){
         if(err) return res.status(500).json({error: err});
         res.json(posts)
     })
@@ -62,7 +69,7 @@ router.post('/:aNo', upload.single('uploadPhoto'), (req, res) => {
                 title: req.body.title
             });
 
-            photo.path = '/upload/album'
+            photo.path = '/upload/album' + req.params.aNo + '/'
 
             // SAVE IN THE DATABASE
             photo.save( err => {

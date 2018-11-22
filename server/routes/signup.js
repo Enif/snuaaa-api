@@ -15,8 +15,10 @@ const router = express.Router();
 const storage = multer.diskStorage({
     destination: './upload/profile',
     filename(req, file, cb) {
-        cb(null, req.body.id + "-" + file.originalname);
-        //cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
+        // console.log('>>>>>>>>>>>>>>>>>>>>>>>')
+        // console.log(JSON.stringify(req))
+        cb(null, req.body.timestamp + "_" + file.originalname);
+        // cb(new Error("Failed to make file name"), `${(new Date()).valueOf()}-${file.originalname}`);
     },
 });
 
@@ -44,17 +46,24 @@ router.post('/', upload.single('profile'), (req, res) => {
         });
     }
 
+    if(req.body.password !== req.body.passwordCf) {
+        return res.status(400).json({
+            error: "BAD PASSWORD CONFIRM ",
+            code: 3
+        })
+    }
+
     // CHECK USER EXISTANCE
     Account.findOne({ id: req.body.id }, (err, exists) => {
         if (err) throw err;
         if(exists){
             return res.status(409).json({
                 error: "ID EXISTS",
-                code: 3
+                code: 4
             });
         }
 
-        let nickname = req.body.schoolNum + req.body.username;
+        let nickname = req.body.aaaNum.substring(0,2) + req.body.username;
 
         // CREATE ACCOUNT
         let account = new Account({
@@ -73,7 +82,7 @@ router.post('/', upload.single('profile'), (req, res) => {
 
         account.password = account.generateHash(account.password);
         if(req.file){
-            account.profilePath = '/upload/profile/' + account.id + "-" + req.file.originalname;
+            account.profilePath = '/profile/' + req.body.timestamp + "_" + req.file.originalname;
         }
         // SAVE IN THE DATABASE
         account.save( err => {

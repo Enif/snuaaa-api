@@ -9,6 +9,7 @@ import photoboard from './photoboard';
 import post from './post';
 import album from './album';
 import soundbox from './soundbox';
+import profile from './profile';
 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.use('/photoboard', photoboard);
 router.use('/post', post);
 router.use('/album', album);
 router.use('/soundbox', soundbox);
+router.use('/profile', profile);
 
 export default router;

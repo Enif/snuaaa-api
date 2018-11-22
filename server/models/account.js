@@ -9,6 +9,7 @@ const Account = new Schema({
     passwordCf: String,
     username: String,
     aaaNum: String,
+    nickname: String,
     schoolNum: String,
     major: String,
     email: String,

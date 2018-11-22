@@ -52,7 +52,7 @@ router.post('/', (req, res) => {
                     code: 1
                 });
             }
-            let author_name = accRes.username;
+            let author_name = accRes.nickname;
 
             let post_no = 0;
             Post.findOne({}, null, {sort: {"post_no":-1}}).exec((err, pRes) => {

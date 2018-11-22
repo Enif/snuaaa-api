@@ -46,6 +46,7 @@ router.get('/', (req, res) => {
                 email: accRes.email,
                 mobile: accRes.mobile,
                 introduction: accRes.introduction,
+                profilePath: accRes.profilePath
             }
 
             return res.json({success: true, account});
@@ -75,7 +76,7 @@ router.get('/profile', (req, res) => {
                     code: 1
                 });
             }
-            
+/*             
             // [TODO] 이미지 파일 직접 보내고 받는법 고민...
             if(accRes.profilePath) {
                 console.log('[userinfo]' + accRes.profilePath);
@@ -93,7 +94,7 @@ router.get('/profile', (req, res) => {
                 // })
                 
                 //return res.sendFile(path.resolve(path.join(__dirname, '../..', accRes.profilePath)));
-            }
+            } */
         })
     })
     .catch(err => res.status(403).json({

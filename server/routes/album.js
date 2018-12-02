@@ -17,7 +17,10 @@ const storage = multer.diskStorage({
         cb(null, './upload/album/' + req.params.aNo + '/')
     },
     filename(req, file, cb) {
-        cb(null, req.body.title + "-" + file.originalname);
+        console.log('>>>>>>>>>>>>>>>>>>>>>>>')
+        console.log(JSON.stringify(req.body))
+        cb(null, req.body.timestamp + '_' + file.originalname);
+        // cb(null, req.body.title + "-" + file.originalname);
         //cb(null, `${(new Date()).toDateString()}-${file.originalname}`);
     },
 });
@@ -26,7 +29,7 @@ const upload = multer({storage})
 
 router.get('/:aNo', (req, res) => {
     console.log('[retrivePhotos] ');
-    Photo.find({album_no: req.params.aNo},'_id author_id author_name title created', function(err, posts){
+    Photo.find({album_no: req.params.aNo},'_id author_id author_name title path created', function(err, posts){
         if(err) return res.status(500).json({error: err});
         res.json(posts)
     })
@@ -69,7 +72,7 @@ router.post('/:aNo', upload.single('uploadPhoto'), (req, res) => {
                 title: req.body.title
             });
 
-            photo.path = '/upload/album' + req.params.aNo + '/'
+            photo.path = '/album/' + req.body.albumNo + '/photo/' + req.body.timestamp + '_' + req.file.originalname
 
             // SAVE IN THE DATABASE
             photo.save( err => {
@@ -83,6 +86,14 @@ router.post('/:aNo', upload.single('uploadPhoto'), (req, res) => {
         success: false,
         message: err.message
     }));
-
 })
+
+
+router.get('/:aNo/photo/:path', (req, res) => {
+    console.log('[retrive Photo] ');
+    console.log(req.params.path);
+    res.sendFile(req.params.aNo + '/' + req.params.path, {root: './upload/album'})
+})
+
+
 export default router;

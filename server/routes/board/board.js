@@ -1,7 +1,7 @@
 import express from 'express';
-import Account from '../models/account'
-import Post from '../models/post';
-import { verifyToken } from '../lib/token';
+import Account from '../../models/account'
+import Post from '../../models/post';
+import { verifyToken } from '../../lib/token';
 
 const router = express.Router();
 

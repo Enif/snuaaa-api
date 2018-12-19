@@ -1,6 +1,8 @@
 import express from 'express';
-import Account from '../models/account';
+// import Account from '../models/account';
 import multer from 'multer'
+import { signUp } from '../controllers'
+import Account from '../controllers/account'
 const router = express.Router();
 
 /*
@@ -53,7 +55,35 @@ router.post('/', upload.single('profile'), (req, res) => {
         })
     }
 
-    // CHECK USER EXISTANCE
+    let user = {
+        id: req.body.id,
+        password: req.body.password,
+        username: req.body.username,
+        // nickname: nickname,
+        aaaNum: req.body.aaaNum,
+        schoolNum: req.body.schoolNum,
+        major: req.body.major,
+        email: req.body.email,
+        mobile: req.body.mobile,
+        introduction: req.body.introduction
+    }
+    const account = new Account()
+
+    account.duplicateCheck(req.body.id)
+    .then(() => account.signUp(user))
+    .then(() => {
+        console.log('sign Up Success  ')
+        return res.json({ success: true });
+    })
+    .catch((err) => {
+        console.log('sign Up Fail > ', err)
+        return res.status(400).json({
+            error: "Internal Server ERROR",
+            code: 9
+        })
+    })
+
+/*     // CHECK USER EXISTANCE
     Account.findOne({ id: req.body.id }, (err, exists) => {
         if (err) throw err;
         if(exists){
@@ -90,7 +120,7 @@ router.post('/', upload.single('profile'), (req, res) => {
             return res.json({ success: true });
         });
 
-    });
+    }); */
 });
 
 export default router;

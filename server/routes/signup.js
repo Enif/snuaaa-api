@@ -1,8 +1,8 @@
 import express from 'express';
 // import Account from '../models/account';
 import multer from 'multer'
-import { signUp } from '../controllers'
-import Account from '../controllers/account'
+//import { signUp } from '../controllers'
+import { duplicateCheck, signUp } from '../controllers/account'
 const router = express.Router();
 
 /*
@@ -67,10 +67,9 @@ router.post('/', upload.single('profile'), (req, res) => {
         mobile: req.body.mobile,
         introduction: req.body.introduction
     }
-    const account = new Account()
 
-    account.duplicateCheck(req.body.id)
-    .then(() => account.signUp(user))
+    duplicateCheck(req.body.id)
+    .then(() => signUp(user))
     .then(() => {
         console.log('sign Up Success  ')
         return res.json({ success: true });

@@ -1,6 +1,7 @@
 import express from 'express';
 import Account from '../models/account';
 import { verifyToken } from '../lib/token';
+import { retrieveInfo } from '../controllers/account'
 import fs from 'fs'
 import path from 'path'
 
@@ -24,7 +25,14 @@ router.get('/', (req, res) => {
     }
 
     verifyToken(token)
-    .then(decodedToken => {
+    .then((decodedToken) => {
+        return retrieveInfo(decodedToken._id)
+    })
+    .then((userInfo) => {
+        console.log(JSON.stringify(userInfo))
+        return res.json({success: true, userInfo})
+    })
+/*     .then(decodedToken => {
         console.log(`[userinfo] ${JSON.stringify(decodedToken)}`)
         Account.findById( decodedToken.user_id, (err, accRes) => {
 
@@ -51,7 +59,7 @@ router.get('/', (req, res) => {
 
             return res.json({success: true, account});
         })
-    })
+    }) */
     .catch(err => res.status(403).json({
         success: false,
         message: err.message

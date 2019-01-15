@@ -120,7 +120,7 @@ exports.retrieveInfo = function(_id) {
             reject()
         }
         
-        let query = `SELECT user_id, name, aaa_no, col_no, major, email, mobile, introduction, level, created_at
+        let query = `SELECT user_id, name, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
         FROM snuaaa.tb_user
         WHERE _id = $1`;
 

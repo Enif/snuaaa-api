@@ -28,7 +28,7 @@ const upload = multer({storage})
 
 router.post('/', upload.single('profile'), (req, res) => {
     // CHECK USERNAME FORMAT
-    let usernameRegex = /^[a-z0-9]+$/;
+    let usernameRegex = /^[a-zA-Z0-9]+$/;
 
     console.log('[signup] ' + JSON.stringify(req.body));
     console.log('[signup] ' + req.file);
@@ -55,6 +55,12 @@ router.post('/', upload.single('profile'), (req, res) => {
         })
     }
 
+
+    let profilePath;
+    if(req.file){
+        profilePath = '/profile/' + req.body.timestamp + "_" + req.file.originalname;
+    }
+
     let user = {
         id: req.body.id,
         password: req.body.password,
@@ -65,7 +71,8 @@ router.post('/', upload.single('profile'), (req, res) => {
         major: req.body.major,
         email: req.body.email,
         mobile: req.body.mobile,
-        introduction: req.body.introduction
+        introduction: req.body.introduction,
+        profile_path: profilePath
     }
 
     duplicateCheck(req.body.id)

@@ -102,39 +102,39 @@ router.post('/:id/comment/', (req, res) => {
         .then(decodedToken => {
             console.log(`[savecomment]`)
 
-            Account.findById(decodedToken.user_id, (err, accRes) => {
-                if (err) throw err;
-                if (!accRes) {
-                    return res.status(409).json({
-                        error: 'ID NOT EXISTS',
-                        code: 1
-                    });
-                }
+            // Account.findById(decodedToken.user_id, (err, accRes) => {
+            //     if (err) throw err;
+            //     if (!accRes) {
+            //         return res.status(409).json({
+            //             error: 'ID NOT EXISTS',
+            //             code: 1
+            //         });
+            //     }
 
-                console.log(req.params.id)
-                console.log(decodedToken.user_id)
-                console.log(accRes.nickname)
-                console.log(req.body.content)
+            //     console.log(req.params.id)
+            //     console.log(decodedToken.user_id)
+            //     console.log(accRes.nickname)
+            //     console.log(req.body.content)
 
-                // Post.update()
-                Post.update(
-                    { _id: req.params.id },
-                    {
-                        $addToSet: {
-                            comment: req.body.content
-                            // {
-                            //     author_id: decodedToken.user_id,
-                            //     author_name: accRes.nickname,
-                            //     contents: req.body.content
-                            // }
-                        }
-                    }, {
-                        upsert: true
-                    }, (err, raw) => {
-                        console.log(err)
-                        console.log(raw)
-                    })
-            })
+            //     // Post.update()
+            //     Post.update(
+            //         { _id: req.params.id },
+            //         {
+            //             $addToSet: {
+            //                 comment: req.body.content
+            //                 // {
+            //                 //     author_id: decodedToken.user_id,
+            //                 //     author_name: accRes.nickname,
+            //                 //     contents: req.body.content
+            //                 // }
+            //             }
+            //         }, {
+            //             upsert: true
+            //         }, (err, raw) => {
+            //             console.log(err)
+            //             console.log(raw)
+            //         })
+            // })
         })
         .catch(err => res.status(403).json({
             success: false,

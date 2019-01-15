@@ -8,7 +8,7 @@ require('dotenv').config();
 
 var app         = express();
 var bodyParser  = require('body-parser');
-var mongoose    = require('mongoose');
+// var mongoose    = require('mongoose');
 // var pgp = require('pg-promise')(pgOption)
 
 // var pgOption = {
@@ -58,16 +58,16 @@ app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 
 // CONNECT TO MONGODB SERVER
-var db = mongoose.connection;
-db.on('error', console.error);
-db.once('open', function(){
-    // CONNECTED TO MONGODB SERVER
-    console.log("Connected to mongod server");
-});
+// var db = mongoose.connection;
+// db.on('error', console.error);
+// db.once('open', function(){
+//     // CONNECTED TO MONGODB SERVER
+//     console.log("Connected to mongod server");
+// });
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
-.then(() => console.log('Successfully connected to mongodb'))
-.catch(e => console.error(e));
+// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
+// .then(() => console.log('Successfully connected to mongodb'))
+// .catch(e => console.error(e));
 
 // [CONFIGURE ROUTER]
 app.use('/api', api);

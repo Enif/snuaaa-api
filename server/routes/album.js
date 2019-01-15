@@ -5,6 +5,7 @@ import Photo from '../models/photo';
 import multer from 'multer';
 import fs from 'fs';
 import { verifyToken } from '../lib/token';
+import { retrievePhotos, createPhoto } from '../controllers/photo'
 
 const router = express.Router();
 
@@ -29,13 +30,23 @@ const upload = multer({storage})
 
 router.get('/:aNo', (req, res) => {
     console.log('[retrivePhotos] ');
-    Photo.find({album_no: req.params.aNo},'_id author_id author_name title path created', function(err, posts){
-        if(err) return res.status(500).json({error: err});
-        res.json(posts)
+    // Photo.find({album_no: req.params.aNo},'_id author_id author_name title path created', function(err, posts){
+    //     if(err) return res.status(500).json({error: err});
+    //     res.json(posts)
+    // })
+    retrievePhotos(req.params.aNo)
+    .then((photos) => {
+        res.json(photos)
+    })
+    .catch((err) => {
+        res.status(409).json({
+            error: 'RETRIEVE PHOTO FAIL',
+            code: 1
+        });
     })
 })
 
-router.post('/:aNo', upload.single('uploadPhoto'), (req, res) => {
+router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
     console.log('[Create Photo] ' + JSON.stringify(req.body));
     const auth = req.headers.authorization.split(" ");
     let token;
@@ -54,33 +65,48 @@ router.post('/:aNo', upload.single('uploadPhoto'), (req, res) => {
     verifyToken(token)
     .then(decodedToken => {
 
-        Account.findById( decodedToken.user_id, (err, accRes) => {
-            if(err) throw err;
-            if(!accRes) {
-                return res.status(409).json({
-                    error: 'ID NOT EXISTS',
-                    code: 1
-                });
-            }
-            let author_name = accRes.username;
-
-            // CREATE Photo
-            let photo = new Photo({
-                author_id: decodedToken.user_id,
-                author_name: author_name,
-                album_no: req.body.albumNo,
-                title: req.body.title
-            });
-
-            photo.path = '/album/' + req.body.albumNo + '/photo/' + req.body.timestamp + '_' + req.file.originalname
-
-            // SAVE IN THE DATABASE
-            photo.save( err => {
-                if(err) throw err;
-                return res.json({ success: true });
-            });
-            
+        if(req.file){
+            req.body.photoPath = '/album/' + req.body.albumNo + '/photo/' + req.body.timestamp + '_' + req.file.originalname
+        }
+        createPhoto(decodedToken._id, req.body )
+        .then(() => {
+            res.json({ success: true });
         })
+        .catch((err) => {
+            // throw err;
+            res.status(409).json({
+                error: 'CREATE PHOTO FAIL',
+                code: 1
+            });
+        })
+
+        // Account.findById( decodedToken.user_id, (err, accRes) => {
+        //     if(err) throw err;
+        //     if(!accRes) {
+        //         return res.status(409).json({
+        //             error: 'ID NOT EXISTS',
+        //             code: 1
+        //         });
+        //     }
+        //     let author_name = accRes.username;
+
+        //     // CREATE Photo
+        //     let photo = new Photo({
+        //         author_id: decodedToken.user_id,
+        //         author_name: author_name,
+        //         album_no: req.body.albumNo,
+        //         title: req.body.title
+        //     });
+
+        //     photo.path = '/album/' + req.body.albumNo + '/photo/' + req.body.timestamp + '_' + req.file.originalname
+
+        //     // SAVE IN THE DATABASE
+        //     photo.save( err => {
+        //         if(err) throw err;
+        //         return res.json({ success: true });
+        //     });
+            
+        // })
     })
     .catch(err => res.status(403).json({
         success: false,

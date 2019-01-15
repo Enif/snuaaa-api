@@ -1,6 +1,7 @@
 
 import express from 'express';
 import Account from '../models/account';
+import { logIn } from '../controllers/account'
 import { createToken } from '../lib/token';
 
 const router = express.Router();
@@ -15,9 +16,7 @@ const router = express.Router();
 
 router.post('/', (req, res) => {
 
-//    const secret = req.app.get('jwt-secret')
     console.log('[login] ' + JSON.stringify(req.body));
-
     if(typeof req.body.password !== "string") {
         return res.status(401).json({
             error: "LOGIN FAILED",
@@ -25,40 +24,17 @@ router.post('/', (req, res) => {
         });
     }
 
-//     // FIND THE USER BY USERNAME
-//     Account.findOne({ id: req.body.id}, (err, account) => {
-//         if(err) throw err;
+    logIn({id: req.body.id, password:req.body.password})
+    .then((_id) => {
+        return createToken({
+            _id: _id
+        })
+    })
+    .then(token => res.json({ sucess: true, token }))
+    .catch(err => res.status(403).json({ sucess: false, message: err }));
 
-//         // CHECK ACCOUNT EXISTANCY
-//         if(!account) {
-//             return res.status(401).json({
-//                 error: "LOGIN FAILED",
-//                 code: 1
-//             });
-//         }
 
-//         // CHECK WHETHER THE PASSWORD IS VALID
-//         if(!account.validateHash(req.body.password)) {
-//             return res.status(401).json({
-//                 error: "LOGIN FAILED",
-//                 code: 2
-//             });
-//         }
-
-//         // ALTER SESSION
-// /*         let session = req.session;
-//         session.loginInfo = {
-//             _id: account._id,
-//             username: account.username
-//         }; */
-
-//         // RETURN SUCCESS
-//         return res.json({
-//             success: true
-//         });
-//     });
-
-    Account.findOneByUserid(req.body.id)
+/*     Account.findOneByUserid(req.body.id)
     .then(user => {
         // user 미존재: 회원 미가입 사용자
         if (!user) { 
@@ -84,9 +60,9 @@ router.post('/', (req, res) => {
           id: user.id,
           username: user.username
         });
-      })
-      .then(token => res.json({ sucess: true, token }))
-      .catch(err => res.status(403).json({ sucess: false, message: err.message }));
+    })
+    .then(token => res.json({ sucess: true, token }))
+    .catch(err => res.status(403).json({ sucess: false, message: err.message })); */
 });
 
 export default router;

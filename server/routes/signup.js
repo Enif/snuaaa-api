@@ -1,6 +1,8 @@
 import express from 'express';
-import Account from '../models/account';
+// import Account from '../models/account';
 import multer from 'multer'
+//import { signUp } from '../controllers'
+import { duplicateCheck, signUp } from '../controllers/account'
 const router = express.Router();
 
 /*
@@ -26,7 +28,7 @@ const upload = multer({storage})
 
 router.post('/', upload.single('profile'), (req, res) => {
     // CHECK USERNAME FORMAT
-    let usernameRegex = /^[a-z0-9]+$/;
+    let usernameRegex = /^[a-zA-Z0-9]+$/;
 
     console.log('[signup] ' + JSON.stringify(req.body));
     console.log('[signup] ' + req.file);
@@ -53,7 +55,41 @@ router.post('/', upload.single('profile'), (req, res) => {
         })
     }
 
-    // CHECK USER EXISTANCE
+
+    let profilePath;
+    if(req.file){
+        profilePath = '/profile/' + req.body.timestamp + "_" + req.file.originalname;
+    }
+
+    let user = {
+        id: req.body.id,
+        password: req.body.password,
+        username: req.body.username,
+        // nickname: nickname,
+        aaaNum: req.body.aaaNum,
+        schoolNum: req.body.schoolNum,
+        major: req.body.major,
+        email: req.body.email,
+        mobile: req.body.mobile,
+        introduction: req.body.introduction,
+        profile_path: profilePath
+    }
+
+    duplicateCheck(req.body.id)
+    .then(() => signUp(user))
+    .then(() => {
+        console.log('sign Up Success  ')
+        return res.json({ success: true });
+    })
+    .catch((err) => {
+        console.log('sign Up Fail > ', err)
+        return res.status(400).json({
+            error: "Internal Server ERROR",
+            code: 9
+        })
+    })
+
+/*     // CHECK USER EXISTANCE
     Account.findOne({ id: req.body.id }, (err, exists) => {
         if (err) throw err;
         if(exists){
@@ -90,7 +126,7 @@ router.post('/', upload.single('profile'), (req, res) => {
             return res.json({ success: true });
         });
 
-    });
+    }); */
 });
 
 export default router;

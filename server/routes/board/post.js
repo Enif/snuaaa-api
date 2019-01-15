@@ -1,36 +1,56 @@
 import express from 'express';
 import Account from '../../models/account'
 import Post from '../../models/post';
+import { createPost, retrievePost } from '../../controllers/post'
+
 import { verifyTokenUseReq } from '../../lib/token';
+
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    console.log('[retrivepost] ');
-    Post.find({}, '_id post_no author_id author_name title created', function (err, posts) {
-        if (err) return res.status(500).json({ error: err });
-        res.json(posts)
-    })
-})
+// router.get('/', (req, res) => {
+//     console.log('[retrivepost] ');
+//     Post.find({}, '_id post_no author_id author_name title created', function (err, posts) {
+//         if (err) return res.status(500).json({ error: err });
+//         res.json(posts)
+//     })
+// })
 
 router.get('/:id', (req, res) => {
-    console.log('[retrivepost] ');
-    console.log(req.params.id);
-    Post.findById(req.params.id, function (err, post) {
-        if (err) return res.status(500).json({ error: err });
+    console.log('[retrivepost] post id >>> ', req.params.id);
+    // Post.findById(req.params.id, function (err, post) {
+    //     if (err) return res.status(500).json({ error: err });
+    //     res.json(post)
+    // })
+    retrievePost(req.params.id)
+    .then((post) => {
         res.json(post)
+    })
+    .catch((err) => {
+        res.status(500).json({ error: err })
     })
 })
 
 router.post('/', (req, res) => {
 
-    console.log('[savepost] ' + JSON.stringify(req.body));
+    console.log('[createPost] ' + JSON.stringify(req.body));
 
     verifyTokenUseReq(req)
         .then(decodedToken => {
-            console.log(`[savepost] ${JSON.stringify(decodedToken)}`)
+            console.log(`[createPost] ${JSON.stringify(decodedToken)}`)
 
-            Account.findById(decodedToken.user_id, (err, accRes) => {
+            createPost(decodedToken._id, req.body)
+            .then(() => {
+                res.json({ success: true })
+            })
+            .catch(() => {
+                return res.status(409).json({
+                    error: 'ID NOT EXISTS',
+                    code: 1
+                });
+            })
+
+/*             Account.findById(decodedToken.user_id, (err, accRes) => {
                 if (err) throw err;
                 if (!accRes) {
                     return res.status(409).json({
@@ -65,7 +85,7 @@ router.post('/', (req, res) => {
                         return res.json({ success: true });
                     });
                 })
-            })
+            }) */
         })
         .catch(err => res.status(403).json({
             success: false,
@@ -82,39 +102,39 @@ router.post('/:id/comment/', (req, res) => {
         .then(decodedToken => {
             console.log(`[savecomment]`)
 
-            Account.findById(decodedToken.user_id, (err, accRes) => {
-                if (err) throw err;
-                if (!accRes) {
-                    return res.status(409).json({
-                        error: 'ID NOT EXISTS',
-                        code: 1
-                    });
-                }
+            // Account.findById(decodedToken.user_id, (err, accRes) => {
+            //     if (err) throw err;
+            //     if (!accRes) {
+            //         return res.status(409).json({
+            //             error: 'ID NOT EXISTS',
+            //             code: 1
+            //         });
+            //     }
 
-                console.log(req.params.id)
-                console.log(decodedToken.user_id)
-                console.log(accRes.nickname)
-                console.log(req.body.content)
+            //     console.log(req.params.id)
+            //     console.log(decodedToken.user_id)
+            //     console.log(accRes.nickname)
+            //     console.log(req.body.content)
 
-                // Post.update()
-                Post.update(
-                    { _id: req.params.id },
-                    {
-                        $addToSet: {
-                            comment: req.body.content
-                            // {
-                            //     author_id: decodedToken.user_id,
-                            //     author_name: accRes.nickname,
-                            //     contents: req.body.content
-                            // }
-                        }
-                    }, {
-                        upsert: true
-                    }, (err, raw) => {
-                        console.log(err)
-                        console.log(raw)
-                    })
-            })
+            //     // Post.update()
+            //     Post.update(
+            //         { _id: req.params.id },
+            //         {
+            //             $addToSet: {
+            //                 comment: req.body.content
+            //                 // {
+            //                 //     author_id: decodedToken.user_id,
+            //                 //     author_name: accRes.nickname,
+            //                 //     contents: req.body.content
+            //                 // }
+            //             }
+            //         }, {
+            //             upsert: true
+            //         }, (err, raw) => {
+            //             console.log(err)
+            //             console.log(raw)
+            //         })
+            // })
         })
         .catch(err => res.status(403).json({
             success: false,

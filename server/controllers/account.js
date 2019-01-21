@@ -112,7 +112,6 @@ exports.logIn = function(logInInfo) {
 }
 
 exports.retrieveInfo = function(_id) {
-    console.log('hihihihih')
     return new Promise((resolve, reject) => {
 
         if(!_id) {
@@ -126,11 +125,9 @@ exports.retrieveInfo = function(_id) {
 
         db.one(query, _id)
         .then((userInfo) => {
-            console.log('then....')
             resolve(userInfo)
         })
         .catch((err) => {
-            console.log('catch....')
             reject(err);
         })
     })

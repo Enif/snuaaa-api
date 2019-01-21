@@ -2,30 +2,30 @@
 import express from 'express';
 import api from './routes';
 import cors from 'cors';
+import path from 'path'
 import Sequelize from 'sequelize'
 
 require('dotenv').config();
 
 var app         = express();
 var bodyParser  = require('body-parser');
-// var mongoose    = require('mongoose');
-// var pgp = require('pg-promise')(pgOption)
-
-// var pgOption = {
-//     schema : 'snuaaa',
-//     connect : function(){ console.log('Successfully connected to PostgreSQL server')}
-// }
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// for local test
-app.use('/', express.static(__dirname + '/../../snuaaa-react/build'));
+if(process.env.NODE_ENV == 'develop') {
+    // for local test
+    app.use(express.static(__dirname + '/../../snuaaa-react/build'));    
+}
+else {
+    app.use(express.static(path.join(__dirname, 'build')));
+}
 
-// for heroku
-// app.use('/', express.static(__dirname));
-
+// app.use(express.static(path.join(__dirname, 'build')));
+// app.get('/*', function (req, res) {
+//    res.sendFile(__dirname + '/../../snuaaa-react/build/index.html');
+//  });
 
 // [TODO] SET CORS OPTIONS AFTER PUBLISHING
 app.use(cors())
@@ -37,16 +37,6 @@ var port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 
-// CONNECT TO POSTSQL SERVER
-// var db = pgp(process.env.POSTGRESQL_URI)
-// db.any('SELECT * FROM snuaaa."TB_ACCOUNT"')
-// .then(function(data) {
-//     console.log(data)
-// })
-// .catch(function() {
-//     console.log('err')
-// })
-
 // var sequelize = new Sequelize(process.env.POSTGRESQL_URI)
 // sequelize.authenticate()
 // .then(() =>
@@ -55,19 +45,6 @@ app.listen(port, () => console.log(`Server listening on port ${port}`));
 // .catch((e) => {
 //     console.log("Failed to connect to PostgreSQL server >> ", e)
 // })
-
-
-// CONNECT TO MONGODB SERVER
-// var db = mongoose.connection;
-// db.on('error', console.error);
-// db.once('open', function(){
-//     // CONNECTED TO MONGODB SERVER
-//     console.log("Connected to mongod server");
-// });
-
-// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
-// .then(() => console.log('Successfully connected to mongodb'))
-// .catch(e => console.error(e));
 
 // [CONFIGURE ROUTER]
 app.use('/api', api);

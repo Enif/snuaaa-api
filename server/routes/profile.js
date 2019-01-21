@@ -4,8 +4,6 @@ const router = express.Router();
 
 router.get('/:path', (req, res) => {
     console.log('[retriveProfile] ');
-    console.log(req.params.path);
-    // res.sendFile(path.resolve(__dirname + '../../upload/profile/') + req.params.path)
     res.sendFile(req.params.path, {root: './upload/profile/'})
 })
 

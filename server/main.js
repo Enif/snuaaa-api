@@ -19,7 +19,7 @@ if(process.env.NODE_ENV == 'develop') {
     app.use(express.static(__dirname + '/../../snuaaa-react/build'));    
 }
 else {
-    app.use(express.static(path.join(__dirname, 'build')));
+    app.use(express.static(path.join(__dirname)));
 }
 
 // app.use(express.static(path.join(__dirname, 'build')));

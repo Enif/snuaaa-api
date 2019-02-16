@@ -1,6 +1,8 @@
 import express from 'express';
 import multer from 'multer'
 import { duplicateCheck, signUp } from '../controllers/account'
+import { resize } from '../lib/resize';
+
 const router = express.Router();
 
 /*
@@ -52,6 +54,7 @@ router.post('/', upload.single('profile'), (req, res) => {
     let profilePath;
     if(req.file){
         profilePath = '/profile/' + req.body.timestamp + "_" + req.file.originalname;
+        resize(req.file.path)
     }
 
     let user = {

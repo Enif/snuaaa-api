@@ -14,21 +14,51 @@ var bodyParser  = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
+
 if(process.env.NODE_ENV == 'develop') {
     // for local test
-    app.use(express.static(__dirname + '/../../snuaaa-react/build'));    
+    app.use(cors())
+
+    app.use(express.static(__dirname + '/../../snuaaa-react/build'));
+
+    app.get('/login', function (req, res) {
+        res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
+    });
+    app.get('/signup', function (req, res) {
+        res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
+    });
 }
 else {
-    app.use(express.static(path.join(__dirname)));
+    // [TODO] SET CORS OPTIONS AFTER PUBLISHING
+    var corsOptions = {
+        origin: 'http://52.78.161.191:8080/',
+        optionsSuccessStatus: 200
+    }
+    app.use(cors(corsOptions))
+    app.use(express.static(path.join(__dirname, '/build-react')));
+    app.get('/login', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
+    app.get('/signup', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
+    app.get('/about/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
+    app.get('/board/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
+    app.get('/photoboard/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
+    app.get('/album/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
+    app.get('/photo/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+    });
 }
-
-// app.use(express.static(path.join(__dirname, 'build')));
-// app.get('/*', function (req, res) {
-//    res.sendFile(__dirname + '/../../snuaaa-react/build/index.html');
-//  });
-
-// [TODO] SET CORS OPTIONS AFTER PUBLISHING
-app.use(cors())
 
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;

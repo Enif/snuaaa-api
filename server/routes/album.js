@@ -2,6 +2,8 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import { verifyToken } from '../lib/token';
+import { resize } from '../lib/resize';
+import { retrieveAlbum } from '../controllers/album'
 import { retrievePhotos, createPhoto } from '../controllers/photo'
 
 const router = express.Router();
@@ -22,6 +24,20 @@ const storage = multer.diskStorage({
 const upload = multer({storage})
 
 router.get('/:aNo', (req, res) => {
+    console.log('[retriveAlbumInfo] ');
+    retrieveAlbum(req.params.aNo)
+    .then((albumInfo) => {
+        res.json(albumInfo)
+    })
+    .catch((err) => {
+        res.status(409).json({
+            error: 'RETRIEVE ALBUM FAIL',
+            code: 1
+        });
+    })
+})
+
+router.get('/:aNo/photos', (req, res) => {
     console.log('[retrivePhotos] ');
     retrievePhotos(req.params.aNo)
     .then((photos) => {
@@ -55,7 +71,9 @@ router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
     .then(decodedToken => {
 
         if(req.file){
+            console.dir(req.file);
             req.body.photoPath = '/album/' + req.body.albumNo + '/photo/' + req.body.timestamp + '_' + req.file.originalname
+            resize(req.file.path)
         }
         createPhoto(decodedToken._id, req.body )
         .then(() => {

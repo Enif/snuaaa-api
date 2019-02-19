@@ -60,6 +60,9 @@ else {
     });
 }
 
+app.use('/static', express.static(__dirname + '/../upload'));
+
+
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;
 

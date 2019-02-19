@@ -72,7 +72,7 @@ router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
 
         if(req.file){
             console.dir(req.file);
-            req.body.photoPath = '/album/' + req.body.albumNo + '/photo/' + req.body.timestamp + '_' + req.file.originalname
+            req.body.photoPath = '/album/' + req.body.albumNo + '/' + req.body.timestamp + '_' + req.file.originalname
             resize(req.file.path)
         }
         createPhoto(decodedToken._id, req.body )
@@ -95,10 +95,10 @@ router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
 })
 
 
-router.get('/:aNo/photo/:path', (req, res) => {
-    console.log('[retrive Photo] ');
-    res.sendFile(req.params.aNo + '/' + req.params.path, {root: './upload/album'})
-})
+// router.get('/:aNo/photo/:path', (req, res) => {
+//     console.log('[retrive Photo] ');
+//     res.sendFile(req.params.aNo + '/' + req.params.path, {root: './upload/album'})
+// })
 
 
 export default router;

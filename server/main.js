@@ -32,31 +32,31 @@ if(process.env.NODE_ENV == 'develop') {
 else {
     // [TODO] SET CORS OPTIONS AFTER PUBLISHING
     var corsOptions = {
-        origin: 'http://52.78.161.191:8080/',
+        // origin: 'http://52.78.161.191:8080/',
         optionsSuccessStatus: 200
     }
     app.use(cors(corsOptions))
-    app.use(express.static(path.join(__dirname, '/build-react')));
+    app.use(express.static(path.join(__dirname, '/../build-react')));
     app.get('/login', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
     app.get('/signup', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
     app.get('/about/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
     app.get('/board/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
     app.get('/photoboard/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
     app.get('/album/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
     app.get('/photo/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
 }
 

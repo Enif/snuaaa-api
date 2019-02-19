@@ -1,6 +1,7 @@
 const fs = require('fs');
 const sharp = require('sharp');
 
+<<<<<<< HEAD
 exports.resize = function (path) {
     console.log('[resize]path ', path);
     fs.readFile(path, function (err, data) {
@@ -32,3 +33,25 @@ exports.resize = function (path) {
         }
     });
 };
+=======
+exports.resize = function(path) {
+
+    fs.readFile(path, (err, data) => {
+        if(err) {
+            console.error(err);
+        }
+        else {
+            sharp(data)
+            .resize(300, 300)
+            .toFile(path)
+            .then((info) => {
+                console.log('resize success')
+                console.dir(info)
+            })
+            .catch((err) => {
+                console.log('failed to resize')
+            })
+        }
+    })
+}
+>>>>>>> 7d20a95879baca5e95f7d75607042c8a0689cd4f

@@ -1,13 +1,13 @@
-import express from 'express';
+// import express from 'express';
 
-const router = express.Router();
+// const router = express.Router();
 
-router.get('/:path', (req, res) => {
-    console.log('[retriveProfile] ');
-    res.sendFile(req.params.path, {root: './upload/profile/'})
-})
+// router.get('/:path', (req, res) => {
+//     console.log('[retriveProfile] ');
+//     res.sendFile(req.params.path, {root: './upload/profile/'})
+// })
 
-export default router;
+// export default router;
 
 
 /* 

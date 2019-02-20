@@ -70,23 +70,31 @@ router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
     verifyToken(token)
     .then(decodedToken => {
 
-        if(req.file){
+        if(!req.file) {
+            res.status(409).json({
+                error: 'PHOTO IS NOT ATTACHED',
+                code: 1
+            });
+        }
+        else {
             console.dir(req.file);
             req.body.photoPath = '/album/' + req.body.albumNo + '/' + req.body.timestamp + '_' + req.file.originalname
             resize(req.file.path)
+            .then(() => {
+                createPhoto(decodedToken._id, req.body )
+            })
+            .then(() => {
+                res.json({ success: true });
+            })
+            .catch((err) => {
+                // throw err;
+                console.log(err)
+                res.status(409).json({
+                    error: 'CREATE PHOTO FAIL',
+                    code: 1
+                });
+            })
         }
-        createPhoto(decodedToken._id, req.body )
-        .then(() => {
-            res.json({ success: true });
-        })
-        .catch((err) => {
-            // throw err;
-            res.status(409).json({
-                error: 'CREATE PHOTO FAIL',
-                code: 1
-            });
-        })
-
     })
     .catch(err => res.status(403).json({
         success: false,

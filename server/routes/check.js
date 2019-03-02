@@ -1,5 +1,5 @@
 import express from 'express';
-import { verifyToken } from '../lib/token';
+import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 
@@ -10,21 +10,7 @@ const router = express.Router();
 router.get('/', (req, res) => {
     console.log('[check]');
 
-    const auth = req.headers.authorization.split(" ");
-    let token;
-
-    if(auth[0] === 'Bearer') {
-        token = auth[1]
-    }
-
-    if (!token) {
-        return res.status(403).json({
-            success: false,
-            message: 'Token does not exist.'
-        });
-    }
-
-    verifyToken(token)
+    verifyTokenUseReq(req)
     .then(decodedToken => {
         console.log('[check] Token is valid..')
         return res.status(200).json({

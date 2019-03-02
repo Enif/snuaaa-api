@@ -1,6 +1,6 @@
 import express from 'express';
-import { createPost, retrievePost } from '../../controllers/post'
-import { verifyTokenUseReq } from '../../lib/token';
+import { createPost, retrievePost } from '../controllers/post'
+import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 

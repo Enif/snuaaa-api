@@ -13,15 +13,6 @@ exports.createToken = payload => {
 };
 
 // JWT 토큰 검증
-exports.verifyToken = token => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
-      if (error) reject(error);
-      resolve(decoded);
-    });
-  });
-};
-
 exports.verifyTokenUseReq = req => {
 
   const auth = req.headers.authorization.split(" ");

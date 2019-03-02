@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { verifyToken } from '../lib/token';
+import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 import { retrieveAlbum } from '../controllers/album'
 import { retrievePhotos, createPhoto } from '../controllers/photo'
@@ -54,21 +54,8 @@ router.get('/:aNo/photos', (req, res) => {
 
 router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
     console.log('[Create Photo] ' + JSON.stringify(req.body));
-    const auth = req.headers.authorization.split(" ");
-    let token;
 
-    if(auth[0] === 'Bearer') {
-        token = auth[1]
-    }
-
-    if (!token) {
-        return res.status(403).json({
-            success: false,
-            message: 'Token does not exist.'
-        });
-    }
-
-    verifyToken(token)
+    verifyTokenUseReq(req)
     .then(decodedToken => {
 
         if(!req.file) {

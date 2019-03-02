@@ -17,7 +17,8 @@ const router = express.Router();
 const storage = multer.diskStorage({
     destination: './upload/profile',
     filename(req, file, cb) {
-        cb(null, req.body.timestamp + "_" + file.originalname);
+        let timestamp = (new Date).valueOf()
+        cb(null, timestamp + "_" + file.originalname);
         // cb(new Error("Failed to make file name"), `${(new Date()).valueOf()}-${file.originalname}`);
     },
 });
@@ -53,7 +54,7 @@ router.post('/', upload.single('profile'), (req, res) => {
 
     let profilePath;
     if(req.file){
-        profilePath = '/profile/' + req.body.timestamp + "_" + req.file.originalname;
+        profilePath = '/profile/' + req.file.filename;
         resize(req.file.path)
     }
 

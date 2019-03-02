@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
         cb(null, './upload/album/' + req.params.aNo + '/')
     },
     filename(req, file, cb) {
-        cb(null, req.body.timestamp + '_' + file.originalname);
+        let timestamp = (new Date).valueOf()
+        cb(null, timestamp + '_' + file.originalname);
     },
 });
 
@@ -78,7 +79,7 @@ router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
         }
         else {
             console.dir(req.file);
-            req.body.photoPath = '/album/' + req.body.albumNo + '/' + req.body.timestamp + '_' + req.file.originalname
+            req.body.photoPath = '/album/' + req.body.albumNo + '/' + req.file.filename
             resize(req.file.path)
             .then(() => {
                 createPhoto(decodedToken._id, req.body )

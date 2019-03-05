@@ -11,6 +11,7 @@ import album from './album';
 import photo from './photo';
 import document from './document';
 import soundbox from './soundbox';
+import object from './object';
 // import profile from './profile';
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.use('/album', album);
 router.use('/photo', photo);
 router.use('/document', document);
 router.use('/soundbox', soundbox);
+router.use('/object', object);
 // router.use('/profile', profile);
 
 export default router;

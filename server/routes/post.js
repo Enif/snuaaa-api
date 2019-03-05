@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPost, retrievePost } from '../controllers/post'
+import { createPost, retrievePost } from '../controllers/post';
 import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
@@ -40,18 +40,5 @@ router.post('/', (req, res) => {
 
 });
 
-router.post('/:id/comment/', (req, res) => {
-
-    console.log('[savecomment] ' + JSON.stringify(req.body));
-
-    verifyTokenUseReq(req)
-        .then(decodedToken => {
-            console.log(`[savecomment]`)
-        })
-        .catch(err => res.status(403).json({
-            success: false,
-            message: err.message
-        }));
-});
 
 export default router;

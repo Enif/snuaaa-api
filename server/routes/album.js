@@ -4,7 +4,7 @@ import fs from 'fs';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 import { retrieveAlbum } from '../controllers/album'
-import { retrievePhotos, createPhoto } from '../controllers/photo'
+import { retrievePhotosInAlbum, createPhotoInAlbum } from '../controllers/photo'
 
 const router = express.Router();
 
@@ -40,7 +40,7 @@ router.get('/:aNo', (req, res) => {
 
 router.get('/:aNo/photos', (req, res) => {
     console.log('[retrivePhotos] ');
-    retrievePhotos(req.params.aNo)
+    retrievePhotosInAlbum(req.params.aNo)
     .then((photos) => {
         res.json(photos)
     })
@@ -69,7 +69,7 @@ router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
             req.body.photoPath = '/album/' + req.body.albumNo + '/' + req.file.filename
             resize(req.file.path)
             .then(() => {
-                createPhoto(decodedToken._id, req.body )
+                createPhotoInAlbum(decodedToken._id, req.body )
             })
             .then(() => {
                 res.json({ success: true });

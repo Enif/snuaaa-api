@@ -1,19 +1,19 @@
 const db = require('./connection')
 import bcrypt from 'bcryptjs'
 
-exports.duplicateCheck = function(user_id) {
+exports.duplicateCheck = function(id) {
     return new Promise((resolve, reject) => {
-        if(!user_id) {
+        if(!id) {
             reject();
         }
 
         let query = `SELECT EXISTS(
-            SELECT _id
+            SELECT user_id
             FROM snuaaa.tb_user
-            WHERE user_id = $1
+            WHERE id = $1
             )`;
 
-        db.any(query, [user_id])
+        db.any(query, [id])
         .then((isUser) => {
             console.log(isUser)
             if(!isUser || !isUser[0]){
@@ -41,11 +41,9 @@ exports.signUp = function(userinfo) {
             reject()
         }
         
-        let query = `INSERT INTO snuaaa."tb_user"(
-            "user_id", "password", "name", "aaa_no",
-            "nickname", "col_no", "major", "email",
-            "mobile", "introduction", "profile_path",
-            "level", "created_at") 
+        let query = `INSERT INTO snuaaa.tb_user(
+            id, password, name, aaa_no, nickname, col_no, major, email,
+            mobile, introduction, profile_path, level, created_at) 
             VALUES (
                 $<id>, $<password>, $<username>, $<aaaNum>,
                 $<nickname>, $<schoolNum>, $<major>, $<email>,
@@ -92,14 +90,14 @@ exports.logIn = function(logInInfo) {
             reject()
         }
         
-        let query = `SELECT _id, user_id, password
+        let query = `SELECT user_id, id, password
         FROM snuaaa.tb_user
-        WHERE user_id = $1`;
+        WHERE id = $1`;
         
         db.one(query, logInInfo.id)
         .then((userInfo) => {
             if(bcrypt.compareSync(logInInfo.password, userInfo.password)) {
-                resolve(userInfo._id);
+                resolve(userInfo.user_id);
             }
             else{
                 reject();
@@ -111,19 +109,19 @@ exports.logIn = function(logInInfo) {
     })   
 }
 
-exports.retrieveInfo = function(_id) {
+exports.retrieveInfo = function(user_id) {
     return new Promise((resolve, reject) => {
 
-        if(!_id) {
+        if(!user_id) {
             console.log('Id can not be null')
             reject()
         }
         
-        let query = `SELECT user_id, name, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
+        let query = `SELECT id, name, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
         FROM snuaaa.tb_user
-        WHERE _id = $1`;
+        WHERE user_id = $1`;
 
-        db.one(query, _id)
+        db.one(query, user_id)
         .then((userInfo) => {
             resolve(userInfo)
         })

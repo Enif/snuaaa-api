@@ -8,11 +8,11 @@ exports.retrievePosts = function(board_id) {
         }
         else {
             let query = `
-                SELECT po.object_id, title, contents, ob.created_at, usr.nickname
+                SELECT po.object_id, ob.title, ob.contents, ob.created_at, usr.nickname
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
-                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr._id)
-                WHERE po.board_id = $1
+                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
+                WHERE ob.board_id = $1
             `;
             db.any(query, board_id)
             .then(function(posts){
@@ -33,10 +33,10 @@ exports.retrievePost = function(object_id) {
         }
         else {
             let query = `
-                SELECT title, contents, ob.created_at, usr.nickname
+                SELECT ob.title, ob.contents, ob.created_at, usr.nickname
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
-                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr._id)
+                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
                 WHERE ob.object_id = $1
             `;
             db.one(query, object_id)
@@ -55,10 +55,10 @@ exports.retrieveSoundBox = function() {
     return new Promise((resolve, reject) => {
 
         let query = `
-            SELECT title, contents, ob.created_at
+            SELECT ob.title, ob.contents, ob.created_at
             FROM snuaaa.tb_post po
             INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
-            WHERE po.board_id = 'b00'
+            WHERE ob.board_id = 'b00'
             ORDER BY ob.created_at DESC
             LIMIT 1
         `;
@@ -74,32 +74,23 @@ exports.retrieveSoundBox = function() {
     })
 }
 
-exports.createPost = function(_id, data) {
+exports.createPost = function(id, board_id, data) {
     return new Promise((resolve, reject) => {
-        console.log(_id)
-        console.log(data)
 
-        if(!_id) {
+        if(!id) {
             console.log('id can not be null')
             reject()
         }
-        if(!data.categoryNo) {
-            data.categoryNo = 0;
-        }
+        data.type = 'PO';
         
-        let query = `INSERT INTO snuaaa."tb_post"(
-            "object_id", "title", "board_id", category_no, contents) 
-            VALUES ($<object_id>, $<title>, $<board_id>, 
-                $<category_no>, $<contents>)`; 
+        let query = `INSERT INTO snuaaa.tb_post(
+            object_id) 
+            VALUES ($<object_id>)`; 
 
-        createObject(_id)
+        createObject(id, board_id, data)
         .then((objectId) => {
             let queryData = {
-                object_id: objectId,
-                title: data.title,
-                board_id: data.boardNo,
-                category_no: data.categoryNo,
-                contents: data.contents
+                object_id: objectId
             };
             return db.any(query, queryData)            
         })            

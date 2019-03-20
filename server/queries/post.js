@@ -74,10 +74,10 @@ exports.retrieveSoundBox = function() {
     })
 }
 
-exports.createPost = function(id, board_id, data) {
+exports.createPost = function(user_id, board_id, data) {
     return new Promise((resolve, reject) => {
 
-        if(!id) {
+        if(!user_id) {
             console.log('id can not be null')
             reject()
         }
@@ -87,7 +87,7 @@ exports.createPost = function(id, board_id, data) {
             object_id) 
             VALUES ($<object_id>)`; 
 
-        createObject(id, board_id, data)
+        createObject(user_id, board_id, data)
         .then((objectId) => {
             let queryData = {
                 object_id: objectId

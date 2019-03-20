@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer'
-import { duplicateCheck, signUp } from '../controllers/user'
+import { duplicateCheck, signUp } from '../queries/user'
 import { resize } from '../lib/resize';
 
 const router = express.Router();

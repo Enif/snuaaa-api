@@ -1,5 +1,5 @@
 import express from 'express';
-import { retrievePost } from '../controllers/post';
+import { retrievePost } from '../queries/post';
 import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();

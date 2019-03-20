@@ -1,8 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { retrieveAlbums, createAlbum } from '../controllers/album';
-import { retrievePhotosInBoard, createPhotoInPhotoBoard } from '../controllers/photo';
+import { retrieveAlbums, createAlbum } from '../queries/album';
+import { retrievePhotosInBoard, createPhotoInPhotoBoard } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 

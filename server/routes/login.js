@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { logIn } from '../controllers/user'
+import { logIn } from '../queries/user'
 import { createToken } from '../lib/token';
 
 const router = express.Router();

@@ -58,13 +58,11 @@ exports.retrieveAlbum = function(album_id) {
     })
 }
 
-exports.createAlbum = function(id, board_id, data) {
+exports.createAlbum = function(user_id, board_id, data) {
     return new Promise((resolve, reject) => {
-        console.log(board_id)
-        console.log(data)
 
-        if(!id) {
-            console.log('id can not be null')
+        if(!user_id) {
+            console.error('id can not be null')
             reject()
         }
         data.type = 'AL';
@@ -73,7 +71,7 @@ exports.createAlbum = function(id, board_id, data) {
             object_id) 
             VALUES ($<object_id>)`; 
 
-        createObject(id, board_id, data)
+        createObject(user_id, board_id, data)
         .then((object_id) => {
             let queryData = {
                 object_id: object_id,

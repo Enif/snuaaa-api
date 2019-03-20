@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../lib/token';
-import { retrievePhoto } from '../controllers/photo'
+import { retrievePhoto } from '../queries/photo'
 
 const router = express.Router();
 

@@ -117,7 +117,7 @@ exports.createPhotoInAlbum = function (user_id, data) {
     })
 }
 
-exports.createPhotoInPhotoBoard = function (user_id, pbNo, data) {
+exports.createPhotoInPhotoBoard = function (user_id, board_id, data) {
     return new Promise((resolve, reject) => {
         console.log(data)
 
@@ -130,7 +130,7 @@ exports.createPhotoInPhotoBoard = function (user_id, pbNo, data) {
                 object_id, file_path) 
                 VALUES ($<object_id>, $<file_path>)`;
 
-            createObject(user_id, pbNo, data)
+            createObject(user_id, board_id, data)
             .then((objectId) => {
                 let queryData = {
                     object_id: objectId,

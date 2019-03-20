@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import { verifyTokenUseReq } from '../lib/token';
-import { retrieveDocument, retrieveDocuments, retrieveDocumentsByGen, createDocument } from '../controllers/document'
+import { retrieveDocument, retrieveDocuments, retrieveDocumentsByGen, createDocument } from '../queries/document'
 
 const router = express.Router();
 

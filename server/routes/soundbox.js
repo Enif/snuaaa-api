@@ -1,5 +1,5 @@
 import express from 'express';
-import { retrieveSoundBox } from '../controllers/post'
+import { retrieveSoundBox } from '../queries/post'
 
 const router = express.Router();
 

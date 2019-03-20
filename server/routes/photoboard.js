@@ -1,8 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { retrieveAlbums, createAlbum } from '../controllers/album';
-import { retrievePhotosInBoard, createPhotoInPhotoBoard } from '../controllers/photo';
+import { retrieveAlbums, createAlbum } from '../queries/album';
+import { retrievePhotosInBoard, createPhotoInPhotoBoard } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 
@@ -58,17 +58,12 @@ router.post('/:pbNo/album', (req, res) => {
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
-
-        createAlbum(decodedToken._id, req.params.pbNo, req.body)
-        .then(() => {
-            res.json({ success: true })
-        })
-        .catch((err) => {
-            res.status(409).json({
-                error: 'CREATE ALBUM FAIL',
-                code: 1
-            });
-        })
+        console.log('decoded success')
+        return createAlbum(decodedToken._id, req.params.pbNo, req.body)
+    })
+    .then(() => {
+        console.log('create success')
+        res.json({ success: true })
     })
     .catch(err => res.status(403).json({
         success: false,

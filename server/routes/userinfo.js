@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyTokenUseReq } from '../lib/token';
-import { retrieveInfo } from '../controllers/account'
+import { retrieveInfo } from '../queries/user'
 
 const router = express.Router();
 

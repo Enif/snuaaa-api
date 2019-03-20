@@ -8,10 +8,9 @@ exports.retrieveComments = function(object_id) {
         }
         else {
             let query = `
-                SELECT co.object_id, contents, ob.created_at, usr.nickname, usr.profile_path
+                SELECT co.comment_id, co.contents, co.created_at, usr.nickname, usr.profile_path
                 FROM snuaaa.tb_comment co
-                INNER JOIN snuaaa.tb_object ob ON (co.object_id = ob.object_id)
-                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr._id)
+                INNER JOIN snuaaa.tb_user usr ON (co.author_id = usr.user_id)
                 WHERE co.parent_id = $1
             `;
             db.any(query, object_id)
@@ -26,26 +25,27 @@ exports.retrieveComments = function(object_id) {
     })
 };
 
-exports.createComment = function(_id, parent_id, data) {
+exports.createComment = function(user_id, parent_id, data) {
     return new Promise((resolve, reject) => {
-        if(!_id || !parent_id) {
+        if(!user_id || !parent_id) {
             console.log('id can not be null')
             reject()
         }
         
         let query = `INSERT INTO snuaaa.tb_comment(
-            object_id, parent_id, contents) 
-            VALUES ($<object_id>, $<parent_id>, $<contents>)`; 
+            author_id, parent_id, contents, created_at) 
+            VALUES ($<user_id>, $<parent_id>, $<contents>, $<created_at>)`; 
 
-        createObject(_id)
-        .then((objectId) => {
-            let queryData = {
-                object_id: objectId,
-                parent_id: parent_id,
-                contents: data.contents
-            };
-            return db.any(query, queryData)            
-        })            
+        let created = new Date()
+
+        let queryData = {
+            user_id: user_id,
+            parent_id: parent_id,
+            contents: data.contents,
+            created_at: created
+        }
+            
+        db.any(query, queryData)
         .then(() => {
             resolve();
         })

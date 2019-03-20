@@ -10,8 +10,9 @@ exports.retrieveDocument = function(doc_id) {
         }
         else {
             let query = `
-            SELECT doc.object_id, generation, title, file_path
+            SELECT doc.object_id, doc.generation, ob.title, doc.file_path
             FROM snuaaa.tb_document doc
+            INNER JOIN snuaaa.tb_object ob ON (doc.object_id = ob.object_id)
             WHERE doc.object_id = $1
             `;
             db.one(query, doc_id)
@@ -31,8 +32,10 @@ exports.retrieveDocuments = function() {
     return new Promise((resolve, reject) => {
 
         let query = `
-        SELECT doc.object_id, generation, title, file_path
+        SELECT doc.object_id, doc.generation, ob.title, doc.file_path
         FROM snuaaa.tb_document doc
+        INNER JOIN snuaaa.tb_object ob ON (doc.object_id = ob.object_id)
+        ORDER BY ob.created_at DESC
         `;
         db.any(query)
         .then(function(docuInfo) {
@@ -49,9 +52,11 @@ exports.retrieveDocumentsByGen = function(genNum) {
     return new Promise((resolve, reject) => {
 
         let query = `
-        SELECT doc.object_id, generation, title, file_path
+        SELECT doc.object_id, doc.generation, ob.title, doc.file_path
         FROM snuaaa.tb_document doc
+        INNER JOIN snuaaa.tb_object ob ON (doc.object_id = ob.object_id)
         WHERE doc.generation = $1
+        ORDER BY ob.created_at DESC
         `;
         db.any(query, genNum)
         .then(function(docuInfo) {
@@ -64,24 +69,23 @@ exports.retrieveDocumentsByGen = function(genNum) {
     })
 }
 
-exports.createDocument = function(_id, data) {
+exports.createDocument = function(user_id, data) {
     return new Promise((resolve, reject) => {
 
-        if(!_id) {
+        if(!user_id) {
             console.log('id can not be null')
             reject()
         }
         
         let query = `INSERT INTO snuaaa.tb_document(
-            object_id, generation, title, file_path) 
-            VALUES ($<object_id>, $<generation>, $<title>, $<file_path>)`; 
+            object_id, generation, file_path) 
+            VALUES ($<object_id>, $<generation>, $<file_path>)`; 
 
-        createObject(_id)
+        createObject(user_id, null, data)
         .then((objectId) => {
             let queryData = {
                 object_id: objectId,
                 generation: data.generation,
-                title: data.title,
                 file_path: data.file_path
             };
             return db.any(query, queryData)            

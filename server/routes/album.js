@@ -3,8 +3,8 @@ import multer from 'multer';
 import fs from 'fs';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
-import { retrieveAlbum } from '../controllers/album'
-import { retrievePhotosInAlbum, createPhotoInAlbum } from '../controllers/photo'
+import { retrieveAlbum } from '../queries/album'
+import { retrievePhotosInAlbum, createPhotoInAlbum } from '../queries/photo'
 
 const router = express.Router();
 

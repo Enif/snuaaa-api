@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { retrieveAlbums, createAlbum } from '../queries/album';
+import { retrieveAlbums, createAlbum, retrieveAlbumsbyCategory } from '../queries/album';
 import { retrievePhotosInBoard, createPhotoInPhotoBoard } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
@@ -26,16 +26,32 @@ const upload = multer({storage})
 
 router.get('/:pbNo/albums', (req, res) => {
     console.log('[Retrieve Albums] >> ', req.params.pbNo);
-    retrieveAlbums(req.params.pbNo)
-    .then((albums) => {
-        res.json(albums)
-    })
-    .catch((err) => {
-        res.status(409).json({
-            error: 'RETRIEVE ALBUM FAIL',
-            code: 1
-        });
-    })
+
+    if(req.query.category) {
+        retrieveAlbumsbyCategory(req.params.pbNo, req.query.category)
+        .then((albums) => {
+            res.json(albums)
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(409).json({
+                error: 'RETRIEVE ALBUM FAIL',
+                code: 1
+            });
+        })
+    }
+    else {
+        retrieveAlbums(req.params.pbNo)
+        .then((albums) => {
+            res.json(albums)
+        })
+        .catch((err) => {
+            res.status(409).json({
+                error: 'RETRIEVE ALBUM FAIL',
+                code: 1
+            });
+        })
+    }
 })
 
 router.get('/:pbNo/photos', (req, res) => {

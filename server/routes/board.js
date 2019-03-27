@@ -1,13 +1,43 @@
 import express from 'express';
 import { verifyTokenUseReq } from '../lib/token';
-import { retrievePosts, createPost } from '../queries/post'
+import { retrieveBoardInfo } from '../queries/board';
+import { retrieveCategories } from '../queries/category';
+import { retrievePosts, createPost } from '../queries/post';
 
 const router = express.Router();
 
 
 router.get('/:bno', (req, res) => {
-    console.log('[retrivepost] bno > ', req.params.bno);
-    
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+    let resBoardInfo;
+    let resCategoryInfo;
+    retrieveBoardInfo(req.params.bno)
+    .then((boardInfo) => {
+        resBoardInfo = boardInfo
+        return retrieveCategories(req.params.bno)
+    })
+    .then((categories) => {
+        resCategoryInfo = categories;
+        res.json({resBoardInfo, resCategoryInfo});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).json({error: err})
+    })
+    // retrievePosts(req.params.bno)
+    // .then((posts) => {
+    //     console.log(posts)
+    //     res.json(posts)
+    // })
+    // .catch((err) => {
+    //     console.log(err)
+    //     res.status(500).json({error: err})
+    // })
+})
+
+router.get('/:bno/posts', (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
     retrievePosts(req.params.bno)
     .then((posts) => {
         console.log(posts)
@@ -21,8 +51,8 @@ router.get('/:bno', (req, res) => {
 
 
 router.post('/:bno/post', (req, res) => {
+    console.log(`[POST] ${req.baseUrl + req.url}`);
 
-    console.log('[createPost] ' + JSON.stringify(req.body));
     verifyTokenUseReq(req)
     .then(decodedToken => {
         return createPost(decodedToken._id, req.params.bno, req.body)

@@ -58,7 +58,7 @@ exports.retrieveSoundBox = function() {
             SELECT ob.title, ob.contents, ob.created_at
             FROM snuaaa.tb_post po
             INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
-            WHERE ob.board_id = 'b00'
+            WHERE ob.board_id = 'brd01'
             ORDER BY ob.created_at DESC
             LIMIT 1
         `;

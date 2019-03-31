@@ -9,7 +9,7 @@ exports.retrievePhoto = function (photo_id) {
         }
         else {
             let query = `
-            SELECT ph.object_id, ph.file_path, ob.title, usr.nickname, ob.created_at
+            SELECT ph.object_id, ph.file_path, ob.title, ob.created_at, usr.nickname, usr.profile_path, usr.introduction
             FROM snuaaa.tb_photo ph
             INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
             INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)

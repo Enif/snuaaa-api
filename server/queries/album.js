@@ -22,6 +22,7 @@ exports.retrieveAlbums = function(board_id) {
                 INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
                 LEFT OUTER JOIN snuaaa.tb_category ctg ON (ob.category_id = ctg.category_id)
                 WHERE ob.board_id = $1
+                ORDER BY ob.created_at DESC
             `;
             db.any(query, board_id)
             .then(function(albums){
@@ -58,6 +59,7 @@ exports.retrieveAlbumsbyCategory = function(board_id, category_id) {
                 LEFT OUTER JOIN snuaaa.tb_category ctg ON (ob.category_id = ctg.category_id)
                 WHERE ob.board_id = $1
                 AND ob.category_id = $2
+                ORDER BY ob.created_at DESC
             `;
             db.any(query, [board_id, category_id])
             .then(function(albums){
@@ -79,9 +81,10 @@ exports.retrieveAlbum = function(album_id) {
         }
         else {
             let query = `
-            SELECT al.object_id, ob.title, ob.contents
+            SELECT al.object_id, ob.title, ob.contents, usr.nickname
             FROM snuaaa.tb_album al
             INNER JOIN snuaaa.tb_object ob ON (al.object_id = ob.object_id)
+            INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
             WHERE al.object_id = $1
             `;
             db.one(query, album_id)

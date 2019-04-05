@@ -94,15 +94,25 @@ exports.createPhotoInAlbum = function (user_id, data) {
             data.type = 'PH';
 
             let query = `INSERT INTO snuaaa.tb_photo(
-                object_id, album_id, file_path) 
-                VALUES ($<object_id>, $<album_id>, $<file_path>)`;
+                object_id, album_id, file_path, date, location,
+                camera, lens, focal_length, f_stop, exposure_time, iso)
+                VALUES ($<object_id>, $<album_id>, $<file_path>, $<date>, $<location>,
+                    $<camera>, $<lens>, $<focal_length>, $<f_stop>, $<exposure_time>, $<iso>)`;
 
             createObject(user_id, null, data)
             .then((objectId) => {
                 let queryData = {
                     object_id: objectId,
-                    album_id: data.albumNo,
+                    album_id: data.album_id,
                     file_path: data.photoPath,
+                    date: data.date,
+                    location: data.location,
+                    camera: data.camera,
+                    lens: data.lens,
+                    focal_length: data.focal_length,
+                    f_stop: data.f_stop,
+                    exposure_time: data.exposure_time,
+                    iso: data.iso
                 };
                 return db.any(query, queryData)
             })
@@ -117,7 +127,7 @@ exports.createPhotoInAlbum = function (user_id, data) {
     })
 }
 
-exports.createPhotoInPhotoBoard = function (user_id, board_id, data) {
+exports.createPhotosInBoard = function (user_id, data) {
     return new Promise((resolve, reject) => {
         console.log(data)
 
@@ -126,15 +136,27 @@ exports.createPhotoInPhotoBoard = function (user_id, board_id, data) {
             reject()
         }
         else {
-            let query = `INSERT INTO snuaaa.tb_photo(
-                object_id, file_path) 
-                VALUES ($<object_id>, $<file_path>)`;
+            data.type = 'PH';
 
-            createObject(user_id, board_id, data)
+            let query = `INSERT INTO snuaaa.tb_photo(
+                object_id, file_path, date, location,
+                camera, lens, focal_length, f_stop, exposure_time, iso)
+                VALUES ($<object_id>, $<file_path>, $<date>, $<location>,
+                    $<camera>, $<lens>, $<focal_length>, $<f_stop>, $<exposure_time>, $<iso>)`;
+
+            createObject(user_id, data.board_id, data)
             .then((objectId) => {
                 let queryData = {
                     object_id: objectId,
-                    file_path: data.photoPath
+                    file_path: data.photoPath,
+                    date: data.date,
+                    location: data.location,
+                    camera: data.camera,
+                    lens: data.lens,
+                    focal_length: data.focal_length,
+                    f_stop: data.f_stop,
+                    exposure_time: data.exposure_time,
+                    iso: data.iso
                 };
                 return db.any(query, queryData)
             })

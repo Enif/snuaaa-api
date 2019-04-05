@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage})
 
 router.get('/:aNo', (req, res) => {
-    console.log('[retriveAlbumInfo] ');
+    console.log(`[GET] ${req.baseUrl + req.url}`);
     retrieveAlbum(req.params.aNo)
     .then((albumInfo) => {
         res.json(albumInfo)
@@ -39,7 +39,8 @@ router.get('/:aNo', (req, res) => {
 })
 
 router.get('/:aNo/photos', (req, res) => {
-    console.log('[retrivePhotos] ');
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
     retrievePhotosInAlbum(req.params.aNo)
     .then((photos) => {
         res.json(photos)
@@ -52,24 +53,65 @@ router.get('/:aNo/photos', (req, res) => {
     })
 })
 
-router.post('/:aNo/photo', upload.single('uploadPhoto'), (req, res) => {
-    console.log('[Create Photo] ' + JSON.stringify(req.body));
+router.post('/:aNo/photos', upload.array('uploadPhotos'), (req, res) => {
+    console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
 
-        if(!req.file) {
+        if(!req.files) {
             res.status(409).json({
                 error: 'PHOTO IS NOT ATTACHED',
                 code: 1
             });
         }
         else {
-            console.dir(req.file);
-            req.body.photoPath = '/album/' + req.body.albumNo + '/' + req.file.filename
-            resize(req.file.path)
+            const data = [];
+            if(req.files.length > 1) {
+                for(let i = 0; i < req.files.length; i++) {
+                    data.push({
+                        type: 'PH',
+                        title: req.body.title[i],
+                        contents: req.body.desc[i],
+                        date: req.body.date[i],
+                        location: req.body.location[i],
+                        camera: req.body.camera[i],
+                        lens: req.body.lens[i],
+                        focal_length: req.body.focal_length[i],
+                        f_stop: req.body.f_stop[i],
+                        exposure_time: req.body.exposure_time[i],
+                        iso: req.body.iso[i],
+                        album_id: req.params.aNo,
+                        photoPath: '/album/' + req.params.aNo + '/' + req.files[i].filename
+                    })
+                }    
+            }
+            else {
+                data.push({
+                    type: 'PH',
+                    title: req.body.title,
+                    contents: req.body.desc,
+                    date: req.body.date,
+                    location: req.body.location,
+                    camera: req.body.camera,
+                    lens: req.body.lens,
+                    focal_length: req.body.focal_length,
+                    f_stop: req.body.f_stop,
+                    exposure_time: req.body.exposure_time,
+                    iso: req.body.iso,
+                    album_id: req.params.aNo,
+                    photoPath: '/album/' + req.params.aNo + '/' + req.files[0].filename
+                })
+            }
+
+            Promise.all(req.files.map((file) => {
+                return resize(file.path)
+            }))
             .then(() => {
-                createPhotoInAlbum(decodedToken._id, req.body )
+                console.log('resize finished..')
+                return Promise.all(data.map((data) => {
+                    return createPhotoInAlbum(decodedToken._id, data)
+                }))
             })
             .then(() => {
                 res.json({ success: true });

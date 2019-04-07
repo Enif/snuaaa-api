@@ -1,14 +1,20 @@
 import express from 'express';
-import { verifyToken } from '../lib/token';
-import { retrievePhoto } from '../queries/photo'
+import { verifyTokenUseReq } from '../lib/token';
+import { checkLike } from '../queries/object';
+import { retrievePhoto } from '../queries/photo';
 
 const router = express.Router();
 
-router.get('/:pNo', (req, res) => {
+router.get('/:photo_id', (req, res) => {
     console.log('[retrivePhotoInfo] ');
-    retrievePhoto(req.params.pNo)
-    .then((photoInfo) => {
-        res.json(photoInfo)
+
+    verifyTokenUseReq(req)
+    .then(decodedToken => {
+        return Promise.all([retrievePhoto(req.params.photo_id), checkLike(decodedToken._id, req.params.photo_id)])
+    })
+    .then((infos) => {
+        console.log(infos)
+        res.json({photoInfo: infos[0], likeInfo: infos[1]})
     })
     .catch((err) => {
         res.status(409).json({

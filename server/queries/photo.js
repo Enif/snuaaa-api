@@ -10,7 +10,8 @@ exports.retrievePhoto = function (photo_id) {
         else {
             let query = `
             SELECT ph.object_id, ph.file_path, ph.date, ph.location, ph.camera, ph.lens,
-            ph.exposure_time, ph.focal_length, ph.f_stop, ph.iso, ob.title, ob.contents, ob.created_at,
+            ph.exposure_time, ph.focal_length, ph.f_stop, ph.iso,
+            ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num,
             usr.nickname, usr.profile_path, usr.introduction
             FROM snuaaa.tb_photo ph
             INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
@@ -37,7 +38,7 @@ exports.retrievePhotosInAlbum = function (album_id) {
         }
         else {
             let query = `
-            SELECT ph.object_id, ph.file_path, ob.title
+            SELECT ph.object_id, ph.file_path, ob.title, ob.like_num, ob.comment_num
             FROM snuaaa.tb_photo ph
             INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
             WHERE ph.album_id = $1
@@ -62,7 +63,7 @@ exports.retrievePhotosInBoard = function(board_id) {
         }
         else {
             let query = `
-                SELECT ph.object_id, ph.file_path, ob.title
+                SELECT ph.object_id, ph.file_path, ob.title, ob.like_num, ob.comment_num
                 FROM snuaaa.tb_photo ph
                 INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
                 LEFT OUTER JOIN snuaaa.tb_album al ON (ph.album_id = al.object_id)

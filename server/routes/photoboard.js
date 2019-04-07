@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import { retrieveAlbums, createAlbum, retrieveAlbumsbyCategory } from '../queries/album';
-import { retrievePhotosInBoard, createPhotoInPhotoBoard } from '../queries/photo';
+import { retrievePhotosInBoard, createPhotosInBoard } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 
@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage})
 
 router.get('/:pbNo/albums', (req, res) => {
-    console.log('[Retrieve Albums] >> ', req.params.pbNo);
+    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     if(req.query.category) {
         retrieveAlbumsbyCategory(req.params.pbNo, req.query.category)
@@ -55,7 +55,8 @@ router.get('/:pbNo/albums', (req, res) => {
 })
 
 router.get('/:pbNo/photos', (req, res) => {
-    console.log('[Retrieve Albums] >> ', req.params.pbNo);
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
     retrievePhotosInBoard(req.params.pbNo)
     .then((photos) => {
         res.json(photos)
@@ -70,7 +71,7 @@ router.get('/:pbNo/photos', (req, res) => {
 
 
 router.post('/:pbNo/album', (req, res) => {
-    console.log('[Create Album] ' + JSON.stringify(req.body));
+    console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
@@ -88,23 +89,45 @@ router.post('/:pbNo/album', (req, res) => {
 
 })
 
-router.post('/:pbNo/photo', upload.single('uploadPhoto'), (req, res) => {
-    console.log('[Create Photo] ' + JSON.stringify(req.body));
+router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
+    console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
 
-        if(!req.file) {
+        if(!req.files) {
             res.status(409).json({
                 error: 'PHOTO IS NOT ATTACHED',
                 code: 1
             });
         }
         else {
-            req.body.photoPath = '/album/default/' + req.file.filename
-            resize(req.file.path)
+            const data = [];
+            for(let i = 0; i < req.files.length; i++) {
+                data.push({
+                    type: 'PH',
+                    title: req.body.title[i],
+                    contents: req.body.desc[i],
+                    date: req.body.date[i],
+                    location: req.body.location[i],
+                    camera: req.body.camera[i],
+                    lens: req.body.lens[i],
+                    focal_length: req.body.focal_length[i],
+                    f_stop: req.body.f_stop[i],
+                    exposure_time: req.body.exposure_time[i],
+                    iso: req.body.iso[i],
+                    board_id: req.params.pbNo,
+                    photoPath: '/album/default/' + req.files[i].filename
+                })
+            }
+
+            Promise.all(req.files.map((file) => {
+                return resize(file.path)
+            }))
             .then(() => {
-                createPhotoInPhotoBoard(decodedToken._id, req.params.pbNo, req.body)
+                return Promise.all(data.map((data) => {
+                    return createPhotosInBoard(decodedToken._id, data)
+                }))
             })
             .then(() => {
                 res.json({ success: true });

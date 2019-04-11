@@ -24,9 +24,11 @@ router.post('/', (req, res) => {
     }
 
     logIn({id: req.body.id, password:req.body.password})
-    .then((_id) => {
+    .then((userInfo) => {
         return createToken({
-            _id: _id
+            _id: userInfo.user_id,
+            level: userInfo.level,
+            profile_path: userInfo.profile_path
         })
     })
     .then(token => res.json({ sucess: true, token }))

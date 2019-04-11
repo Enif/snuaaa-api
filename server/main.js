@@ -19,15 +19,11 @@ app.use(bodyParser.json());
 if(process.env.NODE_ENV == 'develop') {
     // for local test
     app.use(cors())
-
     app.use(express.static(__dirname + '/../../snuaaa-react/build'));
+    app.get('/page/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
+    });
 
-    app.get('/login', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
-    });
-    app.get('/signup', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
-    });
 }
 else {
     // [TODO] SET CORS OPTIONS AFTER PUBLISHING
@@ -37,25 +33,7 @@ else {
     }
     app.use(cors(corsOptions))
     app.use(express.static(path.join(__dirname, '/../build-react')));
-    app.get('/login', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
-    });
-    app.get('/signup', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
-    });
-    app.get('/about/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
-    });
-    app.get('/board/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
-    });
-    app.get('/photoboard/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
-    });
-    app.get('/album/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
-    });
-    app.get('/photo/*', function (req, res) {
+    app.get('/page/*', function (req, res) {
         res.sendFile(path.join(__dirname, '/../build-react/index.html'));
     });
 }

@@ -90,14 +90,14 @@ exports.logIn = function(logInInfo) {
             reject()
         }
         
-        let query = `SELECT user_id, id, password
+        let query = `SELECT user_id, password, level, profile_path
         FROM snuaaa.tb_user
         WHERE id = $1`;
         
         db.one(query, logInInfo.id)
         .then((userInfo) => {
             if(bcrypt.compareSync(logInInfo.password, userInfo.password)) {
-                resolve(userInfo.user_id);
+                resolve(userInfo);
             }
             else{
                 reject();

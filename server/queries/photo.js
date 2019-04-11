@@ -173,3 +173,31 @@ exports.createPhotosInBoard = function (user_id, data) {
         }
     })
 }
+
+
+exports.retrievePhotosByUser = function(user_id) {
+    return new Promise((resolve, reject) => {
+        if(!user_id) {
+            reject();
+        }
+        else {
+            let query = `
+                SELECT ph.object_id, ph.file_path, ob.title, ob.like_num, ob.comment_num
+                FROM snuaaa.tb_photo ph
+                INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
+                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
+                WHERE usr.user_id = $1
+                ORDER BY ob.created_at DESC
+                LIMIT 4
+            ;`;
+
+            db.any(query, user_id)
+            .then(function(photos){
+                resolve(photos);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }
+    })
+};

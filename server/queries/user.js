@@ -117,13 +117,67 @@ exports.retrieveInfo = function(user_id) {
             reject()
         }
         
-        let query = `SELECT id, name, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
+        let query = `SELECT id, name, nickname, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
         FROM snuaaa.tb_user
         WHERE user_id = $1`;
 
         db.one(query, user_id)
         .then((userInfo) => {
             resolve(userInfo)
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
+}
+
+exports.updateUser = function(user_id, data) {
+    return new Promise((resolve, reject) => {
+
+        if(!user_id) {
+            console.log('Id can not be null')
+            reject();
+        }
+        
+        let query = `
+        UPDATE snuaaa.tb_user
+        SET name=$<name>,
+        aaa_no=$<aaa_no>,
+        nickname=$<nickname>,
+        col_no=$<col_no>,
+        major=$<major>,
+        email=$<email>,
+        mobile=$<mobile>,
+        introduction=$<introduction>,
+        level=$<level>,
+        updated_at=$<updated_at>
+        WHERE user_id=$<user_id>;
+        `;
+
+        let nickname = data.aaa_no ? (data.aaa_no.substring(0,2) + data.name) : data.name;
+        let level = data.aaa_no ? 8 : 9;
+        let updated_at = new Date();
+    
+        let queryData = {
+            user_id: user_id,
+            name: data.name,
+            nickname: nickname,
+            aaa_no: data.aaa_no,
+            col_no: data.col_no,
+            major: data.major,
+            email: data.email,
+            mobile: data.mobile,
+            introduction: data.introduction,
+            level: level,
+            updated_at: updated_at
+        }
+
+        console.log(queryData);
+
+
+        db.any(query, queryData)
+        .then(() => {
+            resolve()
         })
         .catch((err) => {
             reject(err);

@@ -54,3 +54,32 @@ exports.createComment = function(user_id, parent_id, data) {
         });
     })   
 }
+
+
+exports.retrieveCommentsByUser = function(user_id) {
+    return new Promise((resolve, reject) => {
+        if(!user_id) {
+            reject();
+        }
+        else {
+            let query = `
+                SELECT co.comment_id, co.parent_id, co.contents, co.created_at,
+                ob.title, ob.type, brd.board_name
+                FROM snuaaa.tb_comment co
+                INNER JOIN snuaaa.tb_object ob ON (co.parent_id = ob.object_id)
+                INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
+                WHERE co.author_id = $1
+                ORDER BY co.created_at DESC
+                LIMIT 6
+            ;`;
+
+            db.any(query, user_id)
+            .then(function(photos){
+                resolve(photos);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }
+    })
+};

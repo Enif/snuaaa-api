@@ -51,6 +51,33 @@ exports.retrievePost = function(object_id) {
     })
 };
 
+exports.retrievePostsByUser = function(user_id) {
+    return new Promise((resolve, reject) => {
+        if(!user_id) {
+            reject();
+        }
+        else {
+            let query = `
+                SELECT po.object_id, ob.title, ob.contents, ob.created_at, brd.board_name
+                FROM snuaaa.tb_post po
+                INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
+                INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
+                INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
+                WHERE usr.user_id = $1
+                ORDER BY ob.created_at DESC
+                LIMIT 5
+            `;
+            db.any(query, user_id)
+            .then(function(posts){
+                resolve(posts);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }
+    })
+};
+
 exports.retrieveSoundBox = function() {
     return new Promise((resolve, reject) => {
 
@@ -64,7 +91,6 @@ exports.retrieveSoundBox = function() {
         `;
         db.one(query, [true])
         .then(function(post) {
-            console.log(post)
             resolve(post);
         })
         .catch((err) => {

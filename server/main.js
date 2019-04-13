@@ -21,7 +21,7 @@ if(process.env.NODE_ENV == 'develop') {
     app.use(cors())
     app.use(express.static(__dirname + '/../../snuaaa-react/build'));
     app.get('/page/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
+        res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
     });
 
 }

@@ -8,7 +8,7 @@ exports.retrievePosts = function(board_id) {
         }
         else {
             let query = `
-                SELECT po.object_id, ob.title, ob.contents, ob.created_at, usr.nickname
+                SELECT po.object_id, ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num, usr.nickname
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
                 INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
@@ -33,7 +33,8 @@ exports.retrievePost = function(object_id) {
         }
         else {
             let query = `
-                SELECT ob.title, ob.contents, ob.created_at, usr.nickname
+                SELECT ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num,
+                usr.nickname, usr.profile_path, usr.introduction
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
                 INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)

@@ -6,7 +6,7 @@ import { retrievePhoto } from '../queries/photo';
 const router = express.Router();
 
 router.get('/:photo_id', (req, res) => {
-    console.log('[retrivePhotoInfo] ');
+    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
     .then(decodedToken => {

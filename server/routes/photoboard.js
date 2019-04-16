@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import { retrieveAlbums, createAlbum, retrieveAlbumsbyCategory } from '../queries/album';
-import { retrievePhotosInBoard, createPhotosInBoard } from '../queries/photo';
+import { retrievePhotosInBoard, createPhotosInBoard, retrievePhotosByTag } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 
@@ -57,16 +57,32 @@ router.get('/:pbNo/albums', (req, res) => {
 router.get('/:pbNo/photos', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrievePhotosInBoard(req.params.pbNo)
-    .then((photos) => {
-        res.json(photos)
-    })
-    .catch((err) => {
-        res.status(409).json({
-            error: 'RETRIEVE PHOTO FAIL',
-            code: 1
-        });
-    })
+    if(req.query.tag) {
+        console.log(req.query.tag)
+        retrievePhotosByTag(req.query.tag)
+        .then((photos) => {
+            res.json(photos)
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(409).json({
+                error: 'RETRIEVE ALBUM FAIL',
+                code: 1
+            });
+        })
+    }
+    else {
+        retrievePhotosInBoard(req.params.pbNo)
+        .then((photos) => {
+            res.json(photos)
+        })
+        .catch((err) => {
+            res.status(409).json({
+                error: 'RETRIEVE PHOTO FAIL',
+                code: 1
+            });
+        })
+    }
 })
 
 
@@ -103,21 +119,59 @@ router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
         }
         else {
             const data = [];
-            for(let i = 0; i < req.files.length; i++) {
+
+            if(req.files.length > 1) {
+                for(let i = 0; i < req.files.length; i++) {
+                    console.log(req.body.tags[i]);
+                    let tags;
+                    if(req.body.tags[i]) {
+                        tags = req.body.tags[i].replace("'", "").split(',')
+                    }
+                    else {
+                        tags = [];
+                    }
+                    data.push({
+                        type: 'PH',
+                        title: req.body.title[i],
+                        contents: req.body.desc[i],
+                        date: req.body.date[i],
+                        location: req.body.location[i],
+                        camera: req.body.camera[i],
+                        lens: req.body.lens[i],
+                        focal_length: req.body.focal_length[i],
+                        f_stop: req.body.f_stop[i],
+                        exposure_time: req.body.exposure_time[i],
+                        iso: req.body.iso[i],
+                        tags: tags,
+                        board_id: req.params.pbNo,
+                        photoPath: '/album/default/' + req.files[i].filename
+                    })
+                }
+            }
+            else {
+                let tags;
+                if(req.body.tags[0]) {
+                    tags = req.body.tags[0].replace("'", "").split(',')
+                }
+                else {
+                    tags = [];
+                }
+
                 data.push({
                     type: 'PH',
-                    title: req.body.title[i],
-                    contents: req.body.desc[i],
-                    date: req.body.date[i],
-                    location: req.body.location[i],
-                    camera: req.body.camera[i],
-                    lens: req.body.lens[i],
-                    focal_length: req.body.focal_length[i],
-                    f_stop: req.body.f_stop[i],
-                    exposure_time: req.body.exposure_time[i],
-                    iso: req.body.iso[i],
+                    title: req.body.title,
+                    contents: req.body.desc,
+                    date: req.body.date,
+                    location: req.body.location,
+                    camera: req.body.camera,
+                    lens: req.body.lens,
+                    focal_length: req.body.focal_length,
+                    f_stop: req.body.f_stop,
+                    exposure_time: req.body.exposure_time,
+                    iso: req.body.iso,
+                    tags: tags,
                     board_id: req.params.pbNo,
-                    photoPath: '/album/default/' + req.files[i].filename
+                    photoPath: '/album/default/' + req.files[0].filename
                 })
             }
 

@@ -1,5 +1,6 @@
-const db = require('./connection')
-import { createObject } from './object'
+const db = require('./connection');
+import { createObject } from './object';
+import { createPhotoTag } from './tag';
 
 exports.retrievePhoto = function (photo_id) {
     return new Promise((resolve, reject) => {
@@ -161,7 +162,8 @@ exports.createPhotosInBoard = function (user_id, data) {
                     exposure_time: data.exposure_time,
                     iso: data.iso
                 };
-                return db.any(query, queryData)
+                return Promise.all([db.any(query, queryData)]
+                .concat(data.tags.map((tag => createPhotoTag(objectId, tag)))))
             })
             .then(() => {
                 resolve();
@@ -201,3 +203,30 @@ exports.retrievePhotosByUser = function(user_id) {
         }
     })
 };
+
+exports.retrievePhotosByTag = function(tags) {
+    return new Promise((resolve, reject) => {
+        if(!tags) {
+            reject();
+        }
+        else {
+            let query = `
+                SELECT DISTINCT ob.object_id, ob.title, ob.like_num, ob.comment_num, ob.created_at, ph.file_path
+                FROM snuaaa.tb_object ob
+                INNER JOIN snuaaa.tb_photo_tag obt ON (ob.object_id = obt.object_id)
+                INNER JOIN snuaaa.tb_photo ph ON (ob.object_id = ph.object_id)
+                WHERE obt.tag_id IN ($1:list)
+                ORDER BY ob.created_at DESC
+            ;`;
+
+            db.any(query, [tags])
+            .then(function(photos){
+                resolve(photos);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }
+    })
+}
+

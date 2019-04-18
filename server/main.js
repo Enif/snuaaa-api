@@ -1,18 +1,45 @@
 // [LOAD PACKAGES]
 import express from 'express';
-import api from './routes'
+import api from './routes';
+import cors from 'cors';
+import path from 'path'
+import Sequelize from 'sequelize'
 
 require('dotenv').config();
 
 var app         = express();
 var bodyParser  = require('body-parser');
-var mongoose    = require('mongoose');
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use('/', express.static(__dirname + '/../../snuaaa-react/build'));
+
+
+if(process.env.NODE_ENV == 'develop') {
+    // for local test
+    app.use(cors())
+    app.use(express.static(__dirname + '/../../snuaaa-react/build'));
+    app.get('/page/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
+    });
+
+}
+else {
+    // [TODO] SET CORS OPTIONS AFTER PUBLISHING
+    var corsOptions = {
+        origin: 'http://52.78.161.191:8080/',
+        optionsSuccessStatus: 200
+    }
+    app.use(cors(corsOptions))
+    app.use(express.static(path.join(__dirname, '/../build-react')));
+    app.get('/page/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '/../build-react/index.html'));
+    });
+}
+
+app.use('/static', express.static(__dirname + '/../upload'));
+
 
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;
@@ -21,19 +48,14 @@ var port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 
-// [ CONFIGURE mongoose ]
-
-// CONNECT TO MONGODB SERVER
-var db = mongoose.connection;
-db.on('error', console.error);
-db.once('open', function(){
-    // CONNECTED TO MONGODB SERVER
-    console.log("Connected to mongod server");
-});
-
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
-.then(() => console.log('Successfully connected to mongodb'))
-.catch(e => console.error(e));
+// var sequelize = new Sequelize(process.env.POSTGRESQL_URI)
+// sequelize.authenticate()
+// .then(() =>
+//     console.log("Connected to PostgreSQL server")
+// )
+// .catch((e) => {
+//     console.log("Failed to connect to PostgreSQL server >> ", e)
+// })
 
 // [CONFIGURE ROUTER]
 app.use('/api', api);

@@ -54,17 +54,27 @@ exports.isAuthenticated = (req, res, next) => {
 
   // 토큰 미존재: 로그인하지 않은 사용자
   if (!token) {
-    return res.status(403).json({ success: false, message: '토큰이 존재하지 않습니다.' });
+    return res.status(403).json({
+        success: false,
+        message: 'Token does not exist.'
+    });
   }
 
   // 토큰 검증
   verifyToken(token)
     .then(decodedToken => {
-      req.decodedToken = decodedToken;
-      next();
+        req.decodedToken = decodedToken;
+        next();
     })
-    .catch(err => res.status(403).json({ success: false, message: err.message }));
+    .catch(err => res.status(403).json({
+        success: false,
+        message: err.message
+    }));
 };
+
+export default isAuthenticated;
+//module.exports = isAuthenticated
+
 
 /* const jwt = require('jsonwebtoken');
 

@@ -1,5 +1,7 @@
 import express from 'express';
-import Account from '../models/account';
+import multer from 'multer'
+import { duplicateCheck, signUp } from '../queries/user'
+import { resize } from '../lib/resize';
 
 const router = express.Router();
 
@@ -12,11 +14,21 @@ const router = express.Router();
         3: ID EXISTS
 */
 
-router.post('/', (req, res) => {
-    // CHECK USERNAME FORMAT
-    let usernameRegex = /^[a-z0-9]+$/;
+const storage = multer.diskStorage({
+    destination: './upload/profile',
+    filename(req, file, cb) {
+        let timestamp = (new Date).valueOf()
+        cb(null, timestamp + "_" + file.originalname);
+        // cb(new Error("Failed to make file name"), `${(new Date()).valueOf()}-${file.originalname}`);
+    },
+});
 
-    console.log('[signup] ' + JSON.stringify(req.body));
+const upload = multer({storage})
+
+router.post('/', upload.single('profile'), (req, res) => {
+    // CHECK USERNAME FORMAT
+    let usernameRegex = /^[a-zA-Z0-9]+$/;
+    console.log('[signup]');
 
     if(!usernameRegex.test(req.body.id)) {
         return res.status(400).json({
@@ -33,48 +45,46 @@ router.post('/', (req, res) => {
         });
     }
 
-    // CHECK USER EXISTANCE
-    Account.findOne({ id: req.body.id }, (err, exists) => {
-        if (err) throw err;
-        if(exists){
-            return res.status(409).json({
-                error: "ID EXISTS",
-                code: 3
-            });
-        }
+    if(req.body.password !== req.body.passwordCf) {
+        return res.status(400).json({
+            error: "BAD PASSWORD CONFIRM ",
+            code: 3
+        })
+    }
 
+    let profilePath;
+    if(req.file){
+        profilePath = '/profile/' + req.file.filename;
+        resize(req.file.path)
+    }
 
-        // CREATE ACCOUNT
-        let account = new Account({
-            id: req.body.id,
-            password: req.body.password,
-            passwordCf: req.body.passwordCf,
-            username: req.body.username,
-            aaaNum: req.body.aaaNum,
-            schoolNum: req.body.schoolNum,
-            major: req.body.major,
-            email: req.body.email,
-            mobile: req.body.mobile,
-            introduction: req.body.introduction
-        });
+    let user = {
+        id: req.body.id,
+        password: req.body.password,
+        username: req.body.username,
+        // nickname: nickname,
+        aaaNum: req.body.aaaNum,
+        schoolNum: req.body.schoolNum,
+        major: req.body.major,
+        email: req.body.email,
+        mobile: req.body.mobile,
+        introduction: req.body.introduction,
+        profile_path: profilePath
+    }
 
-        account.password = account.generateHash(account.password);
-        
-        // SAVE IN THE DATABASE
-        account.save( err => {
-            if(err) throw err;
-            return res.json({ success: true });
-        });
-
-    });
+    duplicateCheck(req.body.id)
+    .then(() => signUp(user))
+    .then(() => {
+        console.log('sign Up Success  ')
+        return res.json({ success: true });
+    })
+    .catch((err) => {
+        console.log('sign Up Fail > ', err)
+        return res.status(400).json({
+            error: "Internal Server ERROR",
+            code: 9
+        })
+    })
 });
 
 export default router;
-
-/* 
-app.get('/api/books', function(req,res){
-    Book.find(function(err, books){
-        if(err) return res.status(500).send({error: 'database failure'});
-        res.json(books);
-    })
-}); */

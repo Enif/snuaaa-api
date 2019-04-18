@@ -1,19 +1,19 @@
 const db = require('./connection');
 
-exports.retrieveTags = function() {
+exports.retrieveTagsOnBoard = function(board_id) {
     return new Promise((resolve, reject) => {
 
-    // [TODO] tag table에 board_id FK 추가, tb_photo_tag -> tb_object_tag
-        // if(!board_id) {
-        //     reject();
-        // }
-        // else {
+        if(!board_id) {
+            reject();
+        }
+        else {
             let query = `
                 SELECT tag_id, tag_name
                 FROM snuaaa.tb_tag
+                WHERE board_id = $1
                 ;
             `;
-            db.any(query, null)
+            db.any(query, board_id)
             .then(function(tags){
                 resolve(tags);    
             })
@@ -21,7 +21,33 @@ exports.retrieveTags = function() {
                 console.error(err)
                 reject(err)
             })
-        // }
+        }
+    })
+};
+
+exports.retrieveTagsOnBoardForObject = function(object_id) {
+    return new Promise((resolve, reject) => {
+
+        if(!object_id) {
+            reject();
+        }
+        else {
+            let query = `
+                SELECT tg.tag_id, tg.tag_name
+                FROM snuaaa.tb_object ob
+                INNER JOIN snuaaa.tb_tag tg ON (ob.board_id = tg.board_id)
+                WHERE object_id = $1
+                ;
+            `;
+            db.any(query, object_id)
+            .then(function(tags){
+                resolve(tags);    
+            })
+            .catch((err) => {
+                console.error(err)
+                reject(err)
+            })
+        }
     })
 };
 
@@ -36,7 +62,7 @@ exports.retrieveTagsOnObject = function(object_id) {
             let query = `
                 SELECT tg.tag_id, tg.tag_name
                 FROM snuaaa.tb_object ob
-                INNER JOIN snuaaa.tb_photo_tag phtg ON (ob.object_id = phtg.object_id)
+                INNER JOIN snuaaa.tb_object_tag phtg ON (ob.object_id = phtg.object_id)
                 INNER JOIN snuaaa.tb_tag tg ON (phtg.tag_id = tg.tag_id)
                 WHERE ob.object_id = $1
                 ;
@@ -53,14 +79,14 @@ exports.retrieveTagsOnObject = function(object_id) {
     })
 };
 
-exports.createPhotoTag = function(object_id, tag) {
+exports.createObjectTag = function(object_id, tag) {
     return new Promise((resolve, reject) => {
         if(!object_id || !tag) {
             reject();
         }
         else {
             let query = `
-            INSERT INTO snuaaa.tb_photo_tag(
+            INSERT INTO snuaaa.tb_object_tag(
                 object_id, tag_id)
                 VALUES ($1, $2)
             ;`;

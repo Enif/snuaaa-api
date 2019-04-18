@@ -81,7 +81,7 @@ exports.retrieveAlbum = function(album_id) {
         }
         else {
             let query = `
-            SELECT al.object_id, ob.title, ob.contents, usr.nickname
+            SELECT al.object_id, ob.title, ob.contents, ob.board_id, usr.nickname
             FROM snuaaa.tb_album al
             INNER JOIN snuaaa.tb_object ob ON (al.object_id = ob.object_id)
             INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)

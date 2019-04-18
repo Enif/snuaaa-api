@@ -122,10 +122,9 @@ router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
 
             if(req.files.length > 1) {
                 for(let i = 0; i < req.files.length; i++) {
-                    console.log(req.body.tags[i]);
                     let tags;
                     if(req.body.tags[i]) {
-                        tags = req.body.tags[i].replace("'", "").split(',')
+                        tags = req.body.tags[i].split(',')
                     }
                     else {
                         tags = [];
@@ -150,8 +149,8 @@ router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
             }
             else {
                 let tags;
-                if(req.body.tags[0]) {
-                    tags = req.body.tags[0].replace("'", "").split(',')
+                if(req.body.tags) {
+                    tags = req.body.tags.split(',')
                 }
                 else {
                     tags = [];

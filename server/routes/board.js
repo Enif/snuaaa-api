@@ -3,7 +3,7 @@ import { verifyTokenUseReq } from '../lib/token';
 import { retrieveBoardInfo } from '../queries/board';
 import { retrieveCategories } from '../queries/category';
 import { retrievePosts, createPost } from '../queries/post';
-import { retrieveTags } from '../queries/tag';
+import { retrieveTagsOnBoard } from '../queries/tag';
 
 const router = express.Router();
 
@@ -52,9 +52,8 @@ router.get('/:bno/posts', (req, res) => {
 router.get('/:bno/tags', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveTags()
+    retrieveTagsOnBoard(req.params.bno)
     .then((tags) => {
-        console.log(tags)
         res.json(tags)
     })
     .catch((err) => {

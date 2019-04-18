@@ -17,7 +17,6 @@ router.get('/:photo_id', (req, res) => {
         ])
     })
     .then((infos) => {
-        console.log(infos)
         res.json({
             photoInfo: infos[0],
             likeInfo: infos[1],

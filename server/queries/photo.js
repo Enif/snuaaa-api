@@ -1,6 +1,6 @@
 const db = require('./connection');
 import { createObject } from './object';
-import { createPhotoTag } from './tag';
+import { createObjectTag } from './tag';
 
 exports.retrievePhoto = function (photo_id) {
     return new Promise((resolve, reject) => {
@@ -103,7 +103,7 @@ exports.createPhotoInAlbum = function (user_id, data) {
                 VALUES ($<object_id>, $<album_id>, $<file_path>, $<date>, $<location>,
                     $<camera>, $<lens>, $<focal_length>, $<f_stop>, $<exposure_time>, $<iso>)`;
 
-            createObject(user_id, null, data)
+            createObject(user_id, data.board_id, data)
             .then((objectId) => {
                 let queryData = {
                     object_id: objectId,
@@ -118,7 +118,8 @@ exports.createPhotoInAlbum = function (user_id, data) {
                     exposure_time: data.exposure_time,
                     iso: data.iso
                 };
-                return db.any(query, queryData)
+                return Promise.all([db.any(query, queryData)]
+                .concat(data.tags.map((tag => createObjectTag(objectId, tag)))))
             })
             .then(() => {
                 resolve();
@@ -163,7 +164,7 @@ exports.createPhotosInBoard = function (user_id, data) {
                     iso: data.iso
                 };
                 return Promise.all([db.any(query, queryData)]
-                .concat(data.tags.map((tag => createPhotoTag(objectId, tag)))))
+                .concat(data.tags.map((tag => createObjectTag(objectId, tag)))))
             })
             .then(() => {
                 resolve();
@@ -213,7 +214,7 @@ exports.retrievePhotosByTag = function(tags) {
             let query = `
                 SELECT DISTINCT ob.object_id, ob.title, ob.like_num, ob.comment_num, ob.created_at, ph.file_path
                 FROM snuaaa.tb_object ob
-                INNER JOIN snuaaa.tb_photo_tag obt ON (ob.object_id = obt.object_id)
+                INNER JOIN snuaaa.tb_object_tag obt ON (ob.object_id = obt.object_id)
                 INNER JOIN snuaaa.tb_photo ph ON (ob.object_id = ph.object_id)
                 WHERE obt.tag_id IN ($1:list)
                 ORDER BY ob.created_at DESC

@@ -3,8 +3,9 @@ import multer from 'multer';
 import fs from 'fs';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
-import { retrieveAlbum } from '../queries/album'
-import { retrievePhotosInAlbum, createPhotoInAlbum } from '../queries/photo'
+import { retrieveAlbum } from '../queries/album';
+import { retrievePhotosInAlbum, createPhotoInAlbum } from '../queries/photo';
+import { retrieveTagsOnBoardForObject } from '../queries/tag';
 
 const router = express.Router();
 
@@ -26,9 +27,16 @@ const upload = multer({storage})
 
 router.get('/:aNo', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrieveAlbum(req.params.aNo)
-    .then((albumInfo) => {
-        res.json(albumInfo)
+
+    Promise.all([
+        retrieveAlbum(req.params.aNo),
+        retrieveTagsOnBoardForObject(req.params.aNo)
+    ])
+    .then((infos) => {
+        res.json({
+            albumInfo: infos[0],
+            tagInfo: infos[1]
+        })
     })
     .catch((err) => {
         res.status(409).json({
@@ -69,8 +77,16 @@ router.post('/:aNo/photos', upload.array('uploadPhotos'), (req, res) => {
             const data = [];
             if(req.files.length > 1) {
                 for(let i = 0; i < req.files.length; i++) {
+                    let tags;
+                    if(req.body.tags[i]) {
+                        tags = req.body.tags[i].split(',')
+                    }
+                    else {
+                        tags = [];
+                    }
                     data.push({
                         type: 'PH',
+                        board_id: req.body.board_id[i],
                         title: req.body.title[i],
                         contents: req.body.desc[i],
                         date: req.body.date[i],
@@ -81,14 +97,23 @@ router.post('/:aNo/photos', upload.array('uploadPhotos'), (req, res) => {
                         f_stop: req.body.f_stop[i],
                         exposure_time: req.body.exposure_time[i],
                         iso: req.body.iso[i],
+                        tags: tags,
                         album_id: req.params.aNo,
                         photoPath: '/album/' + req.params.aNo + '/' + req.files[i].filename
                     })
                 }    
             }
             else {
+                let tags;
+                if(req.body.tags) {
+                    tags = req.body.tags.split(',')
+                }
+                else {
+                    tags = [];
+                }
                 data.push({
                     type: 'PH',
+                    board_id: req.body.board_id,
                     title: req.body.title,
                     contents: req.body.desc,
                     date: req.body.date,
@@ -99,6 +124,7 @@ router.post('/:aNo/photos', upload.array('uploadPhotos'), (req, res) => {
                     f_stop: req.body.f_stop,
                     exposure_time: req.body.exposure_time,
                     iso: req.body.iso,
+                    tags: tags,
                     album_id: req.params.aNo,
                     photoPath: '/album/' + req.params.aNo + '/' + req.files[0].filename
                 })

@@ -82,7 +82,7 @@ exports.signUp = function(userinfo) {
     })   
 }
 
-exports.logIn = function(logInInfo) {
+exports.retrieveLoginInfo = function(logInInfo) {
     return new Promise((resolve, reject) => {
 
         if(!logInInfo.id || !logInInfo.password) {
@@ -90,7 +90,7 @@ exports.logIn = function(logInInfo) {
             reject()
         }
         
-        let query = `SELECT user_id, password, level, profile_path
+        let query = `SELECT user_id, password, nickname, level, profile_path
         FROM snuaaa.tb_user
         WHERE id = $1`;
         
@@ -117,7 +117,7 @@ exports.retrieveInfo = function(user_id) {
             reject()
         }
         
-        let query = `SELECT id, name, nickname, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
+        let query = `SELECT user_id, id, name, nickname, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
         FROM snuaaa.tb_user
         WHERE user_id = $1`;
 

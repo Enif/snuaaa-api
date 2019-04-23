@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyTokenUseReq } from '../lib/token';
-import { retrieveInfo, updateUser } from '../queries/user';
+import { retrieveInfo, updateUser, dropUser } from '../queries/user';
 import { retrievePostsByUser } from '../queries/post';
 import { retrievePhotosByUser } from '../queries/photo';
 import { retrieveCommentsByUser } from '../queries/comment';
@@ -44,7 +44,7 @@ router.delete('/', (req, res) => {
 
     verifyTokenUseReq(req)
     .then((decodedToken) => {
-        return updateUser(decodedToken._id, req.body)
+        return dropUser(decodedToken._id)
     })
     .then(() => {
         return res.json({success: true})

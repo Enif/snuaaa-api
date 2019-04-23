@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { retrieveLoginInfo } from '../queries/user'
+import { retrieveLoginInfo, updateLoginDate } from '../queries/user'
 import { createToken } from '../lib/token';
 
 const router = express.Router();
@@ -29,8 +29,11 @@ router.post('/', (req, res) => {
     retrieveLoginInfo({id: req.body.id, password:req.body.password})
     .then((userInfo) => {
         user = userInfo;
+        return updateLoginDate(user.user_id)
+    })
+    .then(() => {
         return createToken({
-            _id: userInfo.user_id
+            _id: user.user_id
         })
     })
     .then(token => res.json({

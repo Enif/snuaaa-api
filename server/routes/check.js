@@ -1,6 +1,6 @@
 import express from 'express';
 import { createToken, verifyTokenUseReq } from '../lib/token';
-import { retrieveInfo } from '../queries/user';
+import { retrieveInfo, updateLoginDate } from '../queries/user';
 
 const router = express.Router();
 
@@ -19,8 +19,11 @@ router.get('/', (req, res) => {
     })
     .then((userInfo) => {
         user = userInfo;
+        return updateLoginDate(user.user_id)
+    })
+    .then(() => {
         return createToken({
-            _id: userInfo.user_id
+            _id: user.user_id
         })
     })
     .then((token) => {
@@ -36,7 +39,7 @@ router.get('/', (req, res) => {
         console.error(err)
         return res.status(403).json({
             success: false,
-            message: 'Token does not valid.'
+            message: 'Token is not valid.'
         });
     })
 })

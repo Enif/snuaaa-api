@@ -34,7 +34,6 @@ exports.duplicateCheck = function(id) {
 
 exports.signUp = function(userinfo) {
     return new Promise((resolve, reject) => {
-        console.log(userinfo)
 
         if(!userinfo.id) {
             console.log('Id can not be null')
@@ -172,8 +171,36 @@ exports.updateUser = function(user_id, data) {
             updated_at: updated_at
         }
 
-        console.log(queryData);
+        db.any(query, queryData)
+        .then(() => {
+            resolve()
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
+}
 
+exports.updateLoginDate = function(user_id) {
+    return new Promise((resolve, reject) => {
+
+        if(!user_id) {
+            console.log('Id can not be null')
+            reject();
+        }
+        
+        let query = `
+        UPDATE snuaaa.tb_user
+        SET login_at=$<login_at>
+        WHERE user_id=$<user_id>;
+        `;
+
+        let login_at = new Date();
+    
+        let queryData = {
+            user_id: user_id,
+            login_at: login_at
+        }
 
         db.any(query, queryData)
         .then(() => {
@@ -183,4 +210,28 @@ exports.updateUser = function(user_id, data) {
             reject(err);
         })
     })
+}
+
+exports.dropUser = function(user_id) {
+    return new Promise((resolve, reject) => {
+
+        if(!user_id) {
+            reject('Id can not be null');
+        }
+
+        let query = `
+            DELETE FROM snuaaa.tb_user
+            WHERE user_id = $1;
+        `;
+
+        db.none(query, user_id)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+
+    })
+
 }

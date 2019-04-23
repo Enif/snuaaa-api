@@ -1,5 +1,6 @@
 import express from 'express';
-import { verifyTokenUseReq } from '../lib/token';
+import { createToken, verifyTokenUseReq } from '../lib/token';
+import { retrieveInfo } from '../queries/user';
 
 const router = express.Router();
 
@@ -8,17 +9,31 @@ const router = express.Router();
 */
 
 router.get('/', (req, res) => {
-    console.log('[check]');
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    let user = {};
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        console.log('[check] Token is valid..')
+        return retrieveInfo(decodedToken._id)
+    })
+    .then((userInfo) => {
+        user = userInfo;
+        return createToken({
+            _id: userInfo.user_id
+        })
+    })
+    .then((token) => {
         return res.status(200).json({
-            success: true
+            success: true,
+            level: user.level,
+            profile_path: user.profile_path,
+            nickname: user.nickname,
+            token 
         });
     })
     .catch(err => {
-        console.log('[check] Token is invalid..')
+        console.error(err)
         return res.status(403).json({
             success: false,
             message: 'Token does not valid.'

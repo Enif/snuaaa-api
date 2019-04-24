@@ -1,5 +1,5 @@
 import express from 'express';
-import { retrieveComments, createComment } from '../queries/comment';
+import { retrieveComments, createComment, updateComment, deleteComment } from '../queries/comment';
 import { updateCommentNum, updateLikeNum, checkLike, likeObject, dislikeObject } from '../queries/object';
 import { verifyTokenUseReq } from '../lib/token';
 

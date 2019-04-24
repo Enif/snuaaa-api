@@ -42,9 +42,8 @@ exports.createObject = function(user_id, board_id, data) {
 
 exports.updateCommentNum = function(object_id) {
     return new Promise((resolve, reject) => {
-        
         if(!object_id) {
-            console.log('id can not be null')
+            console.log('(updateCommentNum) id can not be null')
             reject()
         }
 

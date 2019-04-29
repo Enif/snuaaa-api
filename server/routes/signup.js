@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer'
+import bcrypt from 'bcryptjs'
 import { duplicateCheck, signUp } from '../queries/user'
 import { resize } from '../lib/resize';
 
@@ -58,18 +59,38 @@ router.post('/', upload.single('profile'), (req, res) => {
         resize(req.file.path)
     }
 
+    let nickname = '';
+
+    if(req.body.aaaNum) {
+        if((/^[0-9]{2}[Aa]{3}-[0-9]{1,3}$/).test(req.body.aaaNum)) {
+            // 00AAA-000
+            nickname = req.body.aaaNum.substr(0,2) + req.body.username;
+        }
+        else if((/^[Aa]{3}[0-9]{2}-[0-9]{1,3}$/).test(req.body.aaaNum)) {
+            // AAA00-000
+            nickname = req.body.aaaNum.substr(3,2) + req.body.username;
+        }
+        else {
+            nickname = req.body.username;
+            req.body.aaaNum = null;
+        }
+    }
+
+    let level = req.body.aaaNum ? 8 : 9;
+
     let user = {
         id: req.body.id,
-        password: req.body.password,
+        password: bcrypt.hashSync(req.body.password, 8),
         username: req.body.username,
-        // nickname: nickname,
+        nickname: nickname,
         aaaNum: req.body.aaaNum,
         schoolNum: req.body.schoolNum,
         major: req.body.major,
         email: req.body.email,
         mobile: req.body.mobile,
         introduction: req.body.introduction,
-        profile_path: profilePath
+        profile_path: profilePath,
+        level: level
     }
 
     duplicateCheck(req.body.id)
@@ -86,5 +107,17 @@ router.post('/', upload.single('profile'), (req, res) => {
         })
     })
 });
+
+router.post('/dupcheck', (req, res) => {
+    console.log(`[POST] ${req.baseUrl + req.url}`);
+    duplicateCheck(req.body.check_id)
+    .then(() => {
+        return res.json({success: true})
+    })
+    .catch(err => res.status(403).json({
+        success: false
+    }));
+});
+
 
 export default router;

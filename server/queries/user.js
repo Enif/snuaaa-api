@@ -49,25 +49,21 @@ exports.signUp = function(userinfo) {
                 $<mobile>, $<introduction>, $<profile_path>,
                 $<level>, $<created>)`; 
 
-        let password = bcrypt.hashSync(userinfo.password, 8)
-        let nickname = userinfo.aaaNum ? (userinfo.aaaNum.substring(0,2) + userinfo.username) : userinfo.username;
-        let level = userinfo.aaaNum ? 8 : 9;
         let created = new Date()
-
         
         let data = {
             id: userinfo.id,
-            password: password, 
+            password: userinfo.password, 
             username: userinfo.username,
             aaaNum: userinfo.aaaNum, 
-            nickname: nickname,
+            nickname: userinfo.nickname,
             schoolNum: userinfo.schoolNum, 
             major: userinfo.major, 
             email: userinfo.email,
             mobile: userinfo.mobile, 
             introduction: userinfo.introduction, 
             profile_path: userinfo.profile_path,
-            level: level, 
+            level: userinfo.level, 
             created: created
         };
             

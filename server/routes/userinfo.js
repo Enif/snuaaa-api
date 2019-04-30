@@ -17,10 +17,11 @@ router.get('/', (req, res) => {
     .then((userInfo) => {
         return res.json({success: true, userInfo})
     })
-    .catch(err => res.status(403).json({
-        success: false,
-        message: err.message
-    }));
+    .catch((err)=> console.error(err));
+    // .catch(err => res.status(403).json({
+    //     success: false,
+    //     message: err.message
+    // }));
 })
 
 router.patch('/', (req, res) => {
@@ -33,10 +34,11 @@ router.patch('/', (req, res) => {
     .then(() => {
         return res.json({success: true})
     })
-    .catch(err => res.status(403).json({
-        success: false,
-        message: err.message
-    }));
+    .catch((err)=> console.error(err));
+    // .catch(err => res.status(403).json({
+    //     success: false,
+    //     message: err.message
+    // }));
 })
 
 router.delete('/', (req, res) => {

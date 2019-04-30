@@ -108,8 +108,8 @@ exports.retrieveInfo = function(user_id) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
-            console.log('Id can not be null')
-            reject()
+            console.log('Id can not be null');
+            reject();
         }
         
         let query = `SELECT user_id, id, name, nickname, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
@@ -120,6 +120,7 @@ exports.retrieveInfo = function(user_id) {
         .then((userInfo) => {
             resolve(userInfo)
         })
+        // .catch((err)=> console.error(err));
         .catch((err) => {
             reject(err);
         })

@@ -148,7 +148,7 @@ exports.retrieveCommentsByUser = function(user_id) {
                 INNER JOIN snuaaa.tb_object ob ON (co.parent_id = ob.object_id)
                 INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
                 WHERE co.author_id = $1
-                ORDER BY co updated_at DESC
+                ORDER BY co.updated_at DESC
                 LIMIT 6
             ;`;
 

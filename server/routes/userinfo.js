@@ -70,6 +70,7 @@ router.get('/posts', (req, res) => {
             commentList: infos[2]
         })
     })
+    // .catch((err)=> console.error(err));
     .catch(err => res.status(403).json({
         success: false,
         message: err.message

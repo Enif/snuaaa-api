@@ -13,8 +13,6 @@ import document from './document';
 import soundbox from './soundbox';
 import object from './object';
 import comment from './comment';
-import user from './user';
-// import profile from './profile';
 
 const router = express.Router();
 
@@ -31,8 +29,5 @@ router.use('/document', document);
 router.use('/soundbox', soundbox);
 router.use('/object', object);
 router.use('/comment', comment);
-router.use('/user', user);
-
-// router.use('/profile', profile);
 
 export default router;

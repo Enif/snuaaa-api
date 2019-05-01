@@ -1,5 +1,5 @@
 const db = require('./connection')
-import { createObject } from './object'
+import { createObject, deleteObject } from './object'
 
 exports.retrievePosts = function(board_id) {
     return new Promise((resolve, reject) => {
@@ -16,7 +16,6 @@ exports.retrievePosts = function(board_id) {
             `;
             db.any(query, board_id)
             .then(function(posts){
-                console.log(posts)
                 resolve(posts);    
             })
             .catch((err) => {
@@ -33,7 +32,7 @@ exports.retrievePost = function(object_id) {
         }
         else {
             let query = `
-                SELECT ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num,
+                SELECT ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num, ob.board_id,
                 usr.nickname, usr.profile_path, usr.introduction
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
@@ -42,7 +41,6 @@ exports.retrievePost = function(object_id) {
             `;
             db.one(query, object_id)
             .then(function(post) {
-                console.log(post)
                 resolve(post);
             })
             .catch((err) => {
@@ -128,4 +126,51 @@ exports.createPost = function(user_id, board_id, data) {
             reject(err);
         });
     })   
+}
+
+exports.updatePost = function(post_id, postData) {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            UPDATE snuaaa.tb_object
+            SET title=$<title>,
+            contents=$<contents>
+            WHERE object_id=$<post_id>;
+        `;
+
+        let queryData = {
+            post_id: post_id,
+            title: postData.title,
+            contents: postData.contents
+        }
+
+        db.any(query, queryData)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
+}
+
+exports.deletePost = function(post_id) {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            DELETE FROM snuaaa.tb_post
+            WHERE object_id = $1;
+        `;
+
+        db.none(query, post_id)
+        .then(() => {
+            return deleteObject(post_id)
+        })
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
 }

@@ -40,6 +40,24 @@ exports.createObject = function(user_id, board_id, data) {
     })   
 }
 
+exports.deleteObject = function(object_id) {
+    return new Promise((resolve, reject) => {
+
+        let query = `
+            DELETE FROM snuaaa.tb_object
+            WHERE object_id = $1;
+        `;
+
+        db.none(query, object_id)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
+}
+
 exports.updateCommentNum = function(object_id) {
     return new Promise((resolve, reject) => {
         if(!object_id) {

@@ -142,7 +142,7 @@ exports.retrieveCommentsByUser = function(user_id) {
         }
         else {
             let query = `
-                SELECT co.comment_id, co.parent_id, co.contents, co updated_at,
+                SELECT co.comment_id, co.parent_id, co.contents, co.created_at,
                 ob.title, ob.type, brd.board_name
                 FROM snuaaa.tb_comment co
                 INNER JOIN snuaaa.tb_object ob ON (co.parent_id = ob.object_id)

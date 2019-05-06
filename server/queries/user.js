@@ -134,7 +134,7 @@ exports.updateUser = function(user_id, data) {
             console.log('Id can not be null')
             reject();
         }
-        
+
         let query = `
         UPDATE snuaaa.tb_user
         SET name=$<name>,
@@ -146,25 +146,25 @@ exports.updateUser = function(user_id, data) {
         mobile=$<mobile>,
         introduction=$<introduction>,
         level=$<level>,
-        updated_at=$<updated_at>
+        updated_at=$<updated_at>,
+        profile_path=$<profile_path>
         WHERE user_id=$<user_id>;
         `;
 
-        let nickname = data.aaa_no ? (data.aaa_no.substring(0,2) + data.name) : data.name;
-        let level = data.aaa_no ? 8 : 9;
         let updated_at = new Date();
     
         let queryData = {
             user_id: user_id,
             name: data.name,
-            nickname: nickname,
+            nickname: data.nickname,
             aaa_no: data.aaa_no,
             col_no: data.col_no,
             major: data.major,
             email: data.email,
             mobile: data.mobile,
             introduction: data.introduction,
-            level: level,
+            level: data.level,
+            profile_path: data.profile_path,
             updated_at: updated_at
         }
 

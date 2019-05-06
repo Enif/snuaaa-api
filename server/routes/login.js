@@ -38,6 +38,7 @@ router.post('/', (req, res) => {
     })
     .then(token => res.json({
         sucess: true,
+        user_id: user.user_id,
         level: user.level,
         profile_path: user.profile_path,
         nickname: user.nickname,

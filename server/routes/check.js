@@ -29,6 +29,7 @@ router.get('/', (req, res) => {
     .then((token) => {
         return res.status(200).json({
             success: true,
+            user_id: user.user_id,
             level: user.level,
             profile_path: user.profile_path,
             nickname: user.nickname,

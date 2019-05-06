@@ -1,13 +1,12 @@
 import express from 'express';
-import { updateComment, deleteComment, commentInfoFromId } from '../queries/comment';
+import { updateComment, deleteComment, retrieveCommentById } from '../queries/comment';
 import { updateCommentNum } from '../queries/object';
 import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 
-//updateComment - GM
 router.patch('/:comment_id', (req, res) => {
-    console.log(`[UPDATE] ${req.baseUrl + req.url}`);
+    console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
         .then(() => {
@@ -27,10 +26,11 @@ router.patch('/:comment_id', (req, res) => {
 
 router.delete('/:comment_id', (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
+
     let parent_id = '';
     verifyTokenUseReq(req)
         .then(() => {
-            return commentInfoFromId(req.params.comment_id)
+            return retrieveCommentById(req.params.comment_id)
         })
         .then((info) => {
             parent_id = info.parent_id;
@@ -42,12 +42,12 @@ router.delete('/:comment_id', (req, res) => {
         .then(() => {
             res.json({ success: true });
         })
-        .catch(err => res.status(403).json({
-            success: false,
-            message: err.message
-        }));
-        // .catch((err)=> console.error(err));
-
+        .catch(err => {
+            console.error(err);
+            res.status(403).json({
+            success: false
+        })
+    });
 });
 
 

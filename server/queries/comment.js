@@ -1,14 +1,13 @@
 const db = require('./connection')
-import { createObject } from './object'
 
 exports.retrieveComments = function(object_id) {
     return new Promise((resolve, reject) => {
         if(!object_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
-                SELECT co.comment_id, co.contents, co.updated_at, usr.nickname, usr.profile_path
+                SELECT co.comment_id, co.author_id, co.contents, co.updated_at, usr.nickname, usr.profile_path
                 FROM snuaaa.tb_comment co
                 INNER JOIN snuaaa.tb_user usr ON (co.author_id = usr.user_id)
                 WHERE co.parent_id = $1
@@ -16,7 +15,6 @@ exports.retrieveComments = function(object_id) {
             `;
             db.any(query, object_id)
             .then(function(comments){
-                console.log(comments)
                 resolve(comments);    
             })
             .catch((err) => {
@@ -29,8 +27,7 @@ exports.retrieveComments = function(object_id) {
 exports.createComment = function(user_id, parent_id, data) {
     return new Promise((resolve, reject) => {
         if(!user_id || !parent_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `INSERT INTO snuaaa.tb_comment(
@@ -60,8 +57,7 @@ exports.createComment = function(user_id, parent_id, data) {
 exports.updateComment = function(comment_id, contents) {
     return new Promise((resolve, reject) => {
         if(!comment_id) {
-            console.log('comment_id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `UPDATE snuaaa.tb_comment 
@@ -90,8 +86,7 @@ exports.deleteComment = function(comment_id) {
 
     return new Promise((resolve, reject) => {
         if(!comment_id) {
-            console.log('(deleteComment) id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `
@@ -114,11 +109,10 @@ exports.deleteComment = function(comment_id) {
     })
 }
 
-exports.commentInfoFromId = function(comment_id) {
+exports.retrieveCommentById = function(comment_id) {
     return new Promise((resolve, reject) => {
         if(!comment_id) {
-            console.log(' (commentInfoFromId) id can not be null')
-            reject()
+            reject('id can not be null')
         }
 
         let query = `
@@ -138,7 +132,7 @@ exports.commentInfoFromId = function(comment_id) {
 exports.retrieveCommentsByUser = function(user_id) {
     return new Promise((resolve, reject) => {
         if(!user_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `

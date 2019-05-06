@@ -4,15 +4,16 @@ import { createObject, deleteObject } from './object'
 exports.retrievePosts = function(board_id) {
     return new Promise((resolve, reject) => {
         if(!board_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
-                SELECT po.object_id, ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num, usr.nickname
+                SELECT po.object_id, ob.author_id, ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num, usr.nickname
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
                 INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
                 WHERE ob.board_id = $1
+                ORDER BY ob.created_at DESC
             `;
             db.any(query, board_id)
             .then(function(posts){
@@ -28,11 +29,11 @@ exports.retrievePosts = function(board_id) {
 exports.retrievePost = function(object_id) {
     return new Promise((resolve, reject) => {
         if(!object_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
-                SELECT ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num, ob.board_id,
+                SELECT ob.title, ob.author_id, ob.contents, ob.created_at, ob.like_num, ob.comment_num, ob.board_id,
                 usr.nickname, usr.profile_path, usr.introduction
                 FROM snuaaa.tb_post po
                 INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
@@ -53,7 +54,7 @@ exports.retrievePost = function(object_id) {
 exports.retrievePostsByUser = function(user_id) {
     return new Promise((resolve, reject) => {
         if(!user_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -103,8 +104,7 @@ exports.createPost = function(user_id, board_id, data) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         data.type = 'PO';
         
@@ -131,6 +131,10 @@ exports.createPost = function(user_id, board_id, data) {
 exports.updatePost = function(post_id, postData) {
     return new Promise((resolve, reject) => {
 
+        if(!post_id) {
+            reject('id can not be null')
+        }
+
         let query = `
             UPDATE snuaaa.tb_object
             SET title=$<title>,
@@ -156,6 +160,10 @@ exports.updatePost = function(post_id, postData) {
 
 exports.deletePost = function(post_id) {
     return new Promise((resolve, reject) => {
+
+        if(!post_id) {
+            reject('id can not be null')
+        }
 
         let query = `
             DELETE FROM snuaaa.tb_post

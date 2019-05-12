@@ -12,7 +12,7 @@ exports.retrievePhoto = function (photo_id) {
             let query = `
             SELECT ph.object_id, ph.file_path, ph.date, ph.location, ph.camera, ph.lens,
             ph.exposure_time, ph.focal_length, ph.f_stop, ph.iso,
-            ob.title, ob.contents, ob.created_at, ob.like_num, ob.comment_num,
+            ob.title, ob.contents, ob.author_id, ob.created_at, ob.like_num, ob.comment_num,
             usr.nickname, usr.profile_path, usr.introduction
             FROM snuaaa.tb_photo ph
             INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
@@ -28,6 +28,71 @@ exports.retrievePhoto = function (photo_id) {
                 reject(err)
             })
         }
+    })
+}
+
+exports.updatePhoto = function(photo_id, photoData) {
+    return new Promise((resolve, reject) => {
+
+        if(!photo_id) {
+            reject('id can not be null')
+        }
+
+        let query = `
+            UPDATE snuaaa.tb_photo
+            SET date=$<date>,
+            location=$<location>,
+            camera=$<camera>,
+            lens=$<lens>,
+            focal_length=$<focal_length>,
+            f_stop=$<f_stop>,
+            exposure_time=$<exposure_time>,
+            iso=$<iso>
+            WHERE object_id=$<object_id>;
+        `;
+
+        let queryData = {
+            object_id: photo_id,
+            date: photoData.date,
+            location: photoData.location,
+            camera: photoData.camera,
+            lens: photoData.lens,
+            focal_length: photoData.focal_length,
+            f_stop: photoData.f_stop,
+            exposure_time: photoData.exposure_time,
+            iso: photoData.iso
+        }
+
+        db.any(query, queryData)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
+}
+
+
+exports.deletePhoto = function(photo_id) {
+    return new Promise((resolve, reject) => {
+
+        if(!photo_id) {
+            reject('id can not be null')
+        }
+
+        let query = `
+            DELETE FROM snuaaa.tb_photo
+            WHERE object_id = $1;
+        `;
+
+        db.none(query, photo_id)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
     })
 }
 

@@ -2,7 +2,6 @@ const db = require('./connection')
 
 
 exports.createObject = function(user_id, board_id, data) {
-    const TAG = 'createObject'
 
     return new Promise((resolve, reject) => {
         
@@ -31,7 +30,6 @@ exports.createObject = function(user_id, board_id, data) {
         
         db.one(query, queryData, object => object.object_id)
         .then((object_id) => {
-            console.log(`[${TAG}] object >> ${object_id}`)
             resolve(object_id);
         })
         .catch((err) => {
@@ -40,8 +38,42 @@ exports.createObject = function(user_id, board_id, data) {
     })   
 }
 
+exports.updateObject = function(object_id, objectData) {
+    return new Promise((resolve, reject) => {
+
+        if(!object_id) {
+            reject('id can not be null')
+        }
+
+        let query = `
+            UPDATE snuaaa.tb_object
+            SET title=$<title>,
+            contents=$<contents>
+            WHERE object_id=$<object_id>;
+        `;
+
+        let queryData = {
+            object_id: object_id,
+            title: objectData.title,
+            contents: objectData.contents
+        }
+
+        db.any(query, queryData)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
+}
+
 exports.deleteObject = function(object_id) {
     return new Promise((resolve, reject) => {
+
+        if(!object_id) {
+            reject('id can not be null')
+        }
 
         let query = `
             DELETE FROM snuaaa.tb_object
@@ -61,8 +93,7 @@ exports.deleteObject = function(object_id) {
 exports.updateCommentNum = function(object_id) {
     return new Promise((resolve, reject) => {
         if(!object_id) {
-            console.log('(updateCommentNum) id can not be null')
-            reject()
+            reject('id can not be null')
         }
 
         const query = `
@@ -89,8 +120,7 @@ exports.updateLikeNum = function(object_id) {
     return new Promise((resolve, reject) => {
         
         if(!object_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
 
         const query = `
@@ -117,8 +147,7 @@ exports.checkLike = function(user_id, object_id) {
     return new Promise((resolve, reject) => {
         
         if(!user_id || !object_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
 
         const query = `
@@ -150,8 +179,7 @@ exports.likeObject = function(user_id, object_id) {
 
     return new Promise((resolve, reject) => {
         if(!user_id || !object_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
 
         const query = `
@@ -180,8 +208,7 @@ exports.dislikeObject = function(user_id, object_id) {
 
     return new Promise((resolve, reject) => {
         if(!user_id || !object_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         const query = `

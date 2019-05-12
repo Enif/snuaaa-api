@@ -74,6 +74,34 @@ exports.retrieveAlbumsbyCategory = function(board_id, category_id) {
     })
 };
 
+exports.retrieveAlbumByPhoto = function(photo_id) {
+    return new Promise((resolve, reject) => {
+        if(!photo_id) {
+            reject();
+        }
+        else {
+            let query = `
+            SELECT al.object_id, ob.title, ob.author_id, usr.name
+            FROM snuaaa.tb_photo ph
+            INNER JOIN snuaaa.tb_album al ON ph.album_id = al.object_id
+            INNER JOIN snuaaa.tb_object ob ON al.object_id = ob.object_id
+            INNER JOIN snuaaa.tb_user usr ON ob.author_id = usr.user_id
+            WHERE ph.object_id = $1
+            ;
+            `;
+            db.oneOrNone(query, photo_id)
+            .then(function(albumInfo) {
+                resolve(albumInfo)
+            })
+            .catch((err) => {
+                console.error(err)
+                reject(err)
+            })
+        }
+    })
+}
+
+
 exports.retrieveAlbum = function(album_id) {
     return new Promise((resolve, reject) => {
         if(!album_id) {

@@ -109,7 +109,7 @@ exports.retrieveAlbum = function(album_id) {
         }
         else {
             let query = `
-            SELECT al.object_id, ob.title, ob.contents, ob.board_id, usr.nickname
+            SELECT al.object_id, ob.title, ob.contents, ob.board_id, ob.author_id, usr.nickname
             FROM snuaaa.tb_album al
             INNER JOIN snuaaa.tb_object ob ON (al.object_id = ob.object_id)
             INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
@@ -155,4 +155,26 @@ exports.createAlbum = function(user_id, board_id, data) {
             reject(err);
         });
     })   
+}
+
+exports.deleteAlbum = function(album_id) {
+    return new Promise((resolve, reject) => {
+
+        if(!album_id) {
+            reject('id can not be null')
+        }
+
+        let query = `
+            DELETE FROM snuaaa.tb_album
+            WHERE object_id = $1;
+        `;
+
+        db.none(query, album_id)
+        .then(() => {
+            resolve();
+        })
+        .catch((err) => {
+            reject(err);
+        })
+    })
 }

@@ -37,7 +37,7 @@ router.patch('/:post_id', (req, res) => {
 })
 
 router.delete('/:post_id', (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    console.log(`[DELETE] ${req.baseUrl + req.url}`);
     verifyTokenUseReq(req)
     .then(decodedToken => {
         return deletePost(req.params.post_id)

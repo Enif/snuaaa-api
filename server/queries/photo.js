@@ -2,6 +2,29 @@ const db = require('./connection');
 import { createObject } from './object';
 import { createObjectTag } from './tag';
 
+exports.retrievePhotoCount = function(board_id) {
+    return new Promise((resolve, reject) => {
+        if(!board_id) {
+            reject('id can not be null');
+        }
+        else {
+            let query = `
+                SELECT COUNT(*)
+                FROM snuaaa.tb_photo ph
+                INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
+                WHERE ob.board_id = $1
+            `;
+            db.one(query, board_id)
+            .then(function(photoNum){
+                resolve(photoNum);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }   
+    })
+}
+
 exports.retrievePhoto = function (photo_id) {
     return new Promise((resolve, reject) => {
         if (!photo_id) {
@@ -24,7 +47,6 @@ exports.retrievePhoto = function (photo_id) {
                 resolve(photo);
             })
             .catch((err) => {
-                console.error(err)
                 reject(err)
             })
         }
@@ -122,7 +144,7 @@ exports.retrievePhotosInAlbum = function (album_id) {
     })
 }
 
-exports.retrievePhotosInBoard = function(board_id) {
+exports.retrievePhotosInBoard = function(board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if(!board_id) {
             reject();
@@ -137,14 +159,15 @@ exports.retrievePhotosInBoard = function(board_id) {
                 WHERE alob.board_id = $1
                 OR ob.board_id = $1
                 ORDER BY ob.created_at DESC
+                LIMIT $2
+                OFFSET $3
                 ;
             `;
-            db.any(query, board_id)
+            db.any(query, [board_id, rowNum, offset])
             .then(function(photos){
                 resolve(photos);    
             })
             .catch((err) => {
-                console.error(err)
                 reject(err)
             })
         }
@@ -153,7 +176,6 @@ exports.retrievePhotosInBoard = function(board_id) {
 
 exports.createPhotoInAlbum = function (user_id, data) {
     return new Promise((resolve, reject) => {
-        console.log(data)
 
         if (!user_id) {
             console.log('id can not be null')
@@ -190,7 +212,6 @@ exports.createPhotoInAlbum = function (user_id, data) {
                 resolve();
             })
             .catch((err) => {
-                console.log(err)
                 reject(err);
             });
         }
@@ -199,7 +220,6 @@ exports.createPhotoInAlbum = function (user_id, data) {
 
 exports.createPhotosInBoard = function (user_id, data) {
     return new Promise((resolve, reject) => {
-        console.log(data)
 
         if (!user_id) {
             console.log('id can not be null')
@@ -235,7 +255,6 @@ exports.createPhotosInBoard = function (user_id, data) {
                 resolve();
             })
             .catch((err) => {
-                console.log(err)
                 reject(err);
             });
         }
@@ -270,7 +289,34 @@ exports.retrievePhotosByUser = function(user_id) {
     })
 };
 
-exports.retrievePhotosByTag = function(tags) {
+exports.retrievePhotoCountByTag = function(tags) {
+    return new Promise((resolve, reject) => {
+        if(!tags) {
+            reject('id can not be null');
+        }
+        else {
+            let query = `
+                SELECT COUNT(DISTINCT ob.object_id)
+                FROM snuaaa.tb_object ob
+                INNER JOIN snuaaa.tb_object_tag obt ON (ob.object_id = obt.object_id)
+                INNER JOIN snuaaa.tb_photo ph ON (ob.object_id = ph.object_id)
+                WHERE obt.tag_id IN ($1:list)
+            `;
+            db.one(query, [tags])
+            .then(function(photoNum){
+                resolve(photoNum);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }   
+    })
+}
+
+exports.retrievePhotosByTag = function(tags, rowNum, offset) {
+    console.log(tags)
+    console.log(rowNum)
+    console.log(offset)
     return new Promise((resolve, reject) => {
         if(!tags) {
             reject();
@@ -283,9 +329,11 @@ exports.retrievePhotosByTag = function(tags) {
                 INNER JOIN snuaaa.tb_photo ph ON (ob.object_id = ph.object_id)
                 WHERE obt.tag_id IN ($1:list)
                 ORDER BY ob.created_at DESC
+                LIMIT $2
+                OFFSET $3
             ;`;
 
-            db.any(query, [tags])
+            db.any(query, [tags, rowNum, offset])
             .then(function(photos){
                 resolve(photos);    
             })

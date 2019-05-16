@@ -1,7 +1,30 @@
 const db = require('./connection')
 import { createObject, deleteObject } from './object'
 
-exports.retrievePosts = function(board_id) {
+exports.retrievePostCount = function(board_id) {
+    return new Promise((resolve, reject) => {
+        if(!board_id) {
+            reject('id can not be null');
+        }
+        else {
+            let query = `
+                SELECT COUNT(*)
+                FROM snuaaa.tb_post po
+                INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
+                WHERE ob.board_id = $1
+            `;
+            db.one(query, board_id)
+            .then(function(postNum){
+                resolve(postNum);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }   
+    })
+}
+
+exports.retrievePosts = function(board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if(!board_id) {
             reject('id can not be null');
@@ -14,8 +37,10 @@ exports.retrievePosts = function(board_id) {
                 INNER JOIN snuaaa.tb_user usr ON (ob.author_id = usr.user_id)
                 WHERE ob.board_id = $1
                 ORDER BY ob.created_at DESC
+                LIMIT $2
+                OFFSET $3
             `;
-            db.any(query, board_id)
+            db.any(query, [board_id, rowNum, offset])
             .then(function(posts){
                 resolve(posts);    
             })

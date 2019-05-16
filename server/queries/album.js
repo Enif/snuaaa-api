@@ -1,7 +1,56 @@
 const db = require('./connection')
 import { createObject } from './object'
 
-exports.retrieveAlbums = function(board_id) {
+exports.retrieveAlbumCount = function(board_id) {
+    return new Promise((resolve, reject) => {
+        if(!board_id) {
+            reject('id can not be null');
+        }
+        else {
+            let query = `
+                SELECT COUNT(*)
+                FROM snuaaa.tb_album al
+                INNER JOIN snuaaa.tb_object ob ON (al.object_id = ob.object_id)
+                WHERE ob.board_id = $1
+            `;
+            db.one(query, board_id)
+            .then(function(albumNum){
+                resolve(albumNum);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }   
+    })
+}
+
+exports.retrieveAlbumCountByCategory = function(board_id, category_id) {
+    return new Promise((resolve, reject) => {
+        if(!board_id) {
+            reject('id can not be null');
+        }
+        else {
+            let query = `
+                SELECT COUNT(*)
+                FROM snuaaa.tb_album al
+                INNER JOIN snuaaa.tb_object ob ON (al.object_id = ob.object_id)
+                WHERE ob.board_id = $1
+                AND ob.category_id = $2
+            `;
+            db.one(query, [board_id, category_id])
+            .then(function(albumNum){
+                resolve(albumNum);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }   
+    })
+}
+
+
+
+exports.retrieveAlbums = function(board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if(!board_id) {
             reject();
@@ -23,8 +72,10 @@ exports.retrieveAlbums = function(board_id) {
                 LEFT OUTER JOIN snuaaa.tb_category ctg ON (ob.category_id = ctg.category_id)
                 WHERE ob.board_id = $1
                 ORDER BY ob.created_at DESC
+                LIMIT $2
+                OFFSET $3
             `;
-            db.any(query, board_id)
+            db.any(query, [board_id, rowNum, offset])
             .then(function(albums){
                 resolve(albums);    
             })
@@ -36,7 +87,7 @@ exports.retrieveAlbums = function(board_id) {
     })
 };
 
-exports.retrieveAlbumsbyCategory = function(board_id, category_id) {
+exports.retrieveAlbumsbyCategory = function(board_id, category_id, rowNum, offset) {
     console.log('retrieve by category..')
     return new Promise((resolve, reject) => {
         if(!board_id) {
@@ -60,8 +111,10 @@ exports.retrieveAlbumsbyCategory = function(board_id, category_id) {
                 WHERE ob.board_id = $1
                 AND ob.category_id = $2
                 ORDER BY ob.created_at DESC
+                LIMIT $3
+                OFFSET $4
             `;
-            db.any(query, [board_id, category_id])
+            db.any(query, [board_id, category_id, rowNum, offset])
             .then(function(albums){
                 resolve(albums);    
             })

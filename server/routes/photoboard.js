@@ -1,8 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { retrieveAlbums, createAlbum, retrieveAlbumsbyCategory } from '../queries/album';
-import { retrievePhotosInBoard, createPhotosInBoard, retrievePhotosByTag } from '../queries/photo';
+import { retrieveAlbumCount, retrieveAlbumCountByCategory, retrieveAlbums, createAlbum, retrieveAlbumsbyCategory } from '../queries/album';
+import { retrievePhotoCount, retrievePhotoCountByTag, retrievePhotosInBoard, createPhotosInBoard, retrievePhotosByTag } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 
@@ -24,13 +24,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage})
 
-router.get('/:pbNo/albums', (req, res) => {
+router.get('/:board_id/albums', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
+    let offset = 0;
+    let albumCount = 0;
+    const ROWNUM = 12;
+
+    if(req.query.page > 0) {
+        offset = ROWNUM * (req.query.page - 1);
+    }
+
     if(req.query.category) {
-        retrieveAlbumsbyCategory(req.params.pbNo, req.query.category)
-        .then((albums) => {
-            res.json(albums)
+        retrieveAlbumCountByCategory(req.params.board_id, req.query.category)
+        .then((count) => {
+            albumCount = count;
+            return retrieveAlbumsbyCategory(req.params.board_id, req.query.category, ROWNUM, offset)
+        })
+        .then((albumInfo) => {
+            res.json({
+                albumCount: albumCount,
+                albumInfo: albumInfo
+            })
         })
         .catch((err) => {
             console.error(err);
@@ -41,11 +56,19 @@ router.get('/:pbNo/albums', (req, res) => {
         })
     }
     else {
-        retrieveAlbums(req.params.pbNo)
-        .then((albums) => {
-            res.json(albums)
+        retrieveAlbumCount(req.params.board_id)
+        .then((count) => {
+            albumCount = count;
+            return retrieveAlbums(req.params.board_id, ROWNUM, offset)
+        })
+        .then((albumInfo) => {
+            res.json({
+                albumCount: albumCount,
+                albumInfo: albumInfo
+            })
         })
         .catch((err) => {
+            console.error(err);
             res.status(409).json({
                 error: 'RETRIEVE ALBUM FAIL',
                 code: 1
@@ -54,14 +77,28 @@ router.get('/:pbNo/albums', (req, res) => {
     }
 })
 
-router.get('/:pbNo/photos', (req, res) => {
+router.get('/:board_id/photos', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
+    let offset = 0;
+    let photoCount = 0;
+    const ROWNUM = 12;
+
+    if(req.query.page > 0) {
+        offset = ROWNUM * (req.query.page - 1);
+    }
+
     if(req.query.tag) {
-        console.log(req.query.tag)
-        retrievePhotosByTag(req.query.tag)
-        .then((photos) => {
-            res.json(photos)
+        retrievePhotoCountByTag(req.query.tag)
+        .then((count) => {
+            photoCount = count;
+            return retrievePhotosByTag(req.query.tag, ROWNUM, offset)
+        })
+        .then((photoInfo) => {
+            res.json({
+                photoCount: photoCount,
+                photoInfo: photoInfo
+            })
         })
         .catch((err) => {
             console.error(err);
@@ -72,9 +109,16 @@ router.get('/:pbNo/photos', (req, res) => {
         })
     }
     else {
-        retrievePhotosInBoard(req.params.pbNo)
-        .then((photos) => {
-            res.json(photos)
+        retrievePhotoCount(req.params.board_id)
+        .then((count) => {
+            photoCount = count;
+            return retrievePhotosInBoard(req.params.board_id, ROWNUM, offset)
+        })
+        .then((photoInfo) => {
+            res.json({
+                photoCount: photoCount,
+                photoInfo: photoInfo
+            })
         })
         .catch((err) => {
             res.status(409).json({
@@ -86,13 +130,13 @@ router.get('/:pbNo/photos', (req, res) => {
 })
 
 
-router.post('/:pbNo/album', (req, res) => {
+router.post('/:board_id/album', (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
         console.log('decoded success')
-        return createAlbum(decodedToken._id, req.params.pbNo, req.body)
+        return createAlbum(decodedToken._id, req.params.board_id, req.body)
     })
     .then(() => {
         console.log('create success')
@@ -105,7 +149,7 @@ router.post('/:pbNo/album', (req, res) => {
 
 })
 
-router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
+router.post('/:board_id/photos', upload.array('uploadPhotos'), (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
@@ -142,7 +186,7 @@ router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
                         exposure_time: req.body.exposure_time[i],
                         iso: req.body.iso[i],
                         tags: tags,
-                        board_id: req.params.pbNo,
+                        board_id: req.params.board_id,
                         photoPath: '/album/default/' + req.files[i].filename
                     })
                 }
@@ -169,7 +213,7 @@ router.post('/:pbNo/photos', upload.array('uploadPhotos'), (req, res) => {
                     exposure_time: req.body.exposure_time,
                     iso: req.body.iso,
                     tags: tags,
-                    board_id: req.params.pbNo,
+                    board_id: req.params.board_id,
                     photoPath: '/album/default/' + req.files[0].filename
                 })
             }

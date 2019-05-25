@@ -314,9 +314,6 @@ exports.retrievePhotoCountByTag = function(tags) {
 }
 
 exports.retrievePhotosByTag = function(tags, rowNum, offset) {
-    console.log(tags)
-    console.log(rowNum)
-    console.log(offset)
     return new Promise((resolve, reject) => {
         if(!tags) {
             reject();

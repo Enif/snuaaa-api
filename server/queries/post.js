@@ -51,6 +51,26 @@ exports.retrievePosts = function(board_id, rowNum, offset) {
     })
 };
 
+exports.retrieveRecentPosts = function() {
+    return new Promise((resolve, reject) => {
+        let query = `
+            SELECT po.object_id, ob.title, ob.created_at, brd.board_name
+            FROM snuaaa.tb_post po
+            INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
+            INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
+            ORDER BY ob.created_at DESC
+            LIMIT 8
+        `;
+        db.any(query)
+        .then(function(posts){
+            resolve(posts);    
+        })
+        .catch((err) => {
+            reject(err)
+        })
+    })
+}
+
 exports.retrievePost = function(object_id) {
     return new Promise((resolve, reject) => {
         if(!object_id) {

@@ -10,7 +10,7 @@ import photoboard from './photoboard';
 import album from './album';
 import photo from './photo';
 import document from './document';
-import soundbox from './soundbox';
+import home from './home';
 import object from './object';
 import comment from './comment';
 
@@ -26,7 +26,7 @@ router.use('/post', post);
 router.use('/album', album);
 router.use('/photo', photo);
 router.use('/document', document);
-router.use('/soundbox', soundbox);
+router.use('/home', home);
 router.use('/object', object);
 router.use('/comment', comment);
 

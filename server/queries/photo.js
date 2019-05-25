@@ -53,6 +53,32 @@ exports.retrievePhoto = function (photo_id) {
     })
 }
 
+exports.retrieveRecentPhotosInBoard = function(board_id) {
+    return new Promise((resolve, reject) => {
+
+        if(!board_id) {
+            reject('id can not be null')
+        }
+
+        let query = `
+            SELECT ph.object_id, ph.file_path
+            FROM snuaaa.tb_photo ph
+            INNER JOIN snuaaa.tb_object ob ON (ph.object_id = ob.object_id)
+            WHERE ob.board_id = $1
+            ORDER BY ob.created_at DESC
+            LIMIT 9
+        ;`;
+
+        db.any(query, board_id)
+        .then(function(photos){
+            resolve(photos);    
+        })
+        .catch((err) => {
+            reject(err)
+        })
+    })
+}
+
 exports.updatePhoto = function(photo_id, photoData) {
     return new Promise((resolve, reject) => {
 
@@ -314,9 +340,6 @@ exports.retrievePhotoCountByTag = function(tags) {
 }
 
 exports.retrievePhotosByTag = function(tags, rowNum, offset) {
-    console.log(tags)
-    console.log(rowNum)
-    console.log(offset)
     return new Promise((resolve, reject) => {
         if(!tags) {
             reject();

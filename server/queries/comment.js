@@ -14,7 +14,7 @@ exports.retrieveComments = function(object_id) {
                 ORDER BY co.created_at ASC
             `;
             db.any(query, object_id)
-            .then(function(comments){
+            .then((comments) => {
                 resolve(comments);    
             })
             .catch((err) => {
@@ -23,6 +23,28 @@ exports.retrieveComments = function(object_id) {
         }
     })
 };
+
+exports.retrieveRecentComments = function() {
+    return new Promise((resolve, reject) => {
+        let query = `
+            SELECT co.comment_id, co.parent_id, co.contents, co.created_at,
+            ob.title, ob.type, brd.board_name
+            FROM snuaaa.tb_comment co
+            INNER JOIN snuaaa.tb_object ob ON (co.parent_id = ob.object_id)
+            INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
+            ORDER BY co.created_at DESC
+            LIMIT 5
+        ;`;
+
+        db.any(query)
+        .then((comments) => {
+            resolve(comments);    
+        })
+        .catch((err) => {
+            reject(err)
+        })
+    })
+}
 
 exports.createComment = function(user_id, parent_id, data) {
     return new Promise((resolve, reject) => {
@@ -120,7 +142,7 @@ exports.retrieveCommentById = function(comment_id) {
         WHERE comment_id = $1`;
         
         db.one(query, comment_id)
-            .then(function(info){
+            .then((info) => {
                 resolve(info);    
             })
             .catch((err) => {
@@ -142,13 +164,13 @@ exports.retrieveCommentsByUser = function(user_id) {
                 INNER JOIN snuaaa.tb_object ob ON (co.parent_id = ob.object_id)
                 INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
                 WHERE co.author_id = $1
-                ORDER BY co.updated_at DESC
+                ORDER BY co.created_at DESC
                 LIMIT 6
             ;`;
 
             db.any(query, user_id)
-            .then(function(photos){
-                resolve(photos);    
+            .then((comments) => {
+                resolve(comments);    
             })
             .catch((err) => {
                 reject(err)

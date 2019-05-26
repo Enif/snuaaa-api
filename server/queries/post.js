@@ -59,7 +59,7 @@ exports.retrieveRecentPosts = function() {
             INNER JOIN snuaaa.tb_object ob ON (po.object_id = ob.object_id)
             INNER JOIN snuaaa.tb_board brd ON (ob.board_id = brd.board_id)
             ORDER BY ob.created_at DESC
-            LIMIT 8
+            LIMIT 7
         `;
         db.any(query)
         .then(function(posts){

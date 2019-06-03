@@ -1,9 +1,9 @@
 const db = require('./connection')
 import { createObject } from './object'
 
-exports.retrieveAlbumCount = function(board_id) {
+exports.retrieveAlbumCount = function (board_id) {
     return new Promise((resolve, reject) => {
-        if(!board_id) {
+        if (!board_id) {
             reject('id can not be null');
         }
         else {
@@ -14,19 +14,19 @@ exports.retrieveAlbumCount = function(board_id) {
                 WHERE ob.board_id = $1
             `;
             db.one(query, board_id)
-            .then(function(albumNum){
-                resolve(albumNum);    
-            })
-            .catch((err) => {
-                reject(err)
-            })
-        }   
+                .then(function (albumNum) {
+                    resolve(albumNum);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
+        }
     })
 }
 
-exports.retrieveAlbumCountByCategory = function(board_id, category_id) {
+exports.retrieveAlbumCountByCategory = function (board_id, category_id) {
     return new Promise((resolve, reject) => {
-        if(!board_id) {
+        if (!board_id) {
             reject('id can not be null');
         }
         else {
@@ -38,22 +38,22 @@ exports.retrieveAlbumCountByCategory = function(board_id, category_id) {
                 AND ob.category_id = $2
             `;
             db.one(query, [board_id, category_id])
-            .then(function(albumNum){
-                resolve(albumNum);    
-            })
-            .catch((err) => {
-                reject(err)
-            })
-        }   
+                .then(function (albumNum) {
+                    resolve(albumNum);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
+        }
     })
 }
 
 
 
-exports.retrieveAlbums = function(board_id, rowNum, offset) {
+exports.retrieveAlbums = function (board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
-        if(!board_id) {
-            reject();
+        if (!board_id) {
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -76,22 +76,20 @@ exports.retrieveAlbums = function(board_id, rowNum, offset) {
                 OFFSET $3
             `;
             db.any(query, [board_id, rowNum, offset])
-            .then(function(albums){
-                resolve(albums);    
-            })
-            .catch((err) => {
-                console.error(err)
-                reject(err)
-            })
+                .then(function (albums) {
+                    resolve(albums);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 };
 
-exports.retrieveAlbumsbyCategory = function(board_id, category_id, rowNum, offset) {
-    console.log('retrieve by category..')
+exports.retrieveAlbumsbyCategory = function (board_id, category_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
-        if(!board_id) {
-            reject();
+        if (!board_id) {
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -115,22 +113,20 @@ exports.retrieveAlbumsbyCategory = function(board_id, category_id, rowNum, offse
                 OFFSET $4
             `;
             db.any(query, [board_id, category_id, rowNum, offset])
-            .then(function(albums){
-                resolve(albums);    
-            })
-            .catch((err) => {
-                console.error(err)
-                console.log(err)
-                reject(err)
-            })
+                .then(function (albums) {
+                    resolve(albums);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 };
 
-exports.retrieveAlbumByPhoto = function(photo_id) {
+exports.retrieveAlbumByPhoto = function (photo_id) {
     return new Promise((resolve, reject) => {
-        if(!photo_id) {
-            reject();
+        if (!photo_id) {
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -143,22 +139,21 @@ exports.retrieveAlbumByPhoto = function(photo_id) {
             ;
             `;
             db.oneOrNone(query, photo_id)
-            .then(function(albumInfo) {
-                resolve(albumInfo)
-            })
-            .catch((err) => {
-                console.error(err)
-                reject(err)
-            })
+                .then(function (albumInfo) {
+                    resolve(albumInfo)
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 }
 
 
-exports.retrieveAlbum = function(album_id) {
+exports.retrieveAlbum = function (album_id) {
     return new Promise((resolve, reject) => {
-        if(!album_id) {
-            reject();
+        if (!album_id) {
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -169,51 +164,45 @@ exports.retrieveAlbum = function(album_id) {
             WHERE al.object_id = $1
             `;
             db.one(query, album_id)
-            .then(function(albumInfo) {
-                resolve(albumInfo)
-            })
-            .catch((err) => {
-                console.error(err)
-                reject(err)
-            })
+                .then(function (albumInfo) {
+                    resolve(albumInfo)
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 }
 
-exports.createAlbum = function(user_id, board_id, data) {
+exports.createAlbum = function (object_id, user_id, data) {
     return new Promise((resolve, reject) => {
 
-        if(!user_id) {
-            console.error('id can not be null')
-            reject()
+        if (!object_id || !user_id) {
+            reject('id can not be null')
         }
-        data.type = 'AL';
 
         let query = `INSERT INTO snuaaa.tb_album(
             object_id) 
-            VALUES ($<object_id>)`; 
+            VALUES ($<object_id>)`;
 
-        createObject(user_id, board_id, data)
-        .then((object_id) => {
-            let queryData = {
-                object_id: object_id,
-            };
-            return db.any(query, queryData)            
-        })            
-        .then(() => {
-            console.log('query success')
-            resolve();
-        })
-        .catch((err) => {
-            reject(err);
-        });
-    })   
+        let queryData = {
+            object_id: object_id,
+        };
+
+        db.none(query, queryData)
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
 }
 
-exports.deleteAlbum = function(album_id) {
+exports.deleteAlbum = function (album_id) {
     return new Promise((resolve, reject) => {
 
-        if(!album_id) {
+        if (!album_id) {
             reject('id can not be null')
         }
 
@@ -223,11 +212,11 @@ exports.deleteAlbum = function(album_id) {
         `;
 
         db.none(query, album_id)
-        .then(() => {
-            resolve();
-        })
-        .catch((err) => {
-            reject(err);
-        })
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
+            })
     })
 }

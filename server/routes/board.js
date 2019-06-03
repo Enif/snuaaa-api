@@ -102,9 +102,16 @@ router.get('/:board_id/tags', (req, res) => {
 router.post('/:board_id/post', (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
+
+    let user_id = '';
+
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return createPost(decodedToken._id, req.params.board_id, req.body)
+        user_id = decodedToken._id;
+        return createObject(user_id, req.params.board_id, req.body, 'PO')
+    })
+    .then((object_id) => {
+        return createPost(object_id, user_id, req.body)
     })
     .then(() => {
         res.json({ success: true })
@@ -139,8 +146,8 @@ router.post('/:board_id/document', upload.array('uploadFiles', 3), (req, res) =>
 
         verifyTokenUseReq(req)
         .then(decodedToken => {
-            user_id = decodedToken._id
-            return createObject(user_id, req.params.board_id, req.body)
+            user_id = decodedToken._id;
+            return createObject(user_id, req.params.board_id, req.body, 'DO')
         })
         .then((object_id) => {
             return createDocument(object_id, user_id, req.body)

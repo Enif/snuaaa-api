@@ -28,8 +28,7 @@ exports.retrievePhotoCount = function(board_id) {
 exports.retrievePhoto = function (photo_id) {
     return new Promise((resolve, reject) => {
         if (!photo_id) {
-            console.log('photo_id cannot be null')
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -147,8 +146,7 @@ exports.deletePhoto = function(photo_id) {
 exports.retrievePhotosInAlbum = function (album_id) {
     return new Promise((resolve, reject) => {
         if (!album_id) {
-            console.log('album_id cannot be null')
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -173,7 +171,7 @@ exports.retrievePhotosInAlbum = function (album_id) {
 exports.retrievePhotosInBoard = function(board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if(!board_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -204,22 +202,19 @@ exports.createPhotoInAlbum = function (user_id, data) {
     return new Promise((resolve, reject) => {
 
         if (!user_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         else {
-            data.type = 'PH';
-
             let query = `INSERT INTO snuaaa.tb_photo(
                 object_id, album_id, file_path, date, location,
                 camera, lens, focal_length, f_stop, exposure_time, iso)
                 VALUES ($<object_id>, $<album_id>, $<file_path>, $<date>, $<location>,
                     $<camera>, $<lens>, $<focal_length>, $<f_stop>, $<exposure_time>, $<iso>)`;
 
-            createObject(user_id, data.board_id, data)
-            .then((objectId) => {
+            createObject(user_id, data.board_id, data, 'PH')
+            .then((object_id) => {
                 let queryData = {
-                    object_id: objectId,
+                    object_id: object_id,
                     album_id: data.album_id,
                     file_path: data.photoPath,
                     date: data.date,
@@ -248,22 +243,19 @@ exports.createPhotosInBoard = function (user_id, data) {
     return new Promise((resolve, reject) => {
 
         if (!user_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         else {
-            data.type = 'PH';
-
             let query = `INSERT INTO snuaaa.tb_photo(
                 object_id, file_path, date, location,
                 camera, lens, focal_length, f_stop, exposure_time, iso)
                 VALUES ($<object_id>, $<file_path>, $<date>, $<location>,
                     $<camera>, $<lens>, $<focal_length>, $<f_stop>, $<exposure_time>, $<iso>)`;
 
-            createObject(user_id, data.board_id, data)
-            .then((objectId) => {
+            createObject(user_id, data.board_id, data, 'PH')
+            .then((object_id) => {
                 let queryData = {
-                    object_id: objectId,
+                    object_id: object_id,
                     file_path: data.photoPath,
                     date: data.date,
                     location: data.location,
@@ -291,7 +283,7 @@ exports.createPhotosInBoard = function (user_id, data) {
 exports.retrievePhotosByUser = function(user_id) {
     return new Promise((resolve, reject) => {
         if(!user_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -342,7 +334,7 @@ exports.retrievePhotoCountByTag = function(tags) {
 exports.retrievePhotosByTag = function(tags, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if(!tags) {
-            reject();
+            reject('tag can not be null');
         }
         else {
             let query = `

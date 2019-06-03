@@ -3,7 +3,7 @@ const db = require('./connection')
 exports.retrieveCategories = function(board_id) {
     return new Promise((resolve, reject) => {
         if(!board_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `
@@ -17,7 +17,6 @@ exports.retrieveCategories = function(board_id) {
                 resolve(categories);    
             })
             .catch((err) => {
-                console.error(err)
                 reject(err)
             })
         }

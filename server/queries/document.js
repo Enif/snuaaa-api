@@ -1,6 +1,4 @@
 const db = require('./connection')
-import { createObject } from './object'
-
 
 exports.retrieveDocument = function(doc_id) {
     return new Promise((resolve, reject) => {
@@ -28,7 +26,6 @@ exports.retrieveDocument = function(doc_id) {
     })
 }
 
-
 exports.retrieveDocuments = function() {
     return new Promise((resolve, reject) => {
 
@@ -45,7 +42,6 @@ exports.retrieveDocuments = function() {
             resolve(docuInfo)
         })
         .catch((err) => {
-            console.error(err)
             reject(err)
         })
     })
@@ -66,7 +62,6 @@ exports.retrieveDocumentsByGen = function(genNum) {
             resolve(docuInfo)
         })
         .catch((err) => {
-            console.error(err)
             reject(err)
         })
     })
@@ -76,23 +71,20 @@ exports.createDocument = function(object_id, user_id, data) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `INSERT INTO snuaaa.tb_document(
             object_id, generation, file_path) 
             VALUES ($<object_id>, $<generation>, $<file_path>)`; 
 
-        // createObject(user_id, null, data)
-        // .then((objectId) => {
-            let queryData = {
-                object_id: object_id,
-                generation: data.generation,
-                file_path: data.file_path
-            };
-            return db.any(query, queryData)            
-        // })            
+        let queryData = {
+            object_id: object_id,
+            generation: data.generation,
+            file_path: data.file_path
+        };
+
+        db.any(query, queryData)            
         .then(() => {
             resolve();
         })

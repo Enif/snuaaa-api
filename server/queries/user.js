@@ -15,7 +15,6 @@ exports.duplicateCheck = function(id) {
 
         db.any(query, [id])
         .then((isUser) => {
-            console.log(isUser)
             if(!isUser || !isUser[0]){
                 reject();
             }
@@ -36,8 +35,7 @@ exports.signUp = function(userinfo) {
     return new Promise((resolve, reject) => {
 
         if(!userinfo.id) {
-            console.log('Id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `INSERT INTO snuaaa.tb_user(
@@ -81,8 +79,7 @@ exports.retrieveLoginInfo = function(logInInfo) {
     return new Promise((resolve, reject) => {
 
         if(!logInInfo.id || !logInInfo.password) {
-            console.log('Id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `SELECT user_id, password, nickname, level, profile_path
@@ -108,8 +105,7 @@ exports.retrieveInfo = function(user_id) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
-            console.log('Id can not be null');
-            reject();
+            reject('id can not be null');
         }
         
         let query = `SELECT user_id, id, name, nickname, aaa_no, col_no, major, email, mobile, introduction, level, created_at, profile_path
@@ -131,8 +127,7 @@ exports.updateUser = function(user_id, data) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
-            console.log('Id can not be null')
-            reject();
+            reject('id can not be null');
         }
 
         let query = `
@@ -182,8 +177,7 @@ exports.updateLoginDate = function(user_id) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
-            console.log('Id can not be null')
-            reject();
+            reject('id can not be null');
         }
         
         let query = `

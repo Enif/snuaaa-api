@@ -1,13 +1,12 @@
 const db = require('./connection')
 
 
-exports.createObject = function(user_id, board_id, data) {
+exports.createObject = function(user_id, board_id, data, type) {
 
     return new Promise((resolve, reject) => {
         
         if(!user_id) {
-            console.log('id can not be null')
-            reject()
+            reject('id can not be null')
         }
         
         let query = `INSERT INTO snuaaa.tb_object(
@@ -21,7 +20,7 @@ exports.createObject = function(user_id, board_id, data) {
             user_id: user_id,
             category_id: data.category_id,
             board_id: board_id,
-            type: data.type,
+            type: type,
             title: data.title,
             contents: data.contents,
             created: created

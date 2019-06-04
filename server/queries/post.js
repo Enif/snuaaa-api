@@ -145,25 +145,22 @@ exports.retrieveSoundBox = function() {
     })
 }
 
-exports.createPost = function(user_id, board_id, data) {
+exports.createPost = function(object_id, user_id, data) {
     return new Promise((resolve, reject) => {
 
         if(!user_id) {
             reject('id can not be null')
         }
-        data.type = 'PO';
         
         let query = `INSERT INTO snuaaa.tb_post(
             object_id) 
             VALUES ($<object_id>)`; 
 
-        createObject(user_id, board_id, data)
-        .then((objectId) => {
-            let queryData = {
-                object_id: objectId
-            };
-            return db.any(query, queryData)            
-        })            
+        let queryData = {
+            object_id: object_id
+        }
+
+        db.none(query, queryData)            
         .then(() => {
             resolve();
         })

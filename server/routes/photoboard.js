@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
+import { createObject } from '../queries/object';
 import { retrieveAlbumCount, retrieveAlbumCountByCategory, retrieveAlbums, createAlbum, retrieveAlbumsbyCategory } from '../queries/album';
 import { retrievePhotoCount, retrievePhotoCountByTag, retrievePhotosInBoard, createPhotosInBoard, retrievePhotosByTag } from '../queries/photo';
 import { verifyTokenUseReq } from '../lib/token';
@@ -133,13 +134,17 @@ router.get('/:board_id/photos', (req, res) => {
 router.post('/:board_id/album', (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
+    let user_id = '';
+
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        console.log('decoded success')
-        return createAlbum(decodedToken._id, req.params.board_id, req.body)
+        user_id = decodedToken._id;
+        return createObject(user_id, req.params.board_id, req.body, 'AL')
+    })
+    .then((object_id) => {
+        return createAlbum(object_id, user_id, req.body)
     })
     .then(() => {
-        console.log('create success')
         res.json({ success: true })
     })
     .catch(err => res.status(403).json({

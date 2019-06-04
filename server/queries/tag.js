@@ -18,7 +18,6 @@ exports.retrieveTagsOnBoard = function(board_id) {
                 resolve(tags);    
             })
             .catch((err) => {
-                console.error(err)
                 reject(err)
             })
         }
@@ -44,7 +43,6 @@ exports.retrieveTagsOnBoardForObject = function(object_id) {
                 resolve(tags);    
             })
             .catch((err) => {
-                console.error(err)
                 reject(err)
             })
         }
@@ -55,7 +53,7 @@ exports.retrieveTagsOnObject = function(object_id) {
     return new Promise((resolve, reject) => {
 
         if(!object_id) {
-            reject();
+            reject('id can not be null');
         }
         else {
 
@@ -72,7 +70,6 @@ exports.retrieveTagsOnObject = function(object_id) {
                 resolve(tags);    
             })
             .catch((err) => {
-                console.error(err)
                 reject(err)
             })
         }
@@ -82,7 +79,7 @@ exports.retrieveTagsOnObject = function(object_id) {
 exports.createObjectTag = function(object_id, tag) {
     return new Promise((resolve, reject) => {
         if(!object_id || !tag) {
-            reject();
+            reject('id can not be null');
         }
         else {
             let query = `

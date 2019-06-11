@@ -1,17 +1,10 @@
-
 import express from 'express';
-import { retrieveLoginInfo, updateLoginDate } from '../queries/user'
+
+import { loginUser, updateLoginDate } from '../controllers/user.controller';
+
 import { createToken } from '../lib/token';
 
 const router = express.Router();
-
-/*
-    [TODO] MAKE SAMLE..
-    ACCOUNT LOGIN: POST /api/login
-    BODY SAMPLE: { "id": "test", "password": "test" }
-    ERROR CODES:
-        1: LOGIN FAILED
-*/
 
 router.post('/', (req, res) => {
 
@@ -24,33 +17,35 @@ router.post('/', (req, res) => {
         });
     }
 
-    let user = {};
+    let userInfo = {};
 
-    retrieveLoginInfo({id: req.body.id, password:req.body.password})
-    .then((userInfo) => {
-        user = userInfo;
-        return updateLoginDate(user.user_id)
+    loginUser(req)
+    .then((user) => {
+        userInfo = user;
+        return updateLoginDate(userInfo.user_id)
     })
     .then(() => {
         return createToken({
-            _id: user.user_id
+            _id: userInfo.user_id
         })
     })
-    .then(token => res.json({
-        sucess: true,
-        user_id: user.user_id,
-        level: user.level,
-        profile_path: user.profile_path,
-        nickname: user.nickname,
-        token 
-    }))
-    .catch(err => {
+    .then((token) => {
+        return res.json({
+            sucess: true,
+            user_id: userInfo.user_id,
+            level: userInfo.level,
+            profile_path: userInfo.profile_path,
+            nickname: userInfo.nickname,
+            token 
+        })
+    })
+    .catch((err) => {
         console.error(err);
         return res.status(403).json({
             sucess: false,
             message: 'Login Info is not valid.' 
         })
-    });
+    })
 });
 
 export default router;

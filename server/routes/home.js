@@ -1,7 +1,8 @@
 import express from 'express';
-import { retrieveSoundBox, retrieveRecentPosts } from '../queries/post';
-import { retrieveRecentPhotosInBoard } from '../queries/photo';
-import { retrieveRecentComments } from '../queries/comment';
+
+import { retrieveSoundBox, retrieveRecentPosts } from '../controllers/post.controller';
+import { retrievePhotosInBoard } from '../controllers/photo.controller';
+import { retrieveRecentComments } from '../controllers/comment.controller';
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.get('/posts', (req, res) => {
 
 router.get('/memory', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrieveRecentPhotosInBoard('brd07')
+    retrievePhotosInBoard('brd07', 9, 0)
     .then((photos) => {
         res.json(photos)
     })
@@ -49,7 +50,7 @@ router.get('/memory', (req, res) => {
 
 router.get('/astrophoto', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrieveRecentPhotosInBoard('brd08')
+    retrievePhotosInBoard('brd08', 9, 0)
     .then((photos) => {
         res.json(photos)
     })

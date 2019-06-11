@@ -3,7 +3,6 @@ import express from 'express';
 import api from './routes';
 import cors from 'cors';
 import path from 'path'
-import Sequelize from 'sequelize'
 
 require('dotenv').config();
 
@@ -15,7 +14,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-
 if(process.env.NODE_ENV == 'develop') {
     // for local test
     app.use(cors())
@@ -23,7 +21,6 @@ if(process.env.NODE_ENV == 'develop') {
     app.get('/page/*', function (req, res) {
         res.sendFile(path.join(__dirname, '/../../snuaaa-react/build/index.html'));
     });
-
 }
 else {
     // [TODO] SET CORS OPTIONS AFTER PUBLISHING
@@ -46,16 +43,6 @@ var port = process.env.PORT || 8080;
 
 // [RUN SERVER]
 app.listen(port, () => console.log(`Server listening on port ${port}`));
-
-
-// var sequelize = new Sequelize(process.env.POSTGRESQL_URI)
-// sequelize.authenticate()
-// .then(() =>
-//     console.log("Connected to PostgreSQL server")
-// )
-// .catch((e) => {
-//     console.log("Failed to connect to PostgreSQL server >> ", e)
-// })
 
 // [CONFIGURE ROUTER]
 app.use('/api', api);

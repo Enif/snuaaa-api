@@ -1,6 +1,8 @@
 import express from 'express';
+
+import { retrieveUser, updateLoginDate } from '../controllers/user.controller';
+
 import { createToken, verifyTokenUseReq } from '../lib/token';
-import { retrieveInfo, updateLoginDate } from '../queries/user';
 
 const router = express.Router();
 
@@ -15,7 +17,7 @@ router.get('/', (req, res) => {
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return retrieveInfo(decodedToken._id)
+        return retrieveUser(decodedToken._id)
     })
     .then((userInfo) => {
         user = userInfo;

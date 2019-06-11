@@ -1,7 +1,10 @@
 import express from 'express';
+
+import { retrieveDocument, retrieveDocuments, deleteDocument } from "../controllers/document.controller";
+import { deleteContent } from "../controllers/content.controller";
+import { checkLike } from "../controllers/contentLike.controller";
+
 import { verifyTokenUseReq } from '../lib/token';
-import { retrieveDocument, retrieveDocuments, retrieveDocumentsByGen, deleteDocument } from '../queries/document'
-import { checkLike, deleteObject } from '../queries/object';
 
 const router = express.Router();
 
@@ -52,7 +55,7 @@ router.delete('/:doc_id', (req, res) => {
         return deleteDocument(req.params.doc_id)
     })
     .then(() => {
-        return deleteObject(req.params.doc_id)
+        return deleteContent(req.params.doc_id)
     })
     .then(() => {
         res.json({
@@ -72,7 +75,7 @@ router.delete('/:doc_id', (req, res) => {
 router.get('/generation/:genNum', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveDocumentsByGen(req.params.genNum)
+    retrieveDocuments(req.params.genNum)
     .then((docuInfo) => {
         res.json(docuInfo)
     })

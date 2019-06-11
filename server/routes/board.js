@@ -1,13 +1,15 @@
 import express from 'express';
 import fs from 'fs';
 import multer from 'multer';
+
+import { retrieveBoard } from '../controllers/board.controller';
+import { retrieveCategoryByBoard } from '../controllers/category.controller';
+import { createContent } from '../controllers/content.controller';
+import { retrievePostsInBoard, createPost } from '../controllers/post.controller';
+import { retrieveTagsOnBoard } from '../controllers/tag.controller';
+import { createDocument } from '../controllers/document.controller';
+
 import { verifyTokenUseReq } from '../lib/token';
-import { retrieveBoardInfo } from '../queries/board';
-import { createObject } from '../queries/object';
-import { retrieveCategories } from '../queries/category';
-import { retrievePostCount, retrievePosts, createPost } from '../queries/post';
-import { createDocument } from '../queries/document';
-import { retrieveTagsOnBoard } from '../queries/tag';
 
 const router = express.Router();
 
@@ -30,10 +32,10 @@ router.get('/:board_id', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
     let resBoardInfo;
     let resCategoryInfo;
-    retrieveBoardInfo(req.params.board_id)
+    retrieveBoard(req.params.board_id)
     .then((boardInfo) => {
         resBoardInfo = boardInfo
-        return retrieveCategories(req.params.board_id)
+        return retrieveCategoryByBoard(req.params.board_id)
     })
     .then((categories) => {
         resCategoryInfo = categories;
@@ -60,15 +62,22 @@ router.get('/:board_id/posts', (req, res) => {
         offset = ROWNUM * (req.query.page - 1);
     }
 
-    retrievePostCount(req.params.board_id)
-    .then((count) => {
-        postCount = count;
-        return retrievePosts(req.params.board_id, ROWNUM, offset)
-    })
+    // retrievePostCount(req.params.board_id)
+    // .then((count) => {
+    //     postCount = count;
+    //     return retrievePosts(req.params.board_id, ROWNUM, offset)
+    // })
+    // .then((postInfo) => {
+    //     res.json({
+    //         postCount: postCount,
+    //         postInfo: postInfo
+    //     })
+    // })
+    retrievePostsInBoard(req.params.board_id, ROWNUM, offset)
     .then((postInfo) => {
         res.json({
-            postCount: postCount,
-            postInfo: postInfo
+            postCount: postInfo.count,
+            postInfo: postInfo.rows
         })
     })
     .catch((err) => {
@@ -102,16 +111,12 @@ router.get('/:board_id/tags', (req, res) => {
 router.post('/:board_id/post', (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
-
-    let user_id = '';
-
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        user_id = decodedToken._id;
-        return createObject(user_id, req.params.board_id, req.body, 'PO')
+        return createContent(decodedToken._id, req.params.board_id, req.body, 'PO')
     })
-    .then((object_id) => {
-        return createPost(object_id, user_id, req.body)
+    .then((content_id) => {
+        return createPost(content_id, req.body)
     })
     .then(() => {
         res.json({ success: true })
@@ -124,6 +129,28 @@ router.post('/:board_id/post', (req, res) => {
             code: 1
         })
     });
+
+    // let user_id = '';
+
+    // verifyTokenUseReq(req)
+    // .then(decodedToken => {
+    //     user_id = decodedToken._id;
+    //     return createObject(user_id, req.params.board_id, req.body, 'PO')
+    // })
+    // .then((object_id) => {
+    //     return createPost(object_id, user_id, req.body)
+    // })
+    // .then(() => {
+    //     res.json({ success: true })
+    // })
+    // .catch((err) => {
+    //     console.error(err);
+    //     res.status(403).json({
+    //         success: false,
+    //         error: 'RETRIEVE POST FAIL',
+    //         code: 1
+    //     })
+    // });
 });
 
 
@@ -147,17 +174,17 @@ router.post('/:board_id/document', upload.array('uploadFiles', 3), (req, res) =>
         verifyTokenUseReq(req)
         .then(decodedToken => {
             user_id = decodedToken._id;
-            return createObject(user_id, req.params.board_id, req.body, 'DO')
+            return createContent(user_id, req.params.board_id, req.body, 'DO')
         })
-        .then((object_id) => {
-            return createDocument(object_id, user_id, req.body)
+        .then((content_id) => {
+            return createDocument(content_id, req.body)
         })
         .then(() => {
-            res.json({ success: true })
+            return res.json({ success: true })
         })
         .catch((err) => {
             console.error(err);
-            res.status(403).json({
+            return res.status(403).json({
                 success: false,
                 error: 'RETRIEVE POST FAIL',
                 code: 1

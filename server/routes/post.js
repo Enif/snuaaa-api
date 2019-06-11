@@ -1,7 +1,10 @@
 import express from 'express';
-import { retrievePost, updatePost, deletePost } from '../queries/post';
+
+import { updateContent, deleteContent } from '../controllers/content.controller';
+import { retrievePost } from '../controllers/post.controller';
+import { checkLike } from '../controllers/contentLike.controller';
+
 import { verifyTokenUseReq } from '../lib/token';
-import { checkLike } from '../queries/object';
 
 const router = express.Router();
 
@@ -10,7 +13,7 @@ router.get('/:post_id', (req, res) => {
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return Promise.all([retrievePost(req.params.post_id), checkLike(decodedToken._id, req.params.post_id)])
+        return Promise.all([retrievePost(req.params.post_id) , checkLike(req.params.post_id, decodedToken._id)])
     })
     .then((infos) => {
         res.json({postInfo: infos[0], likeInfo: infos[1]})
@@ -25,7 +28,7 @@ router.patch('/:post_id', (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return updatePost(req.params.post_id, req.body)
+        return updateContent(req.params.post_id, req.body)
     })
     .then(() => {
         return res.json({ success: true });
@@ -40,7 +43,7 @@ router.delete('/:post_id', (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return deletePost(req.params.post_id)
+        return deleteContent(req.params.post_id)
     })
     .then(() => {
         return res.json({ success: true });

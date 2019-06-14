@@ -183,7 +183,15 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
                     }]
                 }],
                 limit: rowNum,
-                offset: offset
+                offset: offset,
+                order: [
+                    [{
+                        model: models.Content,
+                        as: 'contentPhoto'
+                    },
+                        'updated_at', 'DESC'
+                    ]
+                ]
             })
                 .then((photos) => {
                     resolve(photos);

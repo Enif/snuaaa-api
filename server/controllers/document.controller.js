@@ -28,9 +28,48 @@ exports.retrieveDocument = function (doc_id) {
     })
 }
 
-
-exports.retrieveDocuments = function (rowNum, offset, generation, category) {
+exports.retrieveDocumentCount = function (category_id, generation) {
     return new Promise((resolve, reject) => {
+
+        let contentCondition = {};
+        let docCondition = {};
+        category_id && (contentCondition.category_id = category_id);
+        generation && (docCondition.generation = generation);
+
+        models.Document.count({
+            include: [{
+                model: models.Content,
+                as: 'content',
+                required: true,
+                include: [{
+                    model: models.User,
+                    required: true,
+                    attributes: ['nickname']
+                }, {
+                    model: models.Category,
+                    required: true,
+                    attributes: ['category_name']
+                }],
+                where: contentCondition
+            }],
+            where: docCondition,
+        })
+            .then((count) => {
+                resolve(count)
+            })
+            .catch((err) => {
+                reject(err)
+            })
+    })
+}
+
+exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
+    return new Promise((resolve, reject) => {
+
+        let contentCondition = {};
+        let docCondition = {};
+        category_id && (contentCondition.category_id = category_id);
+        generation && (docCondition.generation = generation);
 
         models.Document.findAll({
             include: [{
@@ -41,8 +80,16 @@ exports.retrieveDocuments = function (rowNum, offset, generation, category) {
                     model: models.User,
                     required: true,
                     attributes: ['nickname']
-                }]
+                }, {
+                    model: models.Category,
+                    required: true,
+                    attributes: ['category_name']
+                }],
+                where: contentCondition
             }],
+            where: docCondition,
+            limit: rowNum,
+            offset: offset,
             order: [
                 [{
                     model: models.Content,

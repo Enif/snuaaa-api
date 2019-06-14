@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { retrieveDocument, retrieveDocuments, deleteDocument } from "../controllers/document.controller";
+import { retrieveDocumentCount, retrieveDocument, retrieveDocuments, deleteDocument } from "../controllers/document.controller";
 import { deleteContent } from "../controllers/content.controller";
 import { checkLike } from "../controllers/contentLike.controller";
 
@@ -11,9 +11,24 @@ const router = express.Router();
 router.get('/', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveDocuments()
-    .then((docuInfo) => {
-        res.json(docuInfo)
+    let offset = 0;
+    let docCount = 0;
+    const ROWNUM = 12;
+
+    if (req.query.page > 0) {
+        offset = ROWNUM * (req.query.page - 1);
+    }
+
+    retrieveDocumentCount(req.query.category, req.query.generation)
+    .then((count) => {
+        docCount = count;
+        return retrieveDocuments(ROWNUM, offset, req.query.category, req.query.generation) 
+    })
+    .then((docInfo) => {
+        res.json({
+            docCount: docCount,
+            docInfo: docInfo
+        })
     })
     .catch((err) => {
         console.error(err);

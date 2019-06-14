@@ -1,7 +1,9 @@
 import express from 'express';
 import multer from 'multer';
+import bcrypt from 'bcryptjs';
 
 import { createUser, checkDupId } from '../controllers/user.controller';
+import { resize } from '../lib/resize';
 
 const router = express.Router();
 
@@ -43,7 +45,50 @@ router.post('/', upload.single('profile'), (req, res) => {
         })
     }
 
-    createUser(req)
+    let nickname = '';
+
+    if (req.body.aaaNum) {
+        if ((/^[0-9]{2}[Aa]{3}-[0-9]{1,3}$/).test(req.body.aaaNum)) {
+            // 00AAA-000
+            nickname = req.body.aaaNum.substr(0, 2) + req.body.username;
+        }
+        else if ((/^[Aa]{3}[0-9]{2}-[0-9]{1,3}$/).test(req.body.aaaNum)) {
+            // AAA00-000
+            nickname = req.body.aaaNum.substr(3, 2) + req.body.username;
+        }
+        else {
+            nickname = req.body.username;
+            req.body.aaaNum = null;
+        }
+    }
+    else {
+        nickname = req.body.username;
+        req.body.aaaNum = null;
+    }
+
+    let level = req.body.aaaNum ? 2 : 1;
+    let profilePath;
+    if (req.file) {
+        profilePath = '/profile/' + req.file.filename;
+        resize(req.file.path)
+    }
+
+    const userData = {
+        id: req.body.id,
+        password: bcrypt.hashSync(req.body.password, 8),
+        username: req.body.username,
+        nickname: nickname,
+        aaa_no: req.body.aaaNum,
+        col_no: req.body.schoolNum,
+        major: req.body.major,
+        email: req.body.email,
+        mobile: req.body.mobile,
+        introduction: req.body.introduction,
+        profile_path: profilePath,
+        level: level
+    }
+
+    createUser(userData)
         .then(() => {
             console.log('sign Up Success  ')
             return res.json({ success: true });

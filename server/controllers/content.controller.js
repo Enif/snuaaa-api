@@ -1,5 +1,5 @@
 const models = require('../models');
-
+const uuid4 = require('uuid4');
 
 exports.createContent = function (user_id, board_id, data, type) {
     return new Promise((resolve, reject) => {
@@ -8,6 +8,7 @@ exports.createContent = function (user_id, board_id, data, type) {
         }
 
         models.Content.create({
+            content_uuid: uuid4(),
             author_id: user_id,
             board_id: board_id,
             category_id: data.category_id,

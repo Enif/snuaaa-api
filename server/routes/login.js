@@ -1,6 +1,7 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 
-import { loginUser, updateLoginDate } from '../controllers/user.controller';
+import { retrieveLoginUser, updateLoginDate } from '../controllers/user.controller';
 
 import { createToken } from '../lib/token';
 
@@ -19,9 +20,22 @@ router.post('/', (req, res) => {
 
     let userInfo = {};
 
-    loginUser(req)
+    retrieveLoginUser(req.body.id)
     .then((user) => {
-        userInfo = user;
+        return new Promise((resolve, reject) => {
+            if (!user) {
+                reject('id is not correct');
+            }
+            else if (bcrypt.compareSync(req.body.password, user.password)) {
+                userInfo = user;
+                resolve();
+            }
+            else {
+                reject('password is not correct');
+            }
+        })
+    })
+    .then(() => {
         return updateLoginDate(userInfo.user_id)
     })
     .then(() => {

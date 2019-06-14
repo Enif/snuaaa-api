@@ -1,53 +1,24 @@
 const models = require('../models');
-import { resize } from '../lib/resize';
-import bcrypt from 'bcryptjs'
+const uuid4 = require('uuid4');
 
-exports.createUser = function (req) {
-
-    let profilePath;
-    if (req.file) {
-        profilePath = '/profile/' + req.file.filename;
-        resize(req.file.path)
-    }
-
-    let nickname = '';
-
-    if (req.body.aaaNum) {
-        if ((/^[0-9]{2}[Aa]{3}-[0-9]{1,3}$/).test(req.body.aaaNum)) {
-            // 00AAA-000
-            nickname = req.body.aaaNum.substr(0, 2) + req.body.username;
-        }
-        else if ((/^[Aa]{3}[0-9]{2}-[0-9]{1,3}$/).test(req.body.aaaNum)) {
-            // AAA00-000
-            nickname = req.body.aaaNum.substr(3, 2) + req.body.username;
-        }
-        else {
-            nickname = req.body.username;
-            req.body.aaaNum = null;
-        }
-    }
-
-    let level = req.body.aaaNum ? 2 : 1;
+exports.createUser = function (userData) {
 
     return new Promise((resolve, reject) => {
 
-        if (!req.body.id) {
-            reject('id can not be null')
-        }
-
         models.User.create({
-            id: req.body.id,
-            password: bcrypt.hashSync(req.body.password, 8),
-            username: req.body.username,
-            nickname: nickname,
-            aaa_no: req.body.aaaNum,
-            col_no: req.body.schoolNum,
-            major: req.body.major,
-            email: req.body.email,
-            mobile: req.body.mobile,
-            introduction: req.body.introduction,
-            profile_path: profilePath,
-            level: level
+            user_uuid: uuid4(),
+            id: userData.id,
+            password: userData.password,
+            username: userData.username,
+            nickname: userData.nickname,
+            aaa_no: userData.aaa_no,
+            col_no: userData.col_no,
+            major: userData.major,
+            email: userData.email,
+            mobile: userData.mobile,
+            introduction: userData.introduction,
+            profile_path: userData.profile_path,
+            level: userData.level
         })
             .then(() => {
                 resolve();
@@ -82,6 +53,32 @@ exports.retrieveUser = function (user_id) {
             });
     })
 }
+
+
+exports.retrieveLoginUser = function (id) {
+    return new Promise((resolve, reject) => {
+        if (!id) {
+            reject('id can not be null');
+        }
+
+        models.User.findOne({
+            attributes: ['user_id', 'user_uuid', 'id', 'password', 'nickname', 'level', 'profile_path'],
+            where: { id: id }
+        })
+            .then((user) => {
+                if (!user) {
+                    reject('id is not correct');
+                }
+                else {
+                    resolve(user);
+                }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
 
 exports.updateUser = function (user_id, data) {
     return new Promise((resolve, reject) => {
@@ -132,42 +129,6 @@ exports.deleteUser = function (user_id) {
             .catch((err) => {
                 reject(err);
             })
-    })
-}
-
-
-
-exports.loginUser = function (req) {
-    return new Promise((resolve, reject) => {
-        if (!req.body.id) {
-            reject('id can not be null');
-        }
-
-        let userInfo = {};
-
-        models.User.findOne({
-            where: { id: req.body.id }
-        })
-            .then((user) => {
-                return new Promise((resolve, reject) => {
-                    if (!user) {
-                        reject('id is not correct');
-                    }
-                    else if (bcrypt.compareSync(req.body.password, user.password)) {
-                        userInfo = user;
-                        resolve();
-                    }
-                    else {
-                        reject('password is not correct');
-                    }
-                })
-            })
-            .then(() => {
-                resolve(userInfo)
-            })
-            .catch((err) => {
-                reject(err);
-            });
     })
 }
 

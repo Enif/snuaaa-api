@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
                 board_type: {
                     type: DataTypes.STRING(16),
                 },
+                menu: {
+                    type: DataTypes.INTEGER,
+                },
                 lv_read: {
                     type: DataTypes.INTEGER,
                 },

@@ -22,3 +22,17 @@ exports.retrieveBoard = function (board_id) {
             });
     })
 }
+
+exports.retrieveBoards = function () {
+    return new Promise((resolve, reject) => {
+
+        models.Board.findAll({
+        })
+            .then((boards) => {
+                resolve(boards);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}

@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import multer from 'multer';
 
-import { retrieveBoard } from '../controllers/board.controller';
+import { retrieveBoard, retrieveBoards } from '../controllers/board.controller';
 import { retrieveCategoryByBoard } from '../controllers/category.controller';
 import { createContent } from '../controllers/content.controller';
 import { retrievePostsInBoard, createPost } from '../controllers/post.controller';
@@ -27,6 +27,21 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({storage})
+
+router.get('/', (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    retrieveBoards()
+    .then((boardInfo) => {
+        return res.json(boardInfo)
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(403).json({
+            success: false
+        })
+    })
+})
 
 router.get('/:board_id', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);

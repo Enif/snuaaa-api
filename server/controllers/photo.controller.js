@@ -180,18 +180,11 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
                         where: {
                             tag_id: tags
                         }
-                    }]
+                    }],
+                    order: [['updated_at', 'DESC']]
                 }],
                 limit: rowNum,
-                offset: offset,
-                order: [
-                    [{
-                        model: models.Content,
-                        as: 'contentPhoto'
-                    },
-                        'updated_at', 'DESC'
-                    ]
-                ]
+                offset: offset
             })
                 .then((photos) => {
                     resolve(photos);

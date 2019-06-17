@@ -36,7 +36,7 @@ router.get('/posts', (req, res) => {
 
 router.get('/memory', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrievePhotosInBoard('brd07', 9, 0)
+    retrievePhotosInBoard('brd31', 9, 0)
     .then((photos) => {
         res.json(photos)
     })
@@ -50,7 +50,7 @@ router.get('/memory', (req, res) => {
 
 router.get('/astrophoto', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrievePhotosInBoard('brd08', 9, 0)
+    retrievePhotosInBoard('brd32', 9, 0)
     .then((photos) => {
         res.json(photos)
     })

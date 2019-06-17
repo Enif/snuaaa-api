@@ -130,6 +130,7 @@ exports.retrieveAlbums = function (board_id, rowNum, offset) {
             INNER JOIN tb_user usr ON (ob.author_id = usr.user_id)
             LEFT OUTER JOIN tb_category ctg ON (ob.category_id = ctg.category_id)
             WHERE ob.board_id = :board_id
+            AND ob.deleted_at IS NULL
             ORDER BY ob.created_at DESC
             LIMIT :limit
             OFFSET :offset`,
@@ -174,6 +175,7 @@ exports.retrieveAlbumsByCategory = function (board_id, category_id, rowNum, offs
             LEFT OUTER JOIN tb_category ctg ON (ob.category_id = ctg.category_id)
             WHERE ob.board_id = :board_id
             AND ob.category_id = :category_id
+            AND ob.deleted_at IS NULL
             ORDER BY ob.created_at DESC
             LIMIT :limit
             OFFSET :offset`,

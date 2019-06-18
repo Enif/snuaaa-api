@@ -40,8 +40,10 @@ exports.likeContent = function (content_id, user_id) {
         })
             .then(() => {
                 models.Content.increment('like_num',
-                    { where: { content_id: content_id } }
-                )
+                    {
+                        where: { content_id: content_id },
+                        silent: true
+                    })
             })
             .then(() => {
                 resolve()
@@ -67,8 +69,10 @@ exports.dislikeContent = function (content_id, user_id) {
         })
             .then(() => {
                 models.Content.decrement('like_num',
-                    { where: { content_id: content_id } }
-                )
+                    {
+                        where: { content_id: content_id },
+                        silent: true
+                    })
             })
             .then(() => {
                 resolve()

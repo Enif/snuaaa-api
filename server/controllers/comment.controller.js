@@ -97,7 +97,10 @@ exports.createComment = function (user_id, parent_id, data) {
             .then((comment) => {
                 comment_id = comment.dataValues.comment_id;
                 return models.Content.increment('comment_num',
-                    { where: { content_id: parent_id } }
+                    {
+                        where: { content_id: parent_id },
+                        silent: true
+                    }
                 )
             })
             .then(() => {
@@ -147,7 +150,8 @@ exports.deleteComment = function (comment_id) {
                 return models.Content.decrement('comment_num', {
                     where: {
                         content_id: comment.parent_id
-                    }
+                    },
+                    silent: true
                 })
             })
             .then(() => {

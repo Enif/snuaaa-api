@@ -11,7 +11,7 @@ import album from './album';
 import photo from './photo';
 import document from './document';
 import home from './home';
-import object from './object';
+import content from './content';
 import comment from './comment';
 
 const router = express.Router();
@@ -27,7 +27,7 @@ router.use('/album', album);
 router.use('/photo', photo);
 router.use('/document', document);
 router.use('/home', home);
-router.use('/object', object);
+router.use('/content', content);
 router.use('/comment', comment);
 
 export default router;

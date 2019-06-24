@@ -2,15 +2,15 @@ import express from 'express';
 
 import { checkLike, likeContent, dislikeContent } from '../controllers/contentLike.controller';
 import { retrieveComments, createComment } from '../controllers/comment.controller';
-
+import { retrieveAttachedFile } from "../controllers/attachedFile.controller";
 import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 
-router.get('/:object_id/comments', (req, res) => {
+router.get('/:content_id/comments', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveComments(req.params.object_id)
+    retrieveComments(req.params.content_id)
         .then((comments) => {
             res.json(comments)
         })
@@ -19,15 +19,27 @@ router.get('/:object_id/comments', (req, res) => {
         })
 })
 
-router.post('/:object_id/comment', (req, res) => {
+router.get('/:content_id/file/:file_id', (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    retrieveAttachedFile(req.params.file_id)
+        .then((file) => {
+            res.download(file.file_path, file.original_name);
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err })
+        })
+})
+
+router.post('/:content_id/comment', (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
         .then(decodedToken => {
-            return createComment(decodedToken._id, req.params.object_id, req.body)
+            return createComment(decodedToken._id, req.params.content_id, req.body)
         })
         // .then(() => {
-        //     return updateCommentNum(req.params.object_id)
+        //     return updateCommentNum(req.params.content_id)
         // })
         .then(() => {
             res.json({ success: true });
@@ -41,27 +53,27 @@ router.post('/:object_id/comment', (req, res) => {
         });
 });
 
-router.post('/:object_id/like', (req, res) => {
+router.post('/:content_id/like', (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     let user_id;
-    const object_id = req.params.object_id;
+    const content_id = req.params.content_id;
 
     verifyTokenUseReq(req)
         .then(decodedToken => {
             user_id = decodedToken._id
-            return checkLike(object_id, user_id)
+            return checkLike(content_id, user_id)
         })
         .then((isLiked) => {
             if (isLiked) {
-                return dislikeContent(object_id, user_id)
+                return dislikeContent(content_id, user_id)
             }
             else {
-                return likeContent(object_id, user_id)
+                return likeContent(content_id, user_id)
             }
         })
         // .then(() => {
-        //     return updateLikeNum(object_id)
+        //     return updateLikeNum(content_id)
         // })
         .then(() => {
             res.json({ success: true });

@@ -8,6 +8,7 @@ import { createContent } from '../controllers/content.controller';
 import { retrievePostsInBoard, createPost } from '../controllers/post.controller';
 import { retrieveTagsOnBoard } from '../controllers/tag.controller';
 import { createDocument } from '../controllers/document.controller';
+import { createAttachedFile } from '../controllers/attachedFile.controller';
 
 import { verifyTokenUseReq } from '../lib/token';
 
@@ -123,7 +124,7 @@ router.get('/:board_id/tags', (req, res) => {
 })
 
 
-router.post('/:board_id/post', (req, res) => {
+router.post('/:board_id/post', upload.array('attachedFiles', 3), (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)
@@ -131,7 +132,26 @@ router.post('/:board_id/post', (req, res) => {
         return createContent(decodedToken._id, req.params.board_id, req.body, 'PO')
     })
     .then((content_id) => {
-        return createPost(content_id, req.body)
+        if(req.files) {
+            return Promise.all(req.files.map((file) => {
+                let file_type = ''
+                if(file.mimetype.includes('image/')) {
+                    file_type = 'I'
+                }
+                else {
+                    console.log(file.mimetype)
+                }
+                let data = {
+                    original_name: file.originalname,
+                    file_path: file.path,
+                    file_type: file_type
+                }            
+                return createAttachedFile(content_id, data)
+            }).concat(createPost(content_id, req.body)))
+        }
+        else {
+            return createPost(content_id, req.body)
+        }
     })
     .then(() => {
         res.json({ success: true })
@@ -144,28 +164,6 @@ router.post('/:board_id/post', (req, res) => {
             code: 1
         })
     });
-
-    // let user_id = '';
-
-    // verifyTokenUseReq(req)
-    // .then(decodedToken => {
-    //     user_id = decodedToken._id;
-    //     return createObject(user_id, req.params.board_id, req.body, 'PO')
-    // })
-    // .then((object_id) => {
-    //     return createPost(object_id, user_id, req.body)
-    // })
-    // .then(() => {
-    //     res.json({ success: true })
-    // })
-    // .catch((err) => {
-    //     console.error(err);
-    //     res.status(403).json({
-    //         success: false,
-    //         error: 'RETRIEVE POST FAIL',
-    //         code: 1
-    //     })
-    // });
 });
 
 

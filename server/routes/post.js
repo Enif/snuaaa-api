@@ -3,6 +3,7 @@ import express from 'express';
 import { updateContent, deleteContent } from '../controllers/content.controller';
 import { retrievePost } from '../controllers/post.controller';
 import { checkLike } from '../controllers/contentLike.controller';
+import { retrieveAttachedFilesInContent } from "../controllers/attachedFile.controller";
 
 import { verifyTokenUseReq } from '../lib/token';
 
@@ -13,10 +14,10 @@ router.get('/:post_id', (req, res) => {
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return Promise.all([retrievePost(req.params.post_id) , checkLike(req.params.post_id, decodedToken._id)])
+        return Promise.all([retrievePost(req.params.post_id) ,checkLike(req.params.post_id, decodedToken._id), retrieveAttachedFilesInContent(req.params.post_id)])
     })
     .then((infos) => {
-        res.json({postInfo: infos[0], likeInfo: infos[1]})
+        res.json({postInfo: infos[0], likeInfo: infos[1], fileInfo: infos[2]})
     })
     .catch((err) => {
         console.error(err)

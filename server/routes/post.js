@@ -14,7 +14,11 @@ router.get('/:post_id', (req, res) => {
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
-        return Promise.all([retrievePost(req.params.post_id) ,checkLike(req.params.post_id, decodedToken._id), retrieveAttachedFilesInContent(req.params.post_id)])
+        return Promise.all([
+            retrievePost(req.params.post_id),
+            checkLike(req.params.post_id, decodedToken._id),
+            retrieveAttachedFilesInContent(req.params.post_id)
+        ])
     })
     .then((infos) => {
         res.json({postInfo: infos[0], likeInfo: infos[1], fileInfo: infos[2]})

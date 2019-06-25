@@ -86,7 +86,7 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset) {
 }
 
 
-exports.retrieveAlbumCountByCategory = function (board_id, category_id) {
+exports.retrieveAlbumCount = function (board_id, category_id) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('id can not be null');
@@ -96,8 +96,12 @@ exports.retrieveAlbumCountByCategory = function (board_id, category_id) {
         board_id && (condition.board_id = board_id);
         category_id && (condition.category_id = category_id);
 
-        models.Content.count({
-            where: condition
+        models.Album.count({
+            include: [{
+                model: models.Content,
+                where: condition,
+                required: true
+            }]
         })
             .then((count) => {
                 resolve(count)

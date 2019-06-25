@@ -63,11 +63,11 @@ exports.retrieveCommentsByUser = function(user_id) {
                         model: models.Board,
                         required: true,
                         attributes: ['board_id', 'board_name']
-                    }],
-                    where: {
-                        author_id: user_id,
-                    }
+                    }]
                 }],
+                where: {
+                    author_id: user_id,
+                },
                 order: [['created_at', 'DESC']],
                 limit: 5
             })

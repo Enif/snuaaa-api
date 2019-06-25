@@ -51,7 +51,7 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
                     model: models.Content,
                     as: 'content'
                 },
-                    'updated_at', 'DESC'
+                    'created_at', 'DESC'
                 ]
             ],
             limit: rowNum,

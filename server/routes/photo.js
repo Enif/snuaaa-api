@@ -15,7 +15,7 @@ router.get('/:photo_id', (req, res) => {
     .then(decodedToken => {
         return Promise.all([
             retrievePhoto(req.params.photo_id),
-            checkLike(decodedToken._id, req.params.photo_id),
+            checkLike(req.params.photo_id, decodedToken._id),
             // retrieveTagsOnObject(req.params.photo_id),
             // retrieveAlbumByPhoto(req.params.photo_id)
         ])

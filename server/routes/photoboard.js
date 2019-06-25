@@ -3,7 +3,7 @@ import multer from 'multer';
 import fs from 'fs';
 
 import { createContent } from '../controllers/content.controller';
-import { createAlbum, retrieveAlbums, retrieveAlbumCountByCategory, retrieveAlbumsByCategory } from '../controllers/album.controller';
+import { createAlbum, retrieveAlbums, retrieveAlbumCount, retrieveAlbumsByCategory } from '../controllers/album.controller';
 import { createPhoto, retrievePhotoCountInBoard, retrievePhotosInBoard, retrievePhotoCountByTag, retrievePhotosByTag } from '../controllers/photo.controller';
 import { createContentTag } from '../controllers/contentTag.controller';
 
@@ -59,7 +59,7 @@ router.get('/:board_id/albums', (req, res) => {
     // })
 
     if (req.query.category) {
-        retrieveAlbumCountByCategory(req.params.board_id, req.query.category)
+        retrieveAlbumCount(req.params.board_id, req.query.category)
             .then((count) => {
                 albumCount = count;
                 return retrieveAlbumsByCategory(req.params.board_id, req.query.category, ROWNUM, offset)
@@ -79,7 +79,7 @@ router.get('/:board_id/albums', (req, res) => {
             })
     }
     else {
-        retrieveAlbumCountByCategory(req.params.board_id)
+        retrieveAlbumCount(req.params.board_id)
             .then((count) => {
                 albumCount = count;
                 return retrieveAlbums(req.params.board_id, ROWNUM, offset)

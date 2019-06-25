@@ -58,7 +58,7 @@ exports.retrievePhotosInAlbum = function (album_id) {
                         model: models.Content,
                         as: 'contentPhoto'
                     },
-                        'updated_at', 'DESC'
+                        'created_at', 'DESC'
                     ]
                 ]
             })

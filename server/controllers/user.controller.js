@@ -143,7 +143,8 @@ exports.updateLoginDate = function (user_id) {
         }, {
                 where: {
                     user_id: user_id
-                }
+                },
+                silent: true
             }
         )
             .then(() => {

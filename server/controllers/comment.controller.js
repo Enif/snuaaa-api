@@ -34,7 +34,7 @@ exports.retrieveRecentComments = function() {
                 include: [{
                     model: models.Board,
                     required: true,
-                    attributes: ['board_name']
+                    attributes: ['board_id', 'board_name']
                 }]
             }],
             order: [['created_at', 'DESC']],

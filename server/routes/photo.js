@@ -3,6 +3,8 @@ import express from 'express';
 import { retrievePhoto, updatePhoto, deletePhoto } from '../controllers/photo.controller';
 import { checkLike } from '../controllers/contentLike.controller';
 import { updateContent, deleteContent } from '../controllers/content.controller';
+import { retrieveTagsOnBoard } from '../controllers/tag.controller';
+import { retrieveTagsByContent, createContentTag, deleteContentTag } from '../controllers/contentTag.controller';
 
 import { verifyTokenUseReq } from '../lib/token';
 
@@ -10,6 +12,9 @@ const router = express.Router();
 
 router.get('/:photo_id', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    let photoInfo = {};
+    let likeInfo = {};
 
     verifyTokenUseReq(req)
     .then(decodedToken => {
@@ -21,11 +26,15 @@ router.get('/:photo_id', (req, res) => {
         ])
     })
     .then((infos) => {
+        photoInfo = infos[0];
+        likeInfo = infos[1];
+        return retrieveTagsOnBoard(photoInfo.contentPhoto.board_id)
+    })
+    .then((tagInfo) => {
         res.json({
-            photoInfo: infos[0],
-            likeInfo: infos[1],
-            tagInfo: infos[2],
-            // albumInfo: infos[3]
+            photoInfo: photoInfo,
+            likeInfo: likeInfo,
+            boardTagInfo: tagInfo,
         })
     })
     .catch((err) => {
@@ -46,12 +55,35 @@ router.patch('/:photo_id', (req, res) => {
     }
     const photoData = req.body;
 
+
     verifyTokenUseReq(req)
     .then(decodedToken => {
         return Promise.all([
+            retrieveTagsByContent(req.params.photo_id),
             updateContent(req.params.photo_id, objectData),
             updatePhoto(req.params.photo_id, photoData)
         ])
+    })
+    .then((infos) => {
+        const prevTags = infos[0].map(tag => tag.tag_id);
+        const newTags = photoData.tags;
+        const updateTag = [];
+                
+        if (prevTags && prevTags.length > 0) {
+            prevTags.forEach(tag => {
+                if(!newTags.includes(tag)) {
+                    updateTag.concat(deleteContentTag(req.params.photo_id, tag));
+                }
+            });
+        }
+        if (newTags && newTags.length > 0) {
+            newTags.forEach(tag => {
+                if(!prevTags.includes(tag)) {
+                    updateTag.concat(createContentTag(req.params.photo_id, tag));
+                }
+            })
+        }
+        return Promise.all(updateTag)
     })
     .then(() => {
         res.json({

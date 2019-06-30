@@ -34,6 +34,7 @@ exports.updateContent = function (content_id, data) {
         models.Content.update({
             title: data.title,
             text: data.text,
+            category_id: data.category_id
         },
         {
             where: {

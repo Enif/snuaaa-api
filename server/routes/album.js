@@ -6,6 +6,8 @@ import { createContent, updateContent, deleteContent } from '../controllers/cont
 import { retrieveAlbum } from '../controllers/album.controller';
 import { retrievePhotosInAlbum, createPhoto } from '../controllers/photo.controller';
 import { retrieveTagsOnBoard } from "../controllers/tag.controller";
+import { createContentTag } from '../controllers/contentTag.controller';
+import { retrieveCategoryByBoard } from '../controllers/category.controller';
 
 import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
@@ -35,12 +37,16 @@ router.get('/:album_id', (req, res) => {
     retrieveAlbum(req.params.album_id)
     .then((info) => {
         albumInfo = info;
-        return retrieveTagsOnBoard(albumInfo.content.board_id)
+        return Promise.all([
+            retrieveCategoryByBoard(albumInfo.content.board_id),
+            retrieveTagsOnBoard(albumInfo.content.board_id)
+        ]) 
     })
-    .then((tags) => {
+    .then((infos) => {
         res.json({
             albumInfo: albumInfo,
-            tagInfo: tags
+            categoryInfo: infos[0],
+            tagInfo: infos[1]
         })        
     })
         .catch((err) => {
@@ -55,14 +61,9 @@ router.get('/:album_id', (req, res) => {
 router.patch('/:album_id', (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
-    const objectData = {
-        title: req.body.title,
-        text: req.body.contents
-    }
-
     verifyTokenUseReq(req)
         .then((decodedToken) => {
-            return updateContent(req.params.album_id, objectData)
+            return updateContent(req.params.album_id, req.body)
         })
         .then(() => {
             res.json({
@@ -189,12 +190,16 @@ router.post('/:album_id/photos', upload.array('uploadPhotos'), (req, res) => {
                     return resize(file.path)
                 }))
                     .then(() => {
-                        console.log('resize finished..')
                         return Promise.all(data.map((data) => {
                             return new Promise((resolve, reject) => {
                                 createContent(decodedToken._id, data.board_id, data, 'PH')
                                     .then((content_id) => {
-                                        return createPhoto(content_id, data)
+                                        if (data.tags.length > 0) {
+                                            return Promise.all(data.tags.map(tag_id => createContentTag(content_id, tag_id)).concat(createPhoto(content_id, data)))
+                                        }
+                                        else {
+                                            return createPhoto(content_id, data)
+                                        }
                                     })
                                     .then(() => {
                                         resolve()

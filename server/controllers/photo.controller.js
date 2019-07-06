@@ -181,7 +181,9 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
                             tag_id: tags
                         }
                     }],
-                    order: [['updated_at', 'DESC']]
+                    order: [
+                        ['created_at', 'DESC']
+                    ]
                 }],
                 limit: rowNum,
                 offset: offset

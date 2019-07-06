@@ -122,7 +122,7 @@ exports.retrieveAlbums = function (board_id, rowNum, offset) {
         models.sequelize.query(
             `SELECT al.content_id, ob.category_id, ob.title, ob.text, ob.created_at, usr.nickname, ctg.category_color,
             (
-                SELECT ph.file_path
+                SELECT ph.thumbnail_path
                 FROM tb_photo ph
                 INNER JOIN tb_content phobj ON (phobj.content_id = ph.content_id)
                 WHERE ph.album_id = al.content_id
@@ -166,7 +166,7 @@ exports.retrieveAlbumsByCategory = function (board_id, category_id, rowNum, offs
         models.sequelize.query(
             `SELECT al.content_id, ob.category_id, ob.title, ob.text, ob.created_at, usr.nickname, ctg.category_color,
             (
-                SELECT ph.file_path
+                SELECT ph.thumbnail_path
                 FROM tb_photo ph
                 INNER JOIN tb_content phobj ON (phobj.content_id = ph.content_id)
                 WHERE ph.album_id = al.content_id

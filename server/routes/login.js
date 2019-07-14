@@ -40,17 +40,26 @@ router.post('/', (req, res) => {
     })
     .then(() => {
         return createToken({
-            _id: userInfo.user_id
+            _id: userInfo.user_id,
+            level: userInfo.level,
+            autoLogin: req.body.autoLogin ? true : false
         })
     })
     .then((token) => {
-        return res.json({
+        return res.status(200)
+        .cookie('token', token, {
+            path: '/',
+            // domain: 'localhost:3000'
+            // httpOnly: true
+        })
+        .json({
             sucess: true,
             user_id: userInfo.user_id,
             level: userInfo.level,
             profile_path: userInfo.profile_path,
             nickname: userInfo.nickname,
-            token 
+            autoLogin: req.body.autoLogin ? true : false,
+            token: token 
         })
     })
     .catch((err) => {

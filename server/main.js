@@ -2,17 +2,18 @@
 import express from 'express';
 import api from './routes';
 import cors from 'cors';
-import path from 'path'
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 
 require('dotenv').config();
 
-var app         = express();
-var bodyParser  = require('body-parser');
+const app = express();
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use(cookieParser());
 
 if(process.env.NODE_ENV == 'develop') {
     // for local test

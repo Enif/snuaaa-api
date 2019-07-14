@@ -1,6 +1,63 @@
-/**
- * TODO : Token 라이브러리화 검토
- */
+const jwt = require('jsonwebtoken');
+
+exports.verifyTokenMiddleware = function(req, res, next) {
+
+    const auth = req.headers.authorization.split(" ");
+    let token;
+
+    if (auth[0] === 'Bearer') {
+        token = auth[1]
+    }
+    else {
+        return res.status(403).json({
+            success: false,
+            message: 'Token Type Error.'
+        });
+    }
+
+    if (!token) {
+        return res.status(403).json({
+            success: false,
+            message: 'Token does not exist.'
+        });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+        if (error) {
+            return res.status(403).json({
+                success: false,
+                CODE: 102
+            });
+        };
+        req.decodedToken = decoded;
+        next();
+    });
+};
+
+exports.authMiddleware = (req, res, next) => {
+    // 토큰 취득
+    const token = req.cookies.token
+
+    // 토큰 미존재: 로그인하지 않은 사용자
+    if (!token) {
+        return res.status(403).json({
+            success: false,
+            CODE: 101
+        });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+        if (error) {
+            return res.status(403).json({
+                success: false,
+                CODE: 102
+            });
+        }
+        req.decodedToken = decoded;
+        next();
+    })
+};
+
 
 /* const jwt = require('jsonwebtoken')
 
@@ -45,57 +102,4 @@ module.exports = authMiddleware */
 
 
 
-const { verifyToken } = require('../lib/token');
 
-exports.isAuthenticated = (req, res, next) => {
-  // 토큰 취득
-  const token = req.body.token || req.query.token || req.headers.authorization;
-  // const token = req.body.token || req.query.token || req.headers.authorization.split(' ')[1];
-
-  // 토큰 미존재: 로그인하지 않은 사용자
-  if (!token) {
-    return res.status(403).json({
-        success: false,
-        message: 'Token does not exist.'
-    });
-  }
-
-  // 토큰 검증
-  verifyToken(token)
-    .then(decodedToken => {
-        req.decodedToken = decodedToken;
-        next();
-    })
-    .catch(err => res.status(403).json({
-        success: false,
-        message: err.message
-    }));
-};
-
-export default isAuthenticated;
-//module.exports = isAuthenticated
-
-
-/* const jwt = require('jsonwebtoken');
-
-// JWT 토큰 생성
-exports.createToken = payload => {
-  const jwtOption = { expiresIn: '7d' };
-
-  return new Promise((resolve, reject) => {
-    jwt.sign(payload, process.env.JWT_SECRET, jwtOption, (error, token) => {
-      if (error) reject(error);
-      resolve(token);
-    });
-  });
-};
-
-// JWT 토큰 검증
-exports.verifyToken = token => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
-      if (error) reject(error);
-      resolve(decoded);
-    });
-  });
-}; */

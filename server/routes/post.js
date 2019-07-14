@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { verifyTokenMiddleware } from '../middlewares/auth';
 import { updateContent, deleteContent } from '../controllers/content.controller';
 import { retrievePost } from '../controllers/post.controller';
 import { checkLike } from '../controllers/contentLike.controller';
@@ -9,7 +10,7 @@ import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 
-router.get('/:post_id', (req, res) => {
+router.get('/:post_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     verifyTokenUseReq(req)

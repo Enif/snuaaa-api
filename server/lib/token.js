@@ -2,7 +2,16 @@ const jwt = require('jsonwebtoken');
 
 // JWT 토큰 생성
 exports.createToken = payload => {
-    const jwtOption = { expiresIn: '7d' };
+
+    let expiresIn;
+    if(payload.autoLogin) {
+        expiresIn = '14d';
+    }
+    else {
+        expiresIn = '1d';
+    }
+
+    const jwtOption = { expiresIn };
 
     return new Promise((resolve, reject) => {
         jwt.sign(payload, process.env.JWT_SECRET, jwtOption, (error, token) => {

@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveUser, updateLoginDate } from '../controllers/user.controller';
 
 import { createToken, verifyTokenUseReq } from '../lib/token';
@@ -10,22 +11,21 @@ const router = express.Router();
     GET /api/check
 */
 
-router.get('/', (req, res) => {
+router.get('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     let user = {};
 
-    verifyTokenUseReq(req)
-    .then(decodedToken => {
-        return retrieveUser(decodedToken._id)
-    })
+    retrieveUser(req.decodedToken._id)
     .then((userInfo) => {
         user = userInfo;
         return updateLoginDate(user.user_id)
     })
     .then(() => {
         return createToken({
-            _id: user.user_id
+            _id: user.user_id,
+            level: user.level,
+            autoLogin: req.decodedToken.autoLogin
         })
     })
     .then((token) => {
@@ -35,6 +35,7 @@ router.get('/', (req, res) => {
             level: user.level,
             profile_path: user.profile_path,
             nickname: user.nickname,
+            autoLogin: req.decodedToken.autoLogin,
             token 
         });
     })

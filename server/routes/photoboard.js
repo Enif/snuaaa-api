@@ -105,17 +105,18 @@ router.get('/:board_id/photos', (req, res) => {
 
     let offset = 0;
     let photoCount = 0;
+    const tags = req.query.tags;
     const ROWNUM = 12;
 
     if (req.query.page > 0) {
         offset = ROWNUM * (req.query.page - 1);
     }
 
-    if (req.query.tag) {
-        retrievePhotoCountByTag(req.query.tag)
+    if (tags) {
+        retrievePhotoCountByTag(tags)
             .then((count) => {
                 photoCount = count;
-                return retrievePhotosByTag(req.query.tag, ROWNUM, offset)
+                return retrievePhotosByTag(tags, ROWNUM, offset)
             })
             .then((photoInfo) => {
                 res.json({

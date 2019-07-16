@@ -119,7 +119,7 @@ exports.retrievePhotosInBoard = function (board_id, rowNum, offset) {
                         model: models.Content,
                         as: 'contentPhoto'
                     },
-                        'updated_at', 'DESC'
+                        'created_at', 'DESC'
                     ]
                 ],
                 limit: rowNum,
@@ -142,6 +142,7 @@ exports.retrievePhotoCountByTag = function (tags) {
         }
         else {
             models.Photo.count({
+                distinct: true,
                 include: [{
                     model: models.Content,
                     as: 'contentPhoto',
@@ -175,16 +176,23 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
                     model: models.Content,
                     as: 'contentPhoto',
                     required: true,
+                    duplicating: true,
                     include: [{
                         model: models.Tag,
+                        through: models.ContentTag,
                         where: {
                             tag_id: tags
                         }
                     }],
-                    order: [
-                        ['created_at', 'DESC']
-                    ]
                 }],
+                order: [
+                    [{
+                        model: models.Content,
+                        as: 'contentPhoto'
+                    },
+                        'created_at', 'DESC'
+                    ]
+                ],
                 limit: rowNum,
                 offset: offset
             })
@@ -284,10 +292,10 @@ exports.updatePhoto = function (photo_id, data) {
                 iso: data.iso,
                 date: data.date
             }, {
-                where: {
-                    content_id: photo_id
-                }
-            })
+                    where: {
+                        content_id: photo_id
+                    }
+                })
                 .then(() => {
                     resolve();
                 })

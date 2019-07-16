@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 tag_name: {
                     type: DataTypes.STRING(32)
+                },
+                tag_type: {
+                    type: DataTypes.STRING(8)
                 }
             }, {
                     sequelize,

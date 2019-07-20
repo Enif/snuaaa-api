@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
+import path from 'path';
 
 import { createContent } from '../controllers/content.controller';
 import { createAlbum, retrieveAlbums, retrieveAlbumCount, retrieveAlbumsByCategory } from '../controllers/album.controller';
@@ -8,7 +9,7 @@ import { createPhoto, retrievePhotoCountInBoard, retrievePhotosInBoard, retrieve
 import { createContentTag } from '../controllers/contentTag.controller';
 
 import { verifyTokenUseReq } from '../lib/token';
-import { resize } from '../lib/resize';
+import { resizeForThumbnail } from '../lib/resize';
 
 const router = express.Router();
 
@@ -202,6 +203,7 @@ router.post('/:board_id/photos', upload.array('uploadPhotos'), (req, res) => {
                         else {
                             tags = [];
                         }
+                        let basename = path.basename(req.files[i].filename, path.extname(req.files[i].filename));
                         data.push({
                             type: 'PH',
                             title: req.body.title[i],
@@ -216,7 +218,8 @@ router.post('/:board_id/photos', upload.array('uploadPhotos'), (req, res) => {
                             iso: req.body.iso[i],
                             tags: tags,
                             board_id: req.params.board_id,
-                            file_path: '/album/default/' + req.files[i].filename
+                            file_path: '/album/default/' + req.files[i].filename,
+                            thumbnail_path: `/album/default/${basename}_thumb.jpeg`
                         })
                     }
                 }
@@ -228,7 +231,7 @@ router.post('/:board_id/photos', upload.array('uploadPhotos'), (req, res) => {
                     else {
                         tags = [];
                     }
-
+                    let basename = path.basename(req.files[0].filename, path.extname(req.files[0].filename));
                     data.push({
                         type: 'PH',
                         title: req.body.title,
@@ -243,12 +246,13 @@ router.post('/:board_id/photos', upload.array('uploadPhotos'), (req, res) => {
                         iso: req.body.iso,
                         tags: tags,
                         board_id: req.params.board_id,
-                        file_path: '/album/default/' + req.files[0].filename
+                        file_path: '/album/default/' + req.files[0].filename,
+                        thumbnail_path: `/album/default/${basename}_thumb.jpeg`
                     })
                 }
 
                 Promise.all(req.files.map((file) => {
-                    return resize(file.path)
+                    return resizeForThumbnail(file.path)
                 }))
                     .then(() => {
                         return Promise.all(data.map((data) => {

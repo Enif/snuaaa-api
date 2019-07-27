@@ -15,6 +15,11 @@ exports.retrievePost = function (content_id) {
                     model: models.User,
                     required: true,
                     attributes: ['nickname', 'introduction', 'profile_path']
+                },
+                {
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name', 'lv_read']
                 }]
             }],
             where: { content_id: content_id }
@@ -99,9 +104,9 @@ exports.retrieveRecentPosts = function () {
     })
 }
 
-exports.retrievePostsByUser = function(user_id) {
+exports.retrievePostsByUser = function (user_id) {
     return new Promise((resolve, reject) => {
-        if(!user_id) {
+        if (!user_id) {
             reject('id can not be null');
         }
         else {
@@ -129,17 +134,17 @@ exports.retrievePostsByUser = function(user_id) {
                 ],
                 limit: 5
             })
-            .then(function(posts){
-                resolve(posts);    
-            })
-            .catch((err) => {
-                reject(err)
-            })
+                .then(function (posts) {
+                    resolve(posts);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 };
 
-exports.retrieveSoundBox = function() {
+exports.retrieveSoundBox = function () {
     return new Promise((resolve, reject) => {
 
         models.Post.findOne({
@@ -152,7 +157,7 @@ exports.retrieveSoundBox = function() {
                     model: models.Board,
                     required: true,
                     attributes: [],
-                    where: {board_id: 'brd01'}
+                    where: { board_id: 'brd01' }
                 }]
             }],
             order: [
@@ -166,13 +171,13 @@ exports.retrieveSoundBox = function() {
             limit: 1
         })
 
-        .then(function(post) {
-            resolve(post);
-        })
-        .catch((err) => {
-            reject(err)
-        })
-        
+            .then(function (post) {
+                resolve(post);
+            })
+            .catch((err) => {
+                reject(err)
+            })
+
     })
 }
 

@@ -5,6 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import { errorHandler } from './middlewares/errorHandler';
 
 require('dotenv').config();
 
@@ -39,6 +40,7 @@ else {
 app.use('/static', express.static(__dirname + '/../upload'));
 
 
+
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;
 
@@ -47,3 +49,4 @@ app.listen(port, () => console.log(`Server listening on port ${port}`));
 
 // [CONFIGURE ROUTER]
 app.use('/api', api);
+app.use(errorHandler);

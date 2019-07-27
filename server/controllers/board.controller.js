@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = models.Sequelize.Op;
 
 exports.retrieveBoard = function (board_id) {
     return new Promise((resolve, reject) => {
@@ -27,6 +28,25 @@ exports.retrieveBoards = function () {
     return new Promise((resolve, reject) => {
 
         models.Board.findAll({
+        })
+            .then((boards) => {
+                resolve(boards);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+exports.retrieveBoardsCanAccess = function (level) {
+    return new Promise((resolve, reject) => {
+
+        models.Board.findAll({
+            where: {
+                lv_read: {
+                    [Op.lte]: level
+                }
+            }
         })
             .then((boards) => {
                 resolve(boards);

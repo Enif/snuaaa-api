@@ -2,7 +2,8 @@ import express from 'express';
 import fs from 'fs';
 import multer from 'multer';
 
-import { retrieveBoard, retrieveBoards } from '../controllers/board.controller';
+import { verifyTokenMiddleware } from '../middlewares/auth';
+import { retrieveBoard, retrieveBoardsCanAccess } from '../controllers/board.controller';
 import { retrieveCategoryByBoard } from '../controllers/category.controller';
 import { createContent } from '../controllers/content.controller';
 import { retrievePostsInBoard, createPost } from '../controllers/post.controller';
@@ -29,10 +30,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage})
 
-router.get('/', (req, res) => {
+router.get('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveBoards()
+    retrieveBoardsCanAccess(req.decodedToken.level)
     .then((boardInfo) => {
         return res.json(boardInfo)
     })
@@ -44,25 +45,35 @@ router.get('/', (req, res) => {
     })
 })
 
-router.get('/:board_id', (req, res) => {
+router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
     let resBoardInfo;
     let resCategoryInfo;
     retrieveBoard(req.params.board_id)
     .then((boardInfo) => {
-        resBoardInfo = boardInfo
-        return retrieveCategoryByBoard(req.params.board_id)
-    })
+        resBoardInfo = boardInfo;
+        if (boardInfo.lv_read > req.decodedToken.level) {
+            const err = {
+                status: 403,
+                code: 4001
+            }
+            next(err);
+        }
+        else {
+            return retrieveCategoryByBoard(req.params.board_id)
+        }
+    }, )
     .then((categories) => {
-        resCategoryInfo = categories;
-        res.json({resBoardInfo, resCategoryInfo});
+        if(categories) {
+            resCategoryInfo = categories;
+            res.json({resBoardInfo, resCategoryInfo});    
+        }
     })
     .catch((err) => {
         console.error(err);
-        res.status(403).json({
+        res.status(500).json({
             success: false,
-            error: 'RETRIEVE POST FAIL',
-            code: 1
+            code: 499
         })
     })
 })

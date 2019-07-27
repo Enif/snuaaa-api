@@ -10,19 +10,31 @@ import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 
-router.get('/:post_id', verifyTokenMiddleware, (req, res) => {
+router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-    .then(decodedToken => {
-        return Promise.all([
-            retrievePost(req.params.post_id),
-            checkLike(req.params.post_id, decodedToken._id),
-            retrieveAttachedFilesInContent(req.params.post_id)
-        ])
+    let resPostInfo = {}
+
+    retrievePost(req.params.post_id)
+    .then((postInfo) => {
+        resPostInfo = postInfo;
+        
+        if (postInfo.content.board.lv_read > req.decodedToken.level) {
+            const err = {
+                status: 403,
+                code: 4001
+            }
+            next(err);
+        }
+        else {
+            return Promise.all([
+                checkLike(req.params.post_id, req.decodedToken._id),
+                retrieveAttachedFilesInContent(req.params.post_id)
+            ])
+        }
     })
     .then((infos) => {
-        res.json({postInfo: infos[0], likeInfo: infos[1], fileInfo: infos[2]})
+        res.json({postInfo: resPostInfo, likeInfo: infos[0], fileInfo: infos[1]})
     })
     .catch((err) => {
         console.error(err)

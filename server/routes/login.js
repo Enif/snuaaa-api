@@ -71,4 +71,35 @@ router.post('/', (req, res) => {
     })
 });
 
+router.get('/guest', (req, res) => {
+
+    createToken({
+            _id: null,
+            level: 0,
+            autoLogin: false
+    })
+    .then((token) => {
+        return res.status(200)
+        .cookie('token', token, {
+            path: '/',
+        })
+        .json({
+            sucess: true,
+            user_id: null,
+            level: 0,
+            profile_path: null,
+            nickname: 'guest',
+            autoLogin: false,
+            token: token 
+        })
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(403).json({
+            sucess: false,
+            message: 'Login Info is not valid.' 
+        })
+    })
+});
+
 export default router;

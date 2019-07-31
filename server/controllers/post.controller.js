@@ -151,7 +151,7 @@ exports.retrieveSoundBox = function () {
             include: [{
                 model: models.Content,
                 as: 'content',
-                attributes: ['title', 'text'],
+                attributes: ['content_id', 'title', 'text'],
                 required: true,
                 include: [{
                     model: models.Board,

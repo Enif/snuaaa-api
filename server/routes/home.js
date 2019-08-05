@@ -112,7 +112,7 @@ router.get('/riseset', (req, res) => {
         }
         else {
             let data = xmlParser.parse(body);
-            let item;
+            let item = {};
             if (data.response
                 && data.response.body
                 && data.response.body.items

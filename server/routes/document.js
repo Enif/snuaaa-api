@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 
     let offset = 0;
     let docCount = 0;
-    const ROWNUM = 12;
+    const ROWNUM = 10;
 
     if (req.query.page > 0) {
         offset = ROWNUM * (req.query.page - 1);

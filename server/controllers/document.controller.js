@@ -76,6 +76,7 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
                 model: models.Content,
                 as: 'content',
                 required: true,
+                attributes: ['content_id', 'title', 'text'],
                 include: [{
                     model: models.User,
                     required: true,
@@ -84,9 +85,14 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
                     model: models.Category,
                     required: true,
                     attributes: ['category_name']
+                }, {
+                    model: models.AttachedFile,
+                    as: 'AttachedFiles',
+                    separate: true
                 }],
                 where: contentCondition
             }],
+            attributes: ['content_id', 'generation'],
             where: docCondition,
             limit: rowNum,
             offset: offset,

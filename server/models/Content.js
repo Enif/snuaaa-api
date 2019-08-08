@@ -80,11 +80,18 @@ module.exports = (sequelize, DataTypes) => {
                 otherKey: 'content_id'
             })
 
+            this.hasMany(models.AttachedFile, {
+                as: 'AttachedFiles',
+                foreignKey: 'parent_id',
+                sourceKey: 'content_id'
+            })
+
             this.belongsToMany(models.Tag, {
                 through: 'contentTag',
                 foreignKey: 'content_id',
                 otherKey: 'tag_id'
             })
+
         }
     }
 

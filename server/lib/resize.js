@@ -12,20 +12,35 @@ exports.resizeForThumbnail = function (file_path) {
             const buf = fs.readFileSync(file_path);
             const image = sharp(buf);
             
-            image.metadata()
+            image.rotate().metadata()
             .then(function (metadata) {
-                console.log(metadata);
-                if (metadata.height > metadata.width) {
-                    return Promise.all([
-                        image.resize({ width: 1080 }).toFile(file_path),
-                        image.resize({ width: 300 }).jpeg().toFile(`${baseName}_thumb.jpeg`),
-                    ])
+                if(metadata.orientation >= 5 && metadata.orientation <= 8) {
+                    if (metadata.height > metadata.width) {
+                        return Promise.all([
+                            image.resize({ width: 1920 }).toFile(file_path),
+                            image.resize({ height:300, width: 300 }).jpeg().toFile(`${baseName}_thumb.jpeg`),
+                        ])
+                    }
+                    else {
+                        return Promise.all([
+                            image.resize({ height: 1920 }).toFile(file_path),
+                            image.resize({ height:300, width: 300 }).jpeg().toFile(`${baseName}_thumb.jpeg`)
+                        ])
+                    }
                 }
                 else {
-                    return Promise.all([
-                        image.resize({ height: 1080 }).toFile(file_path),
-                        image.resize({ height: 300 }).jpeg().toFile(`${baseName}_thumb.jpeg`)
-                    ])
+                    if (metadata.height > metadata.width) {
+                        return Promise.all([
+                            image.resize({ height: 1920 }).toFile(file_path),
+                            image.resize({ height:300, width: 300 }).jpeg().toFile(`${baseName}_thumb.jpeg`),
+                        ])
+                    }
+                    else {
+                        return Promise.all([
+                            image.resize({ width: 1920 }).toFile(file_path),
+                            image.resize({ height:300, width: 300 }).jpeg().toFile(`${baseName}_thumb.jpeg`)
+                        ])
+                    }
                 }
             })
             .then(() => {

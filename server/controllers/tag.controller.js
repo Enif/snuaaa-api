@@ -9,7 +9,8 @@ exports.retrieveTagsOnBoard = function (board_id) {
         }
 
         models.Tag.findAll({
-            where: { board_id: board_id }
+            where: { board_id: board_id },
+            order: [['tag_type', 'ASC'], ['tag_id', 'ASC']]
         })
             .then((tags) => {
                 resolve(tags);

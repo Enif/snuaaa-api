@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { retrievePhoto, updatePhoto, deletePhoto } from '../controllers/photo.controller';
+import { retrievePhoto, updatePhoto, deletePhoto, retrievePhotosInAlbum } from '../controllers/photo.controller';
 import { checkLike } from '../controllers/contentLike.controller';
 import { updateContent, deleteContent } from '../controllers/content.controller';
 import { retrieveTagsOnBoard } from '../controllers/tag.controller';
@@ -28,13 +28,17 @@ router.get('/:photo_id', (req, res) => {
     .then((infos) => {
         photoInfo = infos[0];
         likeInfo = infos[1];
-        return retrieveTagsOnBoard(photoInfo.contentPhoto.board_id)
+        return Promise.all([
+            retrieveTagsOnBoard(photoInfo.contentPhoto.board_id),
+            retrievePhotosInAlbum(photoInfo.album.content_id)
+        ]) 
     })
-    .then((tagInfo) => {
+    .then((infos) => {
         res.json({
             photoInfo: photoInfo,
             likeInfo: likeInfo,
-            boardTagInfo: tagInfo,
+            boardTagInfo: infos[0],
+            albumPhotosInfo: infos[1]
         })
     })
     .catch((err) => {

@@ -16,14 +16,18 @@ exports.retrievePhoto = function (photo_id) {
                     required: true,
                     attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
                 }, {
-                    model: models.Tag,
+                    model: models.Tag
                 }]
             }, {
                 as: 'album',
                 model: models.Content,
                 // required: true
             }],
-            where: { content_id: photo_id }
+            where: { content_id: photo_id },
+            order: [
+                ['contentPhoto', models.Tag, 'tag_type', 'ASC'],
+                ['contentPhoto', models.Tag, 'tag_id', 'ASC']
+            ]
         })
             .then((photoInfo) => {
                 resolve(photoInfo)

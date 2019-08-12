@@ -28,10 +28,17 @@ router.get('/:photo_id', (req, res) => {
     .then((infos) => {
         photoInfo = infos[0];
         likeInfo = infos[1];
-        return Promise.all([
-            retrieveTagsOnBoard(photoInfo.contentPhoto.board_id),
-            retrievePhotosInAlbum(photoInfo.album.content_id)
-        ]) 
+        if(photoInfo.album_id) {
+            return Promise.all([
+                retrieveTagsOnBoard(photoInfo.contentPhoto.board_id),
+                retrievePhotosInAlbum(photoInfo.album_id)
+            ])
+        }
+        else {
+            return Promise.all([
+                retrieveTagsOnBoard(photoInfo.contentPhoto.board_id)
+            ]) 
+        }
     })
     .then((infos) => {
         res.json({

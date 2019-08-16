@@ -92,10 +92,10 @@ router.patch('/', upload.single('profileImg'), (req, res) => {
                 level = userInfo.level;
             }
             else if (data.aaa_no) {
-                level = 1;
+                level = 2;
             }
             else {
-                level = 0;
+                level = 1;
             }
 
             let userData = {

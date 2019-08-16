@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { retrieveDocumentCount, retrieveDocument, retrieveDocuments, deleteDocument } from "../controllers/document.controller";
-import { deleteContent } from "../controllers/content.controller";
+import { updateContent, deleteContent } from '../controllers/content.controller';
 import { checkLike } from "../controllers/contentLike.controller";
 
 import { verifyTokenUseReq } from '../lib/token';
@@ -61,6 +61,22 @@ router.get('/:doc_id', (req, res) => {
     })
 })
 
+router.patch('/:doc_id', (req, res) => {
+    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    verifyTokenUseReq(req)
+    .then(decodedToken => {
+        return updateContent(req.params.doc_id, req.body)
+    })
+    .then(() => {
+        return res.json({ success: true });
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).json()
+    })
+})
+
+
 
 router.delete('/:doc_id', (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
@@ -103,23 +119,24 @@ router.get('/generation/:genNum', (req, res) => {
     })
 })
 
-router.get('/:docuId/download/:index', (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+// @deprecated
+// router.get('/:docuId/download/:index', (req, res) => {
+//     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveDocument(req.params.docuId)
-    .then((docuInfo) => {
-        let index = req.params.index;
-        console.log('./upload' + docuInfo.file_path[index])
-        res.download('./upload' + docuInfo.file_path[index])
-    })
-    .catch((err) => {
-        console.error(err)
-        res.status(409).json({
-            error: 'DOWNLOAD DOCUMENT FAIL',
-            code: 1
-        });
-    })
+//     retrieveDocument(req.params.docuId)
+//     .then((docuInfo) => {
+//         let index = req.params.index;
+//         console.log('./upload' + docuInfo.file_path[index])
+//         res.download('./upload' + docuInfo.file_path[index])
+//     })
+//     .catch((err) => {
+//         console.error(err)
+//         res.status(409).json({
+//             error: 'DOWNLOAD DOCUMENT FAIL',
+//             code: 1
+//         });
+//     })
 
-})
+// })
 
 export default router;

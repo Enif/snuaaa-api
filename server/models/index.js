@@ -4,7 +4,9 @@ var Sequelize = require('sequelize');
 var basename = path.basename(__filename);
 require('dotenv').config();
 
-var sequelize = new Sequelize(process.env.POSTGRESQL_URI)
+var sequelize = new Sequelize(process.env.POSTGRESQL_URI, {
+    logging: false
+})
 var db = {};
 
 

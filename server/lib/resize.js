@@ -14,6 +14,7 @@ exports.resizeForThumbnail = function (file_path) {
             
             image.rotate().metadata()
             .then(function (metadata) {
+                // resizing by long axis
                 if(metadata.orientation >= 5 && metadata.orientation <= 8) {
                     if (metadata.height > metadata.width) {
                         return Promise.all([
@@ -68,18 +69,24 @@ exports.resize = function (file_path) {
             }
             else {
                 const image = sharp(data)
-                image.metadata()
+                image.rotate().metadata()
                     .then(function (metadata) {
-                        if (metadata.size > 1024 * 1024) {
+                        // resizing by minor axis
+                        if(metadata.orientation >= 5 && metadata.orientation <= 8) {
                             if (metadata.height > metadata.width) {
-                                return image.resize({ width: 720 }).toFile(file_path)
+                                return image.resize({ height:300 }).toFile(file_path)
                             }
                             else {
-                                return image.resize({ height: 720 }).toFile(file_path)
+                                return image.resize({ width: 300 }).toFile(file_path)
                             }
                         }
                         else {
-                            resolve();
+                            if (metadata.height > metadata.width) {
+                                return image.resize({ width: 300 }).toFile(file_path)
+                            }
+                            else {
+                                return image.resize({ height: 300 }).toFile(file_path)
+                            }
                         }
                     })
                     .then(function (info) {

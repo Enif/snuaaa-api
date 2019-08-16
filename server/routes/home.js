@@ -1,5 +1,8 @@
 import express from 'express';
 import request from 'request';
+import fs from 'fs';
+import path from 'path';
+
 const xmlParser = require('fast-xml-parser');
 require('dotenv').config();
 
@@ -91,45 +94,72 @@ router.get('/riseset', (req, res) => {
     day = day < 10 ? '0' + day : day;
 
     let dayformat = `${year}${month}${day}`;
-    let queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + process.env.RISESET_SERVICE_KEY;
-    queryParams += '&' + encodeURIComponent('locdate') + '=' + encodeURIComponent(dayformat);
-    queryParams += '&' + encodeURIComponent('location') + '=' + encodeURIComponent('서울');
 
-    request.get(url + queryParams, (err, response, body) => {
-        if (err) {
-            console.error(err);
-            res.status(500).json({
-                success: false,
-                code: 0
-            });
-        }
-        else if (!xmlParser.validate(body)) {
-            console.error('xml parse error');
-            res.status(500).json({
-                success: false,
-                code: 0
-            });
+    try {
+        if(!(fs.existsSync(path.join('.', 'riseset')))) {
+            fs.mkdirSync(path.join('.', 'riseset'))
+        }            
+    } catch (err) {
+        console.error(err)
+    }
+
+    try {
+        const riseSetJsonPath = path.join('.', 'riseset', `${dayformat}.json`)
+
+        if(fs.existsSync(riseSetJsonPath)) {
+            let riseSetInfo = fs.readFileSync(riseSetJsonPath, 'utf8');
+            res.json(JSON.parse(riseSetInfo))
         }
         else {
-            let data = xmlParser.parse(body);
-            let item = {};
-            if (data.response
-                && data.response.body
-                && data.response.body.items
-                && data.response.body.items.item) {
-
-                item = data.response.body.items.item;
-            }
-            res.json({
-                sunrise: item.sunrise,
-                sunset: item.sunset,
-                moonrise: item.moonrise,
-                moonset: item.moonset,
-                astm: item.astm,
-                aste: item.aste
+            let queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + process.env.RISESET_SERVICE_KEY;
+            queryParams += '&' + encodeURIComponent('locdate') + '=' + encodeURIComponent(dayformat);
+            queryParams += '&' + encodeURIComponent('location') + '=' + encodeURIComponent('서울');
+        
+            request.get(url + queryParams, (err, response, body) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).json({
+                        success: false,
+                        code: 0
+                    });
+                }
+                else if (!xmlParser.validate(body)) {
+                    console.error('xml parse error');
+                    res.status(500).json({
+                        success: false,
+                        code: 0
+                    });
+                }
+                else {
+                    let data = xmlParser.parse(body);
+                    let item = {};
+                    if (data.response
+                        && data.response.body
+                        && data.response.body.items
+                        && data.response.body.items.item) {
+        
+                        item = data.response.body.items.item;
+                    }
+                    const riseSetInfo = {
+                        sunrise: item.sunrise,
+                        sunset: item.sunset,
+                        moonrise: item.moonrise,
+                        moonset: item.moonset,
+                        astm: item.astm,
+                        aste: item.aste
+                    }
+                    fs.writeFileSync(riseSetJsonPath, JSON.stringify(riseSetInfo), 'utf8');
+                    res.json(riseSetInfo);
+                }
             })
         }
-    })
+    } catch (err) {
+        console.error(err)
+    }
+
+
+
+    
 })
 
 export default router;

@@ -6,12 +6,15 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import { errorHandler } from './middlewares/errorHandler';
+import logger from './middlewares/logger';
 
 require('dotenv').config();
 
 const app = express();
 
+
 // [CONFIGURE APP TO USE bodyParser]
+app.use(logger);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());

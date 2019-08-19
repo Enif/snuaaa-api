@@ -12,8 +12,6 @@ import { retrieveTagsOnBoard } from '../controllers/tag.controller';
 import { createDocument } from '../controllers/document.controller';
 import { createAttachedFile } from '../controllers/attachedFile.controller';
 
-import { verifyTokenUseReq } from '../lib/token';
-
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -79,7 +77,7 @@ router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
         })
 })
 
-router.get('/:board_id/posts', (req, res) => {
+router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     let offset = 0;
@@ -118,7 +116,7 @@ router.get('/:board_id/posts', (req, res) => {
         })
 })
 
-router.get('/:board_id/tags', (req, res) => {
+router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     retrieveTagsOnBoard(req.params.board_id)
@@ -136,13 +134,10 @@ router.get('/:board_id/tags', (req, res) => {
 })
 
 
-router.post('/:board_id/post', upload.array('attachedFiles', 3), (req, res) => {
+router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFiles', 3), (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-        .then(decodedToken => {
-            return createContent(decodedToken._id, req.params.board_id, req.body, 'PO')
-        })
+    createContent(req.decodedToken._id, req.params.board_id, req.body, 'PO')
         .then((content_id) => {
             if (req.files) {
                 return Promise.all(req.files.map((file) => {
@@ -179,7 +174,7 @@ router.post('/:board_id/post', upload.array('attachedFiles', 3), (req, res) => {
 });
 
 
-router.post('/:board_id/document', upload.array('uploadFiles', 3), verifyTokenMiddleware, (req, res) => {
+router.post('/:board_id/document', verifyTokenMiddleware, upload.array('uploadFiles', 3), (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     if (!req.files) {
@@ -214,7 +209,7 @@ router.post('/:board_id/document', upload.array('uploadFiles', 3), verifyTokenMi
                         file_type = 'PPT';
                     }
                     else if (['pdf', 'PPT'].includes(extention)) {
-                        file_type = 'PDF';                        
+                        file_type = 'PDF';
                     }
                     else if (['hwp', 'HWP'].includes(extention)) {
                         file_type = 'HWP';

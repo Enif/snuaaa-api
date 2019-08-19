@@ -3,7 +3,7 @@ import express from 'express';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveUser, updateLoginDate } from '../controllers/user.controller';
 
-import { createToken, verifyTokenUseReq } from '../lib/token';
+import { createToken } from '../lib/token';
 
 const router = express.Router();
 

@@ -1,14 +1,14 @@
 import express from 'express';
 
+import { verifyTokenMiddleware } from '../middlewares/auth';
+
 import { retrieveDocumentCount, retrieveDocument, retrieveDocuments, deleteDocument } from "../controllers/document.controller";
 import { updateContent, deleteContent } from '../controllers/content.controller';
 import { checkLike } from "../controllers/contentLike.controller";
 
-import { verifyTokenUseReq } from '../lib/token';
-
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     let offset = 0;
@@ -20,104 +20,101 @@ router.get('/', (req, res) => {
     }
 
     retrieveDocumentCount(req.query.category, req.query.generation)
-    .then((count) => {
-        docCount = count;
-        return retrieveDocuments(ROWNUM, offset, req.query.category, req.query.generation) 
-    })
-    .then((docInfo) => {
-        res.json({
-            docCount: docCount,
-            docInfo: docInfo
+        .then((count) => {
+            docCount = count;
+            return retrieveDocuments(ROWNUM, offset, req.query.category, req.query.generation)
         })
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(409).json({
-            error: 'RETRIEVE DOCUMENT FAIL',
-            code: 1
-        });
-    })
+        .then((docInfo) => {
+            res.json({
+                docCount: docCount,
+                docInfo: docInfo
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        })
 })
 
-router.get('/:doc_id', (req, res) => {
+router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-    .then(decodedToken => {
-        return Promise.all([retrieveDocument(req.params.doc_id), checkLike(decodedToken._id, req.params.doc_id)])
-    })
-    .then((infos) => {
-        res.json({
-            docuInfo: infos[0],
-            likeInfo: infos[1]
+    Promise.all([retrieveDocument(req.params.doc_id), checkLike(req.decodedToken._id, req.params.doc_id)])
+        .then((infos) => {
+            res.json({
+                docuInfo: infos[0],
+                likeInfo: infos[1]
+            })
         })
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(409).json({
-            error: 'RETRIEVE DOCUMENT FAIL',
-            code: 1
-        });
-    })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        })
 })
 
-router.patch('/:doc_id', (req, res) => {
+router.patch('/:doc_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
-    verifyTokenUseReq(req)
-    .then(decodedToken => {
-        return updateContent(req.params.doc_id, req.body)
-    })
-    .then(() => {
-        return res.json({ success: true });
-    })
-    .catch((err) => {
-        console.error(err)
-        res.status(500).json()
-    })
+
+    updateContent(req.params.doc_id, req.body)
+        .then(() => {
+            return res.json({ success: true });
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        })
 })
 
 
 
-router.delete('/:doc_id', (req, res) => {
+router.delete('/:doc_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-    .then(decodedToken => {
-        return deleteDocument(req.params.doc_id)
-    })
-    .then(() => {
-        return deleteContent(req.params.doc_id)
-    })
-    .then(() => {
-        res.json({
-            success: true
+    deleteDocument(req.params.doc_id)
+        .then(() => {
+            return deleteContent(req.params.doc_id)
         })
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(409).json({
-            error: 'RETRIEVE DOCUMENT FAIL',
-            code: 1
-        });
-    })
+        .then(() => {
+            res.json({
+                success: true
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        })
 })
 
+export default router;
 
-router.get('/generation/:genNum', (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+// @deprecated
+// router.get('/generation/:genNum', verifyTokenMiddleware, (req, res) => {
+//     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveDocuments(req.params.genNum)
-    .then((docuInfo) => {
-        res.json(docuInfo)
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(409).json({
-            error: 'RETRIEVE DOCUMENT FAIL',
-            code: 1
-        });
-    })
-})
+//     retrieveDocuments(req.params.genNum)
+//         .then((docuInfo) => {
+//             res.json(docuInfo)
+//         })
+//         .catch((err) => {
+//             console.error(err);
+//             res.status(409).json({
+//                 error: 'RETRIEVE DOCUMENT FAIL',
+//                 code: 1
+//             });
+//         })
+// })
 
 // @deprecated
 // router.get('/:docuId/download/:index', (req, res) => {
@@ -138,5 +135,3 @@ router.get('/generation/:genNum', (req, res) => {
 //     })
 
 // })
-
-export default router;

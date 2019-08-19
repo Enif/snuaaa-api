@@ -1,45 +1,41 @@
 import express from 'express';
 
-import { updateComment, deleteComment } from '../controllers/comment.controller';
+import { verifyTokenMiddleware } from '../middlewares/auth';
 
-import { verifyTokenUseReq } from '../lib/token';
+import { updateComment, deleteComment } from '../controllers/comment.controller';
 
 const router = express.Router();
 
-router.patch('/:comment_id', (req, res) => {
+router.patch('/:comment_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-        .then(() => {
-            return updateComment(req.params.comment_id, req.body)
-        })
+    updateComment(req.params.comment_id, req.body)
         .then(() => {
             res.json({ success: true });
         })
         .catch(err => {
             console.error(err);
-            res.status(403).json({
-                success: false
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
             });
         });
 
 });
 
-router.delete('/:comment_id', (req, res) => {
+router.delete('/:comment_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-        .then(() => {
-            return deleteComment(req.params.comment_id)
-        })
+    deleteComment(req.params.comment_id)
         .then(() => {
             res.json({ success: true });
         })
         .catch(err => {
             console.error(err);
-            res.status(403).json({
-                success: false
-            })
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
 
             // .then(() => {
             //     return retrieveCommentById(req.params.comment_id)

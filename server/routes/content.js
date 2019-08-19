@@ -1,13 +1,14 @@
 import express from 'express';
 
+import { verifyTokenMiddleware } from '../middlewares/auth';
+
 import { checkLike, likeContent, dislikeContent } from '../controllers/contentLike.controller';
 import { retrieveComments, createComment } from '../controllers/comment.controller';
 import { retrieveAttachedFile } from "../controllers/attachedFile.controller";
-import { verifyTokenUseReq } from '../lib/token';
 
 const router = express.Router();
 
-router.get('/:content_id/comments', (req, res) => {
+router.get('/:content_id/comments', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     retrieveComments(req.params.content_id)
@@ -19,7 +20,7 @@ router.get('/:content_id/comments', (req, res) => {
         })
 })
 
-router.get('/:content_id/file/:file_id', (req, res) => {
+router.get('/:content_id/file/:file_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     retrieveAttachedFile(req.params.file_id)
@@ -31,16 +32,13 @@ router.get('/:content_id/file/:file_id', (req, res) => {
         })
 })
 
-router.post('/:content_id/comment', (req, res) => {
+router.post('/:content_id/comment', verifyTokenMiddleware, (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-        .then(decodedToken => {
-            return createComment(decodedToken._id, req.params.content_id, req.body)
-        })
-        // .then(() => {
-        //     return updateCommentNum(req.params.content_id)
-        // })
+    // .then(() => {
+    //     return updateCommentNum(req.params.content_id)
+    // })
+    createComment(req.decodedToken._id, req.params.content_id, req.body)
         .then(() => {
             res.json({ success: true });
         })
@@ -53,17 +51,13 @@ router.post('/:content_id/comment', (req, res) => {
         });
 });
 
-router.post('/:content_id/like', (req, res) => {
+router.post('/:content_id/like', verifyTokenMiddleware, (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
-    let user_id;
     const content_id = req.params.content_id;
+    let user_id = req.decodedToken._id
 
-    verifyTokenUseReq(req)
-        .then(decodedToken => {
-            user_id = decodedToken._id
-            return checkLike(content_id, user_id)
-        })
+    checkLike(content_id, user_id)
         .then((isLiked) => {
             if (isLiked) {
                 return dislikeContent(content_id, user_id)

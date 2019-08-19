@@ -1,12 +1,13 @@
 import express from 'express';
 import multer from 'multer'
 
+import { verifyTokenMiddleware } from '../middlewares/auth';
+
 import { retrievePostsByUser } from '../controllers/post.controller';
 import { retrievePhotosByUser } from '../controllers/photo.controller';
 import { retrieveCommentsByUser } from '../controllers/comment.controller';
 import { retrieveUser, updateUser, deleteUser } from '../controllers/user.controller';
 
-import { verifyTokenUseReq } from '../lib/token';
 import { resize } from '../lib/resize';
 
 const router = express.Router();
@@ -22,44 +23,38 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-router.get('/', (req, res) => {
+router.get('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-        .then((decodedToken) => {
-            return retrieveUser(decodedToken._id)
-        })
+    retrieveUser(req.decodedToken._id)
         .then((userInfo) => {
             return res.json({ success: true, userInfo })
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
     // .catch(err => res.status(403).json({
     //     success: false,
     //     message: err.message
     // }));
 })
 
-router.patch('/', upload.single('profileImg'), (req, res) => {
+router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     let profilePath;
-    let user_id;
+    let user_id = req.decodedToken._id;
 
-    verifyTokenUseReq(req)
-        .then((decodedToken) => {
-            user_id = decodedToken._id;
-            if (req.file) {
-                profilePath = '/profile/' + req.file.filename;
-                return resize(req.file.path)
-            }
-        })
-        .then(() => {
-            return retrieveUser(user_id)
-        })
+    retrieveUser(user_id)
         .then((userInfo) => {
             let data = req.body;
-            if (profilePath) {
-                data.profile_path = profilePath;
+            if (req.file) {
+                data.profile_path = '/profile/' + req.file.filename;;
+                resize(req.file.path);
             }
             else {
                 data.profile_path = userInfo.profile_path;
@@ -118,35 +113,34 @@ router.patch('/', upload.single('profileImg'), (req, res) => {
         })
         .catch((err) => {
             console.error(err)
-            res.status(403).json({
-                success: false
-            })
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
         });
 })
 
-router.delete('/', (req, res) => {
+router.delete('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-        .then((decodedToken) => {
-            return deleteUser(decodedToken._id)
-        })
+    deleteUser(decodedToken._id)
         .then(() => {
             return res.json({ success: true })
         })
-        .catch(err => res.status(403).json({
-            success: false,
-            message: err.message
-        }));
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
 })
 
-router.get('/posts', (req, res) => {
+router.get('/posts', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    verifyTokenUseReq(req)
-        .then((decodedToken) => {
-            const user_id = decodedToken._id;
-            return Promise.all([retrievePostsByUser(user_id), retrievePhotosByUser(user_id), retrieveCommentsByUser(user_id)])
-        })
+
+    const user_id = req.decodedToken._id;
+    Promise.all([retrievePostsByUser(user_id), retrievePhotosByUser(user_id), retrieveCommentsByUser(user_id)])
         .then((infos) => {
             return res.json({
                 success: true,
@@ -158,9 +152,10 @@ router.get('/posts', (req, res) => {
         // .catch((err)=> console.error(err));
         .catch(err => {
             console.error(err);
-            return res.status(403).json({
-                success: false,
-            })
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
         });
 })
 

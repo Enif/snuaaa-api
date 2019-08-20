@@ -36,11 +36,11 @@ exports.updateContent = function (content_id, data) {
             text: data.text,
             category_id: data.category_id
         },
-        {
-            where: {
-                content_id: content_id
-            }    
-        })
+            {
+                where: {
+                    content_id: content_id
+                }
+            })
             .then(() => {
                 resolve();
             })
@@ -57,11 +57,11 @@ exports.deleteContent = function (content_id) {
         }
 
         models.Content.destroy(
-        {
-            where: {
-                content_id: content_id
-            }    
-        })
+            {
+                where: {
+                    content_id: content_id
+                }
+            })
             .then(() => {
                 resolve();
             })
@@ -71,3 +71,22 @@ exports.deleteContent = function (content_id) {
     })
 }
 
+exports.increaseViewNum = function (content_id) {
+    return new Promise((resolve, reject) => {
+        if (!content_id) {
+            reject('id can not be null')
+        }
+
+        models.Content.increment('view_num',
+            {
+                where: { content_id: content_id },
+                silent: true
+            })
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
+            })
+    })
+}

@@ -15,7 +15,13 @@ exports.retrievePhoto = function (photo_id) {
                     model: models.User,
                     required: true,
                     attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
-                }, {
+                },
+                {
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name', 'lv_read']
+                },
+                {
                     model: models.Tag
                 }]
             }, {

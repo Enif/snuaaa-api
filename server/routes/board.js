@@ -142,11 +142,31 @@ router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFile
             if (req.files) {
                 return Promise.all(req.files.map((file) => {
                     let file_type = ''
-                    if (file.mimetype.includes('image/')) {
-                        file_type = 'I'
+                    let extention = path.extname(file.path).substr(1);
+                    if (['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG'].includes(extention)) {
+                        file_type = 'IMG';
+                    }
+                    else if (['doc', 'DOC', 'docx', 'DOCX'].includes(extention)) {
+                        file_type = 'DOC';
+                    }
+                    else if (['xls', 'XLS', 'xlsx', 'XLSX'].includes(extention)) {
+                        file_type = 'XLS';
+                    }
+                    else if (['ppt', 'PPT', 'pptx', 'PPTX'].includes(extention)) {
+                        file_type = 'PPT';
+                    }
+                    else if (['pdf', 'PPT'].includes(extention)) {
+                        file_type = 'PDF';
+                    }
+                    else if (['hwp', 'HWP'].includes(extention)) {
+                        file_type = 'HWP';
+                    }
+                    else if (['zip', 'ZIP'].includes(extention)) {
+                        file_type = 'ZIP';
                     }
                     else {
-                        console.log(file.mimetype)
+                        file_type = 'N';
+                        console.error(extention)
                     }
                     let data = {
                         original_name: file.originalname,

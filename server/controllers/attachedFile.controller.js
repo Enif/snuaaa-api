@@ -65,3 +65,23 @@ exports.retrieveAttachedFilesInContent = function (content_id) {
         }
     })
 }
+
+exports.increaseDownloadCount = function (file_id) {
+    return new Promise((resolve, reject) => {
+        if (!file_id) {
+            reject('file_id can not be null')
+        }
+
+        models.AttachedFile.increment('download_count',
+            {
+                where: { file_id: file_id },
+                silent: true
+            })
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
+            })
+    })
+}

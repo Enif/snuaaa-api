@@ -15,6 +15,10 @@ exports.retrieveDocument = function (doc_id) {
                     model: models.User,
                     required: true,
                     attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+                }, {
+                    model: models.AttachedFile,
+                    as: 'AttachedFiles',
+                    separate: true
                 }]
             }],
             where: { content_id: doc_id }

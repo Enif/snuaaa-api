@@ -42,7 +42,7 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    Promise.all([retrieveDocument(req.params.doc_id), checkLike(req.decodedToken._id, req.params.doc_id)])
+    Promise.all([retrieveDocument(req.params.doc_id), checkLike(req.params.doc_id, req.decodedToken._id)])
         .then((infos) => {
             res.json({
                 docuInfo: infos[0],

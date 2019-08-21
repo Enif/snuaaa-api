@@ -4,7 +4,7 @@ import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { checkLike, likeContent, dislikeContent } from '../controllers/contentLike.controller';
 import { retrieveComments, createComment } from '../controllers/comment.controller';
-import { retrieveAttachedFile } from "../controllers/attachedFile.controller";
+import { retrieveAttachedFile, increaseDownloadCount } from "../controllers/attachedFile.controller";
 
 const router = express.Router();
 
@@ -20,11 +20,12 @@ router.get('/:content_id/comments', verifyTokenMiddleware, (req, res) => {
         })
 })
 
-router.get('/:content_id/file/:file_id', verifyTokenMiddleware, (req, res) => {
+router.get('/:content_id/file/:file_id', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     retrieveAttachedFile(req.params.file_id)
         .then((file) => {
+            increaseDownloadCount(req.params.file_id)
             res.download(file.file_path, file.original_name);
         })
         .catch((err) => {

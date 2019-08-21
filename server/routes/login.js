@@ -1,21 +1,16 @@
-
 import express from 'express';
-import { logIn } from '../queries/user'
+import bcrypt from 'bcryptjs';
+
+import { retrieveLoginUser, updateLoginDate } from '../controllers/user.controller';
+
 import { createToken } from '../lib/token';
 
 const router = express.Router();
 
-/*
-    [TODO] MAKE SAMLE..
-    ACCOUNT LOGIN: POST /api/login
-    BODY SAMPLE: { "id": "test", "password": "test" }
-    ERROR CODES:
-        1: LOGIN FAILED
-*/
-
 router.post('/', (req, res) => {
 
-    console.log('[login]');
+    console.log(`[POST] ${req.baseUrl + req.url}`);
+
     if(typeof req.body.password !== "string") {
         return res.status(401).json({
             error: "LOGIN FAILED",
@@ -23,16 +18,88 @@ router.post('/', (req, res) => {
         });
     }
 
-    logIn({id: req.body.id, password:req.body.password})
-    .then((userInfo) => {
+    let userInfo = {};
+
+    retrieveLoginUser(req.body.id)
+    .then((user) => {
+        return new Promise((resolve, reject) => {
+            if (!user) {
+                reject('id is not correct');
+            }
+            else if (bcrypt.compareSync(req.body.password, user.password)) {
+                userInfo = user;
+                resolve();
+            }
+            else {
+                reject('password is not correct');
+            }
+        })
+    })
+    .then(() => {
+        return updateLoginDate(userInfo.user_id)
+    })
+    .then(() => {
         return createToken({
             _id: userInfo.user_id,
             level: userInfo.level,
-            profile_path: userInfo.profile_path
+            autoLogin: req.body.autoLogin ? true : false
         })
     })
-    .then(token => res.json({ sucess: true, token }))
-    .catch(err => res.status(403).json({ sucess: false, message: err }));
+    .then((token) => {
+        return res.status(200)
+        .cookie('token', token, {
+            path: '/',
+            // domain: 'localhost:3000'
+            // httpOnly: true
+        })
+        .json({
+            sucess: true,
+            user_id: userInfo.user_id,
+            level: userInfo.level,
+            profile_path: userInfo.profile_path,
+            nickname: userInfo.nickname,
+            autoLogin: req.body.autoLogin ? true : false,
+            token: token 
+        })
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(403).json({
+            sucess: false,
+            message: 'Login Info is not valid.' 
+        })
+    })
+});
+
+router.get('/guest', (req, res) => {
+
+    createToken({
+            _id: null,
+            level: 0,
+            autoLogin: false
+    })
+    .then((token) => {
+        return res.status(200)
+        .cookie('token', token, {
+            path: '/',
+        })
+        .json({
+            sucess: true,
+            user_id: null,
+            level: 0,
+            profile_path: null,
+            nickname: 'guest',
+            autoLogin: false,
+            token: token 
+        })
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(403).json({
+            sucess: false,
+            message: 'Login Info is not valid.' 
+        })
+    })
 });
 
 export default router;

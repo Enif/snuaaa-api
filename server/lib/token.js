@@ -2,7 +2,16 @@ const jwt = require('jsonwebtoken');
 
 // JWT 토큰 생성
 exports.createToken = payload => {
-    const jwtOption = { expiresIn: '7d' };
+
+    let expiresIn;
+    if(payload.autoLogin) {
+        expiresIn = '14d';
+    }
+    else {
+        expiresIn = '1d';
+    }
+
+    const jwtOption = { expiresIn };
 
     return new Promise((resolve, reject) => {
         jwt.sign(payload, process.env.JWT_SECRET, jwtOption, (error, token) => {
@@ -13,35 +22,35 @@ exports.createToken = payload => {
 };
 
 // JWT 토큰 검증
-exports.verifyTokenUseReq = req => {
+// exports.verifyTokenUseReq = req => {
 
-  const auth = req.headers.authorization.split(" ");
-  let token;
+//   const auth = req.headers.authorization.split(" ");
+//   let token;
 
-  if(auth[0] === 'Bearer') {
-      token = auth[1]
-  }
-  else {
-    return res.status(403).json({
-      success: false,
-      message: 'Token Type Error.'
-    });
-  }
+//   if(auth[0] === 'Bearer') {
+//       token = auth[1]
+//   }
+//   else {
+//     return res.status(403).json({
+//       success: false,
+//       message: 'Token Type Error.'
+//     });
+//   }
 
-  if (!token) {
-      return res.status(403).json({
-          success: false,
-          message: 'Token does not exist.'
-      });
-  }
+//   if (!token) {
+//       return res.status(403).json({
+//           success: false,
+//           message: 'Token does not exist.'
+//       });
+//   }
 
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
-      if (error) reject(error);
-      resolve(decoded);
-    });
-  });
-};
+//   return new Promise((resolve, reject) => {
+//     jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+//       if (error) reject(error);
+//       resolve(decoded);
+//     });
+//   });
+// };
 
 
 // router.get('/', (req, res) => {

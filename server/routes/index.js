@@ -10,9 +10,9 @@ import photoboard from './photoboard';
 import album from './album';
 import photo from './photo';
 import document from './document';
-import soundbox from './soundbox';
-import object from './object';
-// import profile from './profile';
+import home from './home';
+import content from './content';
+import comment from './comment';
 
 const router = express.Router();
 
@@ -26,8 +26,8 @@ router.use('/post', post);
 router.use('/album', album);
 router.use('/photo', photo);
 router.use('/document', document);
-router.use('/soundbox', soundbox);
-router.use('/object', object);
-// router.use('/profile', profile);
+router.use('/home', home);
+router.use('/content', content);
+router.use('/comment', comment);
 
 export default router;

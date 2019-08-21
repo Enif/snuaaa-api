@@ -1,23 +1,72 @@
 import express from 'express';
-import { retrievePost } from '../queries/post';
-import { verifyTokenUseReq } from '../lib/token';
-import { checkLike } from '../queries/object';
+
+import { verifyTokenMiddleware } from '../middlewares/auth';
+
+import { updateContent, deleteContent, increaseViewNum } from '../controllers/content.controller';
+import { retrievePost } from '../controllers/post.controller';
+import { checkLike } from '../controllers/contentLike.controller';
+import { retrieveAttachedFilesInContent } from "../controllers/attachedFile.controller";
+
 
 const router = express.Router();
 
-router.get('/:id', (req, res) => {
+router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    verifyTokenUseReq(req)
-    .then(decodedToken => {
-        return Promise.all([retrievePost(req.params.id), checkLike(decodedToken._id, req.params.id)])
-    })
-    .then((infos) => {
-        res.json({postInfo: infos[0], likeInfo: infos[1]})
-    })
-    .catch((err) => {
-        res.status(500).json({ error: err })
-    })
+    let resPostInfo = {}
+
+    retrievePost(req.params.post_id)
+        .then((postInfo) => {
+            resPostInfo = postInfo;
+
+            if (postInfo.content.board.lv_read > req.decodedToken.level) {
+                const err = {
+                    status: 403,
+                    code: 4001
+                }
+                next(err);
+            }
+            else {
+                return Promise.all([
+                    checkLike(req.params.post_id, req.decodedToken._id),
+                    retrieveAttachedFilesInContent(req.params.post_id),
+                    increaseViewNum(req.params.post_id)
+                ])
+            }
+        })
+        .then((infos) => {
+            res.json({ postInfo: resPostInfo, likeInfo: infos[0], fileInfo: infos[1] })
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).json()
+        })
+})
+
+router.patch('/:post_id', verifyTokenMiddleware, (req, res) => {
+    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+
+    updateContent(req.params.post_id, req.body)
+        .then(() => {
+            return res.json({ success: true });
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).json()
+        })
+})
+
+router.delete('/:post_id', verifyTokenMiddleware, (req, res) => {
+    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
+    deleteContent(req.params.post_id)
+        .then(() => {
+            return res.json({ success: true });
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).json()
+        })
 })
 
 export default router;

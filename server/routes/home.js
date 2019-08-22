@@ -85,7 +85,6 @@ router.get('/comments', (req, res) => {
 router.get('/riseset', (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    let url = 'http://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getAreaRiseSetInfo';
     const today = new Date();
     let year = today.getFullYear().toString();
     let month = today.getMonth() + 1;
@@ -111,11 +110,12 @@ router.get('/riseset', (req, res) => {
             res.json(JSON.parse(riseSetInfo))
         }
         else {
-            let queryParams = '?' + encodeURIComponent('ServiceKey') + '=' + process.env.RISESET_SERVICE_KEY;
-            queryParams += '&' + encodeURIComponent('locdate') + '=' + encodeURIComponent(dayformat);
-            queryParams += '&' + encodeURIComponent('location') + '=' + encodeURIComponent('서울');
+            let riseSetUrl = 'http://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getAreaRiseSetInfo';
+            let riseSetQueryParams = '?' + encodeURIComponent('ServiceKey') + '=' + process.env.RISESET_SERVICE_KEY;
+            riseSetQueryParams += '&' + encodeURIComponent('locdate') + '=' + encodeURIComponent(dayformat);
+            riseSetQueryParams += '&' + encodeURIComponent('location') + '=' + encodeURIComponent('서울');
         
-            request.get(url + queryParams, (err, response, body) => {
+            request.get(riseSetUrl + riseSetQueryParams, (err, response, body) => {
                 if (err) {
                     console.error(err);
                     res.status(500).json({
@@ -131,25 +131,75 @@ router.get('/riseset', (req, res) => {
                     });
                 }
                 else {
-                    let data = xmlParser.parse(body);
-                    let item = {};
-                    if (data.response
-                        && data.response.body
-                        && data.response.body.items
-                        && data.response.body.items.item) {
+                    let riseSetData = xmlParser.parse(body);
+                    let riseSetItem = {};
+                    if (riseSetData.response
+                        && riseSetData.response.body
+                        && riseSetData.response.body.items
+                        && riseSetData.response.body.items.item) {
         
-                        item = data.response.body.items.item;
+                        riseSetItem = riseSetData.response.body.items.item;
                     }
-                    const riseSetInfo = {
-                        sunrise: item.sunrise,
-                        sunset: item.sunset,
-                        moonrise: item.moonrise,
-                        moonset: item.moonset,
-                        astm: item.astm,
-                        aste: item.aste
+                    else {
+                        console.error('api error');
+                        res.status(500).json({
+                            success: false,
+                            code: 0
+                        });
                     }
-                    fs.writeFileSync(riseSetJsonPath, JSON.stringify(riseSetInfo), 'utf8');
-                    res.json(riseSetInfo);
+
+                    let moonPhaseUrl = 'http://apis.data.go.kr/B090041/openapi/service/LunPhInfoService/getLunPhInfo';
+                    let moonPhaseQueryParams = '?' + encodeURIComponent('ServiceKey') + '=' + process.env.RISESET_SERVICE_KEY;
+                    moonPhaseQueryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent(year);
+                    moonPhaseQueryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent(month);
+                    moonPhaseQueryParams += '&' + encodeURIComponent('solDay') + '=' + encodeURIComponent(day);
+                    
+                    request.get(moonPhaseUrl + moonPhaseQueryParams, (err, response, body) => {
+                        if (err) {
+                            console.error(err);
+                            res.status(500).json({
+                                success: false,
+                                code: 0
+                            });
+                        }
+                        else if (!xmlParser.validate(body)) {
+                            console.error('xml parse error');
+                            res.status(500).json({
+                                success: false,
+                                code: 0
+                            });
+                        }
+                        else {
+                            let moonPhaseData = xmlParser.parse(body);
+                            let moonPhaseItem = {};
+                            if (moonPhaseData.response
+                                && moonPhaseData.response.body
+                                && moonPhaseData.response.body.items
+                                && moonPhaseData.response.body.items.item) {
+                
+                                moonPhaseItem = moonPhaseData.response.body.items.item;
+                            }
+                            else {
+                                console.error('api error');
+                                res.status(500).json({
+                                    success: false,
+                                    code: 0
+                                });
+                            }
+                            
+                            const AstroInfo = {
+                                sunrise: riseSetItem.sunrise,
+                                sunset: riseSetItem.sunset,
+                                moonrise: riseSetItem.moonrise,
+                                moonset: riseSetItem.moonset,
+                                astm: riseSetItem.astm,
+                                aste: riseSetItem.aste,
+                                lunAge: moonPhaseItem.lunAge
+                            }
+                            fs.writeFileSync(riseSetJsonPath, JSON.stringify(AstroInfo), 'utf8');
+                            res.json(AstroInfo);
+                        }
+                    })
                 }
             })
         }

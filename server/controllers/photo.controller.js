@@ -240,7 +240,46 @@ exports.retrievePhotosByUser = function (user_id) {
                         'updated_at', 'DESC'
                     ]
                 ],
-                limit: 5
+                limit: 16
+            })
+                .then(function (posts) {
+                    resolve(posts);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
+        }
+    })
+};
+
+exports.retrievePhotosByUserUuid = function (user_uuid) {
+    return new Promise((resolve, reject) => {
+        if (!user_uuid) {
+            reject('user_uuid can not be null');
+        }
+        else {
+            models.Photo.findAll({
+                include: [{
+                    model: models.Content,
+                    as: 'contentPhoto',
+                    required: true,
+                    include: [{
+                        model: models.User,
+                        required: true,
+                        where: {
+                            user_uuid: user_uuid,
+                        }        
+                    }]
+                }],
+                order: [
+                    [{
+                        model: models.Content,
+                        as: 'contentPhoto'
+                    },
+                        'updated_at', 'DESC'
+                    ]
+                ],
+                limit: 16
             })
                 .then(function (posts) {
                     resolve(posts);

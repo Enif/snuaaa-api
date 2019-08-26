@@ -6,7 +6,7 @@ import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrievePostsByUser } from '../controllers/post.controller';
 import { retrievePhotosByUser } from '../controllers/photo.controller';
 import { retrieveCommentsByUser } from '../controllers/comment.controller';
-import { retrieveUser, updateUser, deleteUser } from '../controllers/user.controller';
+import { retrieveUser, updateUser, deleteUser, retrieveUserByUserUuid } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
 
@@ -140,13 +140,52 @@ router.get('/posts', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_id = req.decodedToken._id;
-    Promise.all([retrievePostsByUser(user_id), retrievePhotosByUser(user_id), retrieveCommentsByUser(user_id)])
-        .then((infos) => {
+    retrievePostsByUser(user_id)
+        .then((info) => {
             return res.json({
                 success: true,
-                postList: infos[0],
-                photoList: infos[1],
-                commentList: infos[2]
+                postList: info
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
+})
+
+router.get('/photos', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    const user_id = req.decodedToken._id;
+    retrievePhotosByUser(user_id)
+        .then((info) => {
+            return res.json({
+                success: true,
+                photoList: info,
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
+})
+
+
+router.get('/comments', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    const user_id = req.decodedToken._id;
+    retrieveCommentsByUser(user_id)
+        .then((info) => {
+            return res.json({
+                success: true,
+                commentList: info
             })
         })
         // .catch((err)=> console.error(err));
@@ -158,5 +197,85 @@ router.get('/posts', verifyTokenMiddleware, (req, res) => {
             });
         });
 })
+
+
+router.get('/:user_uuid', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    const user_uuid = req.params.user_uuid;
+    retrieveUserByUserUuid(user_uuid)
+        .then((userInfo) => {
+            return res.json({ success: true, userInfo })
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
+})
+
+router.get('/:user_uuid/posts', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    const user_uuid = req.params.user_uuid;
+    retrievePostsByUserUuid(user_uuid)
+        .then((info) => {
+            return res.json({
+                success: true,
+                postList: info
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
+})
+
+router.get('/:user_uuid/photos', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    const user_uuid = req.params.user_uuid;
+    retrievePhotosByUserUuid(user_uuid)
+        .then((info) => {
+            return res.json({
+                success: true,
+                photoList: info,
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
+})
+
+
+router.get('/:user_uuid/comments', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    const user_uuid = req.params.user_uuid;
+    retrieveCommentsByUserUuid(user_uuid)
+        .then((info) => {
+            return res.json({
+                success: true,
+                commentList: info
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        });
+})
+
 
 export default router;

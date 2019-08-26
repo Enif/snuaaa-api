@@ -14,7 +14,7 @@ exports.retrievePost = function (content_id) {
                 include: [{
                     model: models.User,
                     required: true,
-                    attributes: ['nickname', 'introduction', 'profile_path']
+                    attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path']
                 },
                 {
                     model: models.Board,
@@ -132,7 +132,7 @@ exports.retrievePostsByUser = function (user_id) {
                         'updated_at', 'DESC'
                     ]
                 ],
-                limit: 5
+                limit: 10
             })
                 .then(function (posts) {
                     resolve(posts);
@@ -143,6 +143,51 @@ exports.retrievePostsByUser = function (user_id) {
         }
     })
 };
+
+exports.retrievePostsByUserUuid = function (user_uuid) {
+    return new Promise((resolve, reject) => {
+        if (!user_uuid) {
+            reject('id can not be null');
+        }
+        else {
+            models.Post.findAll({
+                include: [{
+                    model: models.Content,
+                    as: 'content',
+                    required: true,
+                    include: [{
+                        model: models.Board,
+                        required: true,
+                        attributes: ['board_id', 'board_name']
+                    },
+                    {
+                        model: models.User,
+                        required: true,
+                        where: {
+                            user_uuid: user_uuid,
+                        }        
+                    }]
+                }],
+                order: [
+                    [{
+                        model: models.Content,
+                        as: 'content'
+                    },
+                        'updated_at', 'DESC'
+                    ]
+                ],
+                limit: 10
+            })
+                .then(function (posts) {
+                    resolve(posts);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
+        }
+    })
+};
+
 
 exports.retrieveSoundBox = function () {
     return new Promise((resolve, reject) => {

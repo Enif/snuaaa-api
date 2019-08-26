@@ -96,14 +96,15 @@ exports.retrieveCommentsByUserUuid = function(user_uuid) {
                         model: models.Board,
                         required: true,
                         attributes: ['board_id', 'board_name']
-                    },
-                    {
-                        model: models.User,
-                        required: true,
-                        where: {
-                            user_uuid: user_uuid,
-                        }        
-                    }]
+                    }
+                    ]
+                },
+                {
+                    model: models.User,
+                    required: true,
+                    where: {
+                        user_uuid: user_uuid,
+                    }        
                 }],
                 order: [['created_at', 'DESC']],
                 limit: 15

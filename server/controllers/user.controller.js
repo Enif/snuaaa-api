@@ -54,6 +54,31 @@ exports.retrieveUser = function (user_id) {
     })
 }
 
+exports.retrieveUserByUserUuid = function (user_uuid) {
+    return new Promise((resolve, reject) => {
+        if (!user_uuid) {
+            reject('user_uuid can not be null');
+        }
+
+        models.User.findOne({
+            attributes: ['id', 'username', 'nickname', 'aaa_no',
+                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path'],
+            where: { user_uuid: user_uuid }
+        })
+            .then((user) => {
+                if (!user) {
+                    reject('id is not correct');
+                }
+                else {
+                    resolve(user);
+                }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
 
 exports.retrieveLoginUser = function (id) {
     return new Promise((resolve, reject) => {

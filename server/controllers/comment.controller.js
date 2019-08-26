@@ -69,7 +69,47 @@ exports.retrieveCommentsByUser = function(user_id) {
                     author_id: user_id,
                 },
                 order: [['created_at', 'DESC']],
-                limit: 5
+                limit: 15
+            })
+            .then(function(posts){
+                resolve(posts);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }
+    })
+};
+
+
+exports.retrieveCommentsByUserUuid = function(user_uuid) {
+    return new Promise((resolve, reject) => {
+        if(!user_uuid) {
+            reject('id can not be null');
+        }
+        else {
+            models.Comment.findAll({
+                include: [{
+                    model: models.Content,
+                    required: true,
+                    include: [{
+                        model: models.Board,
+                        required: true,
+                        attributes: ['board_id', 'board_name']
+                    },
+                    {
+                        model: models.User,
+                        required: true,
+                        where: {
+                            user_uuid: user_uuid,
+                        }        
+                    }]
+                }],
+                where: {
+                    author_id: user_id,
+                },
+                order: [['created_at', 'DESC']],
+                limit: 15
             })
             .then(function(posts){
                 resolve(posts);    

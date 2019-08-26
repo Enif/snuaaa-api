@@ -85,7 +85,7 @@ exports.retrieveCommentsByUser = function(user_id) {
 exports.retrieveCommentsByUserUuid = function(user_uuid) {
     return new Promise((resolve, reject) => {
         if(!user_uuid) {
-            reject('id can not be null');
+            reject('user_uuid can not be null');
         }
         else {
             models.Comment.findAll({
@@ -105,9 +105,6 @@ exports.retrieveCommentsByUserUuid = function(user_uuid) {
                         }        
                     }]
                 }],
-                where: {
-                    author_id: user_id,
-                },
                 order: [['created_at', 'DESC']],
                 limit: 15
             })

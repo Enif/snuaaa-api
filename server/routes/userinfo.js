@@ -3,9 +3,9 @@ import multer from 'multer'
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
-import { retrievePostsByUser } from '../controllers/post.controller';
-import { retrievePhotosByUser } from '../controllers/photo.controller';
-import { retrieveCommentsByUser } from '../controllers/comment.controller';
+import { retrievePostsByUser, retrievePostsByUserUuid } from '../controllers/post.controller';
+import { retrievePhotosByUser, retrievePhotosByUserUuid } from '../controllers/photo.controller';
+import { retrieveCommentsByUser, retrieveCommentsByUserUuid } from '../controllers/comment.controller';
 import { retrieveUser, updateUser, deleteUser, retrieveUserByUserUuid } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';

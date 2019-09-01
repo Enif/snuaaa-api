@@ -13,6 +13,7 @@ import document from './document';
 import home from './home';
 import content from './content';
 import comment from './comment';
+import image from './image';
 
 const router = express.Router();
 
@@ -29,5 +30,6 @@ router.use('/document', document);
 router.use('/home', home);
 router.use('/content', content);
 router.use('/comment', comment);
+router.use('/image', image);
 
 export default router;

@@ -99,3 +99,44 @@ exports.resize = function (file_path) {
         });
     });
 };
+
+exports.resizeAttatchedImg = function (file_path) {
+
+    return new Promise((resolve, reject) => {
+
+        fs.readFile(file_path, function (err, data) {
+            if (err) {
+                reject(err)
+            }
+            else {
+                const image = sharp(data)
+                image.rotate().metadata()
+                    .then(function (metadata) {
+                        // resizing by minor axis
+                        if(metadata.orientation >= 5 && metadata.orientation <= 8) {
+                            if (metadata.height > metadata.width) {
+                                return image.resize({ height:720 }).toFile(file_path)
+                            }
+                            else {
+                                return image.resize({ width: 720 }).toFile(file_path)
+                            }
+                        }
+                        else {
+                            if (metadata.height > metadata.width) {
+                                return image.resize({ width: 720 }).toFile(file_path)
+                            }
+                            else {
+                                return image.resize({ height: 720 }).toFile(file_path)
+                            }
+                        }
+                    })
+                    .then(function (info) {
+                        resolve(info);
+                    })
+                    .catch(function (err) {
+                        reject(err)
+                    });
+            }
+        });
+    });
+};

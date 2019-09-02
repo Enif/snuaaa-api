@@ -34,6 +34,11 @@ exports.retrieveAlbum = function (content_id) {
                     required: true,
                     attributes: ['user_id', 'nickname', 'introduction', 'profile_path'],
                     paranoid: false
+                },
+                {
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name', 'lv_read']
                 }]
             }],
             where: { content_id: content_id }

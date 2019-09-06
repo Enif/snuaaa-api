@@ -215,8 +215,33 @@ exports.createAlbum = function (content_id, data) {
         }
 
         models.Album.create({
-            content_id: content_id
+            content_id: content_id,
+            is_private: data.is_private
         })
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
+            })
+    })
+}
+
+exports.updateAlbum = function (album_id, data) {
+    return new Promise((resolve, reject) => {
+        if (!album_id) {
+            reject('album_id can not be null')
+        }
+
+        models.Album.update({
+            is_private: data.is_private
+        },
+            {
+                where: {
+                    content_id: album_id
+                }
+
+            })
             .then(() => {
                 resolve();
             })

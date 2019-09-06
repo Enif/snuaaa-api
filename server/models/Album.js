@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false,
                     primaryKey: true,
                 },
+                is_private: {
+                    type: DataTypes.BOOLEAN
+                }
             }, {
                     sequelize,
                     modelName: 'album',

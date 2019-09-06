@@ -6,7 +6,7 @@ import path from 'path';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { createContent, updateContent, deleteContent } from '../controllers/content.controller';
-import { retrieveAlbum } from '../controllers/album.controller';
+import { retrieveAlbum, updateAlbum } from '../controllers/album.controller';
 import { retrievePhotosInAlbum, createPhoto } from '../controllers/photo.controller';
 import { retrieveTagsOnBoard } from "../controllers/tag.controller";
 import { createContentTag } from '../controllers/contentTag.controller';
@@ -64,6 +64,9 @@ router.patch('/:album_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     updateContent(req.params.album_id, req.body)
+        .then(() => {
+            return updateAlbum(req.params.album_id, req.body)
+        })
         .then(() => {
             res.json({
                 success: true

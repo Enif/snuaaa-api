@@ -162,7 +162,7 @@ router.post('/:board_id/album', verifyTokenMiddleware, (req, res) => {
     let user_id = req.decodedToken._id;
     createContent(user_id, req.params.board_id, req.body, 'AL')
         .then((content_id) => {
-            return createAlbum(content_id)
+            return createAlbum(content_id, req.body)
         })
         .then(() => {
             res.json({ success: true })

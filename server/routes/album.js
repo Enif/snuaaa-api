@@ -6,7 +6,7 @@ import path from 'path';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { createContent, updateContent, deleteContent } from '../controllers/content.controller';
-import { retrieveAlbum, updateAlbum } from '../controllers/album.controller';
+import { retrieveAlbum, updateAlbum, updateAlbumThumbnail } from '../controllers/album.controller';
 import { retrievePhotosInAlbum, createPhoto } from '../controllers/photo.controller';
 import { retrieveTagsOnBoard } from "../controllers/tag.controller";
 import { createContentTag } from '../controllers/contentTag.controller';
@@ -67,6 +67,25 @@ router.patch('/:album_id', verifyTokenMiddleware, (req, res) => {
         .then(() => {
             return updateAlbum(req.params.album_id, req.body)
         })
+        .then(() => {
+            res.json({
+                success: true
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(409).json({
+                error: 'UPDATE ALBUM FAIL',
+                code: 1
+            });
+        })
+})
+
+router.patch('/:album_id/thumbnail', verifyTokenMiddleware, (req, res) => {
+    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+
+    let tn_photo_id = req.body.tn_photo_id;
+    updateAlbumThumbnail(req.params.album_id, tn_photo_id)
         .then(() => {
             res.json({
                 success: true

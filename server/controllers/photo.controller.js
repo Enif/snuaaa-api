@@ -185,7 +185,7 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
                 include: [{
                     model: models.Content,
                     as: 'contentPhoto',
-                    required: true,
+                    required: false,
                     duplicating: true,
                     include: [{
                         model: models.Tag,

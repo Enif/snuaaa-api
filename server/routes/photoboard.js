@@ -6,7 +6,7 @@ import path from 'path';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { createContent } from '../controllers/content.controller';
-import { createAlbum, retrieveAlbums, retrieveAlbumCount, retrieveAlbumsByCategory } from '../controllers/album.controller';
+import { createAlbum, retrieveAlbumsInBoard, retrieveAlbumCount } from '../controllers/album.controller';
 import { createPhoto, retrievePhotoCountInBoard, retrievePhotosInBoard, retrievePhotoCountByTag, retrievePhotosByTag } from '../controllers/photo.controller';
 import { createContentTag } from '../controllers/contentTag.controller';
 
@@ -41,65 +41,24 @@ router.get('/:board_id/albums', verifyTokenMiddleware, (req, res) => {
         offset = ROWNUM * (req.query.page - 1);
     }
 
-    // retrieveAlbumCountByCategory(req.params.board_id, req.query.category)
-    // .then((count) => {
-    //     albumCount = count;
-    //     return retrieveAlbumsByCategory(req.params.board_id, req.query.category, ROWNUM, offset)
-    // })
-    // .then((albumInfo) => {
-    //     res.json({
-    //         albumCount: albumCount,
-    //         albumInfo: albumInfo
-    //     })
-    // })
-    // .catch((err) => {
-    //     console.error(err);
-    //     res.status(409).json({
-    //         error: 'RETRIEVE ALBUM FAIL',
-    //         code: 1
-    //     });
-    // })
-
-    if (req.query.category) {
-        retrieveAlbumCount(req.params.board_id, req.query.category)
-            .then((count) => {
-                albumCount = count;
-                return retrieveAlbumsByCategory(req.params.board_id, req.query.category, ROWNUM, offset)
+    retrieveAlbumCount(req.params.board_id, req.query.category)
+        .then((count) => {
+            albumCount = count;
+            return retrieveAlbumsInBoard(req.params.board_id, ROWNUM, offset, req.query.category)
+        })
+        .then((albumInfo) => {
+            res.json({
+                albumCount: albumCount,
+                albumInfo: albumInfo
             })
-            .then((albumInfo) => {
-                res.json({
-                    albumCount: albumCount,
-                    albumInfo: albumInfo
-                })
-            })
-            .catch((err) => {
-                console.error(err);
-                res.status(409).json({
-                    error: 'RETRIEVE ALBUM FAIL',
-                    code: 1
-                });
-            })
-    }
-    else {
-        retrieveAlbumCount(req.params.board_id)
-            .then((count) => {
-                albumCount = count;
-                return retrieveAlbums(req.params.board_id, ROWNUM, offset)
-            })
-            .then((albumInfo) => {
-                res.json({
-                    albumCount: albumCount,
-                    albumInfo: albumInfo
-                })
-            })
-            .catch((err) => {
-                console.error(err);
-                res.status(409).json({
-                    error: 'RETRIEVE ALBUM FAIL',
-                    code: 1
-                });
-            })
-    }
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(409).json({
+                error: 'RETRIEVE ALBUM FAIL',
+                code: 1
+            });
+        })
 })
 
 router.get('/:board_id/photos', (req, res) => {

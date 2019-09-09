@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 is_private: {
                     type: DataTypes.BOOLEAN
+                },
+                tn_photo_id: {
+                    type: DataTypes.INTEGER
                 }
             }, {
                     sequelize,
@@ -28,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
             this.belongsTo(models.Content, {
                 foreignKey: 'content_id',
                 targetKey: 'content_id'
+            })
+
+            this.hasOne(models.Content, {
+                as: 'thumbnail',
+                foreignKey: 'content_id',
+                sourceKey: 'tn_photo_id'
             })
         }
     }

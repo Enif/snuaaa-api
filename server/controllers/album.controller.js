@@ -52,43 +52,43 @@ exports.retrieveAlbum = function (content_id) {
     })
 }
 
-exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset) {
-    return new Promise((resolve, reject) => {
-        if (!board_id) {
-            reject('id can not be null');
-        }
+// exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset) {
+//     return new Promise((resolve, reject) => {
+//         if (!board_id) {
+//             reject('id can not be null');
+//         }
 
-        models.Album.findAndCountAll({
-            include: [{
-                model: models.Content,
-                as: 'content',
-                where: { board_id: board_id },
-                required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['nickname']
-                }]
-            }],
-            order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'updated_at', 'DESC'
-                ]
-            ],
-            limit: rowNum,
-            offset: offset
-        })
-            .then((albumInfo) => {
-                resolve(albumInfo);
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    })
-}
+//         models.Album.findAndCountAll({
+//             include: [{
+//                 model: models.Content,
+//                 as: 'content',
+//                 where: { board_id: board_id },
+//                 required: true,
+//                 include: [{
+//                     model: models.User,
+//                     required: true,
+//                     attributes: ['nickname']
+//                 }]
+//             }],
+//             order: [
+//                 [{
+//                     model: models.Content,
+//                     as: 'content'
+//                 },
+//                     'updated_at', 'DESC'
+//                 ]
+//             ],
+//             limit: rowNum,
+//             offset: offset
+//         })
+//             .then((albumInfo) => {
+//                 resolve(albumInfo);
+//             })
+//             .catch((err) => {
+//                 reject(err);
+//             });
+//     })
+// }
 
 
 exports.retrieveAlbumCount = function (board_id, category_id) {
@@ -118,92 +118,63 @@ exports.retrieveAlbumCount = function (board_id, category_id) {
 }
 
 
-exports.retrieveAlbums = function (board_id, rowNum, offset) {
+exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
-            reject('id can not be null');
+            reject('board_id can not be null');
         }
 
-        models.sequelize.query(
-            `SELECT al.content_id, ob.category_id, ob.title, ob.text, ob.created_at, usr.nickname, ctg.category_color,
-            (
-                SELECT ph.thumbnail_path
-                FROM tb_photo ph
-                INNER JOIN tb_content phobj ON (phobj.content_id = ph.content_id)
-                WHERE ph.album_id = al.content_id
-                ORDER BY phobj.created_at DESC
-                LIMIT 1
-            )
-            FROM tb_album al
-            INNER JOIN tb_content ob ON (al.content_id = ob.content_id)
-            INNER JOIN tb_user usr ON (ob.author_id = usr.user_id)
-            LEFT OUTER JOIN tb_category ctg ON (ob.category_id = ctg.category_id)
-            WHERE ob.board_id = :board_id
-            AND ob.deleted_at IS NULL
-            ORDER BY ob.created_at DESC
-            LIMIT :limit
-            OFFSET :offset`,
-            {
-                replacements: {
-                    board_id: board_id,
-                    limit: rowNum,
-                    offset: offset
+        let condition = {
+            board_id: board_id
+        };
+        category_id && (condition.category_id = category_id);
+
+        models.Album.findAll({
+            include: [{
+                model: models.Content,
+                as: 'content',
+                where: condition,
+                required: true,
+                include: [{
+                    model: models.User,
+                    required: true,
+                    attributes: ['nickname']  
+                }, {
+                    model: models.Category
+                }, {
+                    model: models.Photo,
+                    as: 'albumPhoto',
+                    attributes: ['thumbnail_path'],
+                    required: false,
+                    separate: true,
+                    limit: 1,
+                    order: [['content_id', 'DESC']]
+                }]
+            }, {
+                model: models.Content,
+                as: 'thumbnail',
+                include: [{
+                    model: models.Photo,
+                    as: 'photo'
+                }]
+            }],
+            order: [
+                [{
+                    model: models.Content,
+                    as: 'content'
                 },
-                type: models.sequelize.QueryTypes.SELECT
-            }
-        )
-            .then((albums) => {
-                resolve(albums);
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    })
-}
-
-
-exports.retrieveAlbumsByCategory = function (board_id, category_id, rowNum, offset) {
-    return new Promise((resolve, reject) => {
-        if (!board_id) {
-            reject('id can not be null');
-        }
-
-        models.sequelize.query(
-            `SELECT al.content_id, ob.category_id, ob.title, ob.text, ob.created_at, usr.nickname, ctg.category_color,
-            (
-                SELECT ph.thumbnail_path
-                FROM tb_photo ph
-                INNER JOIN tb_content phobj ON (phobj.content_id = ph.content_id)
-                WHERE ph.album_id = al.content_id
-                ORDER BY phobj.created_at DESC
-                LIMIT 1
-            )
-            FROM tb_album al
-            INNER JOIN tb_content ob ON (al.content_id = ob.content_id)
-            INNER JOIN tb_user usr ON (ob.author_id = usr.user_id)
-            LEFT OUTER JOIN tb_category ctg ON (ob.category_id = ctg.category_id)
-            WHERE ob.board_id = :board_id
-            AND ob.category_id = :category_id
-            AND ob.deleted_at IS NULL
-            ORDER BY ob.created_at DESC
-            LIMIT :limit
-            OFFSET :offset`,
-            {
-                replacements: {
-                    board_id: board_id,
-                    category_id: category_id,
-                    limit: rowNum,
-                    offset: offset
-                },
-                type: models.sequelize.QueryTypes.SELECT
-            }
-        )
-            .then((albums) => {
-                resolve(albums);
-            })
-            .catch((err) => {
-                reject(err);
-            });
+                    'created_at', 'DESC'
+                ]
+            ],
+            limit: rowNum,
+            offset: offset
+        })
+        .then((albums) => {
+            resolve(albums);
+        })
+        .catch((err) => {
+            reject(err);
+        });
     })
 }
 
@@ -241,6 +212,29 @@ exports.updateAlbum = function (album_id, data) {
                     content_id: album_id
                 }
 
+            })
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
+            })
+    })
+}
+
+exports.updateAlbumThumbnail = function (album_id, photo_id) {
+    return new Promise((resolve, reject) => {
+        if (!album_id) {
+            reject('album_id can not be null')
+        }
+
+        models.Album.update({
+            tn_photo_id: photo_id
+        },
+            {
+                where: {
+                    content_id: album_id
+                }
             })
             .then(() => {
                 resolve();

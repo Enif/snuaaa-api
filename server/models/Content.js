@@ -80,6 +80,17 @@ module.exports = (sequelize, DataTypes) => {
                 otherKey: 'content_id'
             })
 
+            this.hasOne(models.Photo, {
+                as: 'photo',
+                foreignKey: 'content_id'
+            })
+
+            this.hasMany(models.Photo, {
+                as: 'albumPhoto',
+                foreignKey: 'album_id',
+                sourceKey: 'content_id'
+            })
+
             this.hasMany(models.AttachedFile, {
                 as: 'AttachedFiles',
                 foreignKey: 'parent_id',

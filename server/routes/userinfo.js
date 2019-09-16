@@ -1,12 +1,13 @@
 import express from 'express';
 import multer from 'multer'
+import bcrypt from 'bcryptjs';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { retrievePostsByUser, retrievePostsByUserUuid } from '../controllers/post.controller';
 import { retrievePhotosByUser, retrievePhotosByUserUuid } from '../controllers/photo.controller';
 import { retrieveCommentsByUser, retrieveCommentsByUserUuid } from '../controllers/comment.controller';
-import { retrieveUser, updateUser, deleteUser, retrieveUserByUserUuid } from '../controllers/user.controller';
+import { retrieveUser, updateUser, deleteUser, retrieveUserPw, updateUserPw, retrieveUserByUserUuid } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
 
@@ -46,7 +47,6 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
-    let profilePath;
     let user_id = req.decodedToken._id;
 
     retrieveUser(user_id)
@@ -118,6 +118,69 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
                 code: 0
             });
         });
+})
+
+router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
+    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    let user_id = req.decodedToken._id;
+    let data = req.body;
+
+    retrieveUserPw(user_id)
+        .then((userInfo) => {
+            return new Promise((resolve, reject) => {
+                if (!bcrypt.compareSync(data.password, userInfo.password)) {
+                    const err = {
+                        status: 403,
+                        code: 1011
+                    }
+                    reject(err);
+                }
+                else if (!data.newPassword) {
+                    const err = {
+                        status: 403,
+                        code: 1012
+                    }
+                    reject(err);
+                }
+                else if (data.newPassword !== data.newPasswordCf) {
+                    const err = {
+                        status: 403,
+                        code: 1013
+                    }
+                    reject(err);
+                }
+                else if (data.newPassword.length < 8 || data.newPassword.length > 20) {
+                    const err = {
+                        status: 403,
+                        code: 1014
+                    }
+                    reject(err);
+                }
+                else {
+                    updateUserPw(user_id, bcrypt.hashSync(data.newPassword, 10))
+                    .then(() => resolve())
+                    .catch((err) => reject(err))
+                }    
+            })
+        })
+        .then(() => {
+            res.json({
+                success: true
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            if(err.status) {
+                next(err);
+            }
+            else {
+                const errCode = {
+                    status: 500,
+                    code: 1010
+                }
+                next(errCode);
+            }
+        })
 })
 
 router.delete('/', verifyTokenMiddleware, (req, res) => {

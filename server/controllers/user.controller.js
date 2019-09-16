@@ -32,7 +32,7 @@ exports.createUser = function (userData) {
 exports.retrieveUser = function (user_id) {
     return new Promise((resolve, reject) => {
         if (!user_id) {
-            reject('id can not be null');
+            reject('user_id can not be null');
         }
 
         models.User.findOne({
@@ -53,6 +53,31 @@ exports.retrieveUser = function (user_id) {
             });
     })
 }
+
+exports.retrieveUserPw = function (user_id) {
+    return new Promise((resolve, reject) => {
+        if (!user_id) {
+            reject('user_id can not be null');
+        }
+
+        models.User.findOne({
+            attributes: ['password'],
+            where: { user_id: user_id }
+        })
+            .then((user) => {
+                if (!user) {
+                    reject('id is not correct');
+                }
+                else {
+                    resolve(user);
+                }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
 
 exports.retrieveUserByUserUuid = function (user_uuid) {
     return new Promise((resolve, reject) => {
@@ -109,11 +134,10 @@ exports.updateUser = function (user_id, data) {
     return new Promise((resolve, reject) => {
 
         if (!user_id) {
-            reject('id can not be null');
+            reject('user_id can not be null');
         }
 
         models.User.update({
-            user_id: user_id,
             username: data.username,
             nickname: data.nickname,
             aaa_no: data.aaa_no,
@@ -136,6 +160,33 @@ exports.updateUser = function (user_id, data) {
     })
 }
 
+
+exports.updateUserPw = function (user_id, password) {
+    return new Promise((resolve, reject) => {
+
+        if (!user_id) {
+            reject('user_id can not be null');
+        }
+        else if (!password) {
+            reject('password can not be null');
+        }
+        else {
+            models.User.update({
+                password: password
+            }, {
+                    where: { user_id: user_id }
+                })
+                .then(() => {
+                    resolve()
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
+
 exports.deleteUser = function (user_id) {
     return new Promise((resolve, reject) => {
         if (!user_id) {
@@ -143,11 +194,11 @@ exports.deleteUser = function (user_id) {
         }
 
         models.User.destroy(
-        {
-            where: {
-                user_id: user_id
-            }    
-        })
+            {
+                where: {
+                    user_id: user_id
+                }
+            })
             .then(() => {
                 resolve();
             })

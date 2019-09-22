@@ -105,14 +105,34 @@ exports.retrieveUserByUserUuid = function (user_uuid) {
 }
 
 
-exports.retrieveLoginUser = function (id) {
+exports.retrieveUsersByEmailAndName = function (email, username) {
+    return new Promise((resolve, reject) => {
+        if (!email) {
+            reject('email can not be null');
+        }
+
+        models.User.findAll({
+            attributes: ['id'],
+            where: { email: email, username: username }
+        })
+            .then((users) => {
+                resolve(users);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+
+exports.retrieveUserById = function (id) {
     return new Promise((resolve, reject) => {
         if (!id) {
             reject('id can not be null');
         }
 
         models.User.findOne({
-            attributes: ['user_id', 'user_uuid', 'id', 'password', 'nickname', 'level', 'profile_path'],
+            attributes: ['user_id', 'user_uuid', 'id', 'password', 'username', 'nickname', 'level', 'email', 'profile_path'],
             where: { id: id }
         })
             .then((user) => {

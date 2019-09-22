@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 
-import { retrieveLoginUser, updateLoginDate } from '../controllers/user.controller';
+import { retrieveUserById, updateLoginDate } from '../controllers/user.controller';
 
 import { createToken } from '../lib/token';
 
@@ -20,7 +20,7 @@ router.post('/', (req, res) => {
 
     let userInfo = {};
 
-    retrieveLoginUser(req.body.id)
+    retrieveUserById(req.body.id)
     .then((user) => {
         return new Promise((resolve, reject) => {
             if (!user) {

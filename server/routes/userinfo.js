@@ -1,14 +1,18 @@
 import express from 'express';
 import multer from 'multer'
+import bcrypt from 'bcryptjs';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { retrievePostsByUser, retrievePostsByUserUuid } from '../controllers/post.controller';
 import { retrievePhotosByUser, retrievePhotosByUserUuid } from '../controllers/photo.controller';
 import { retrieveCommentsByUser, retrieveCommentsByUserUuid } from '../controllers/comment.controller';
-import { retrieveUser, updateUser, deleteUser, retrieveUserByUserUuid } from '../controllers/user.controller';
+import { retrieveUser, updateUser, deleteUser, retrieveUserPw, updateUserPw, 
+    retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
+
+require('dotenv').config();
 
 const router = express.Router();
 
@@ -22,6 +26,20 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage })
+
+const nodemailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
+const transporter = nodemailer.createTransport(smtpTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    auth: {
+        user: process.env.GOOGLE_EMAIL_ADDR,
+        pass: process.env.GOOGLE_EMAIL_PW
+    }
+}));
+
+const cryptoRandomString = require('crypto-random-string');
+
 
 router.get('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
@@ -46,7 +64,6 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
-    let profilePath;
     let user_id = req.decodedToken._id;
 
     retrieveUser(user_id)
@@ -118,6 +135,69 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
                 code: 0
             });
         });
+})
+
+router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
+    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    let user_id = req.decodedToken._id;
+    let data = req.body;
+
+    retrieveUserPw(user_id)
+        .then((userInfo) => {
+            return new Promise((resolve, reject) => {
+                if (!bcrypt.compareSync(data.password, userInfo.password)) {
+                    const err = {
+                        status: 403,
+                        code: 1011
+                    }
+                    reject(err);
+                }
+                else if (!data.newPassword) {
+                    const err = {
+                        status: 403,
+                        code: 1012
+                    }
+                    reject(err);
+                }
+                else if (data.newPassword !== data.newPasswordCf) {
+                    const err = {
+                        status: 403,
+                        code: 1013
+                    }
+                    reject(err);
+                }
+                else if (data.newPassword.length < 8 || data.newPassword.length > 20) {
+                    const err = {
+                        status: 403,
+                        code: 1014
+                    }
+                    reject(err);
+                }
+                else {
+                    updateUserPw(user_id, bcrypt.hashSync(data.newPassword, 10))
+                        .then(() => resolve())
+                        .catch((err) => reject(err))
+                }
+            })
+        })
+        .then(() => {
+            res.json({
+                success: true
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            if (err.status) {
+                next(err);
+            }
+            else {
+                const errCode = {
+                    status: 500,
+                    code: 1010
+                }
+                next(errCode);
+            }
+        })
 })
 
 router.delete('/', verifyTokenMiddleware, (req, res) => {
@@ -275,6 +355,121 @@ router.get('/:user_uuid/comments', verifyTokenMiddleware, (req, res) => {
                 code: 0
             });
         });
+})
+
+
+router.post('/find/id', (req, res) => {
+    console.log(`[POST] ${req.baseUrl + req.url}`);
+
+    let data = req.body;
+    retrieveUsersByEmailAndName(data.email, data.name)
+    .then((users) => {
+        if(users && users.length > 0) {
+            res.json({
+                success: true
+            })
+            
+            let text = '회원님의 ID는 ';
+            users.map((user, i) => {
+                if(i === 0) {
+                    text += user.id;
+                }
+                else {
+                    text += `, ${user.id}`;
+                }
+            })
+            text += '입니다.'
+
+            let mailOptions = {
+                from: process.env.GOOGLE_EMAIL_ADDR,
+                to: data.email,
+                subject: '[SNUAAA] 회원님의 ID를 알려드립니다.',
+                text: text
+            };
+        
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.error(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
+        }
+        else {
+            res.status(400).json({
+                code: 0
+            });
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
+        });
+    });
+})
+
+
+router.post('/find/pw', (req, res) => {
+    console.log(`[POST] ${req.baseUrl + req.url}`);
+
+
+    let data = req.body;
+    retrieveUserById(data.id)
+    .then((user) => {
+        if(user) {
+            if(user.email === data.email && user.username === data.name) {
+                let resetPw = cryptoRandomString({length: 10});
+                updateUserPw(user.user_id, bcrypt.hashSync(resetPw, 10))
+                .then(() => {
+                    res.json({
+                        success: true
+                    })
+    
+                    let text = `임시비밀번호는 ${resetPw}입니다.\n
+                    로그인 하신 후 원하시는 비밀번호로 변경해주세요.`;
+                    let mailOptions = {
+                        from: process.env.GOOGLE_EMAIL_ADDR,
+                        to: data.email,
+                        subject: '[SNUAAA] 회원님의 임시 비밀번호를 알려드립니다.',
+                        text: text
+                    };
+                    
+                    transporter.sendMail(mailOptions, function (error, info) {
+                        if (error) {
+                            console.error(error);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                        }
+                    });
+                })
+                .catch((err) => {
+                    console.error(err);
+                })    
+            }
+            else {
+                // 
+                res.status(400).json({
+                    code: 0
+                });
+            }
+        }
+        else {
+            res.status(400).json({
+                code: 0
+            });
+        }
+
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(400).json({
+            code: 0
+        });
+    })
+
+
 })
 
 

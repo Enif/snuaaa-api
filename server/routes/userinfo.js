@@ -32,6 +32,8 @@ const smtpTransport = require('nodemailer-smtp-transport');
 const transporter = nodemailer.createTransport(smtpTransport({
     service: 'gmail',
     host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
         user: process.env.GOOGLE_EMAIL_ADDR,
         pass: process.env.GOOGLE_EMAIL_PW

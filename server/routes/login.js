@@ -74,7 +74,7 @@ router.post('/', (req, res) => {
 router.get('/guest', (req, res) => {
 
     createToken({
-            _id: null,
+            _id: -1,
             level: 0,
             autoLogin: false
     })
@@ -85,7 +85,7 @@ router.get('/guest', (req, res) => {
         })
         .json({
             sucess: true,
-            user_id: null,
+            user_id: -1,
             level: 0,
             profile_path: null,
             nickname: 'guest',

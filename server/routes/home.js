@@ -9,7 +9,7 @@ require('dotenv').config();
 import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveSoundBox, retrieveRecentPosts, retrieveAllPosts } from '../controllers/post.controller';
 import { retrievePhotosInBoard } from '../controllers/photo.controller';
-import { retrieveRecentComments } from '../controllers/comment.controller';
+import { retrieveRecentComments, retrieveAllComments } from '../controllers/comment.controller';
 
 const router = express.Router();
 
@@ -94,8 +94,30 @@ router.get('/astrophoto', verifyTokenMiddleware, (req, res) => {
 router.get('/comments', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
     retrieveRecentComments()
-        .then((comments) => {
-            res.json(comments)
+        .then((commentInfo) => {
+            res.json(commentInfo)
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(401).json({
+                error: 'Retrieve Comments fail'
+            });
+        })
+})
+
+router.get('/comments/all', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+    const ROWNUM = 10;
+    let offset = 0;
+    if (req.query.page > 0) {
+        offset = ROWNUM * (req.query.page - 1);
+    }
+    retrieveAllComments(req.decodedToken.level, ROWNUM, offset)
+        .then((commentInfo) => {
+            res.json({
+                commentCount: commentInfo.count,
+                commentInfo: commentInfo.rows
+            })
         })
         .catch((err) => {
             console.error(err);

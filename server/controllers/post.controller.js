@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = models.Sequelize.Op;
 
 exports.retrievePost = function (content_id) {
     return new Promise((resolve, reject) => {
@@ -71,7 +72,7 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
     })
 }
 
-exports.retrieveRecentPosts = function () {
+exports.retrieveRecentPosts = function (level) {
     return new Promise((resolve, reject) => {
 
         models.Post.findAll({
@@ -82,7 +83,12 @@ exports.retrieveRecentPosts = function () {
                 include: [{
                     model: models.Board,
                     required: true,
-                    attributes: ['board_id', 'board_name']
+                    attributes: ['board_id', 'board_name'],
+                    where: {
+                        lv_read: {
+                            [Op.lte]: level
+                        }
+                    }
                 }]
             }],
             order: [
@@ -94,6 +100,49 @@ exports.retrieveRecentPosts = function () {
                 ]
             ],
             limit: 7
+        })
+            .then(function (posts) {
+                resolve(posts);
+            })
+            .catch((err) => {
+                reject(err)
+            })
+    })
+}
+
+exports.retrieveAllPosts = function (level, rowNum, offset) {
+    return new Promise((resolve, reject) => {
+
+        models.Post.findAndCountAll({
+            include: [{
+                model: models.Content,
+                as: 'content',
+                required: true,
+                include: [{
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name'],
+                    where: {
+                        lv_read: {
+                            [Op.lte]: level
+                        }
+                    }
+                }, {
+                    model: models.User,
+                    required: true,
+                    attributes: ['nickname']
+                }]
+            }],
+            order: [
+                [{
+                    model: models.Content,
+                    as: 'content'
+                },
+                    'updated_at', 'DESC'
+                ]
+            ],
+            limit: rowNum,
+            offset: offset
         })
             .then(function (posts) {
                 resolve(posts);

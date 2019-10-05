@@ -10,7 +10,7 @@ import { retrieveTagsByContent, createContentTag, deleteContentTag } from '../co
 
 const router = express.Router();
 
-router.get('/:photo_id', verifyTokenMiddleware, (req, res) => {
+router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     let photoInfo = {};

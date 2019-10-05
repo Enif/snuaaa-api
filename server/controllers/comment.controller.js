@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = models.Sequelize.Op;
 
 exports.retrieveComments = function (parent_id) {
     return new Promise((resolve, reject) => {
@@ -48,6 +49,38 @@ exports.retrieveRecentComments = function() {
         })
     })
 }
+
+exports.retrieveAllComments = function(level, rowNum, offset) {
+    return new Promise((resolve, reject) => {
+
+        models.Comment.findAndCountAll({
+            include: [{
+                model: models.Content,
+                required: true,
+                include: [{
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name'],
+                    where: {
+                        lv_read: {
+                            [Op.lte]: level
+                        }
+                    }
+                }]
+            }],
+            order: [['created_at', 'DESC']],
+            limit: rowNum,
+            offset: offset
+        })
+        .then((comments) => {
+            resolve(comments);    
+        })
+        .catch((err) => {
+            reject(err)
+        })
+    })
+}
+
 
 exports.retrieveCommentsByUser = function(user_id) {
     return new Promise((resolve, reject) => {

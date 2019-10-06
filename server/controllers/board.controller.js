@@ -46,7 +46,11 @@ exports.retrieveBoardsCanAccess = function (level) {
                 lv_read: {
                     [Op.lte]: level
                 }
-            }
+            },
+            order: [
+                ['menu', 'ASC'],
+                ['order', 'ASC']
+            ]
         })
             .then((boards) => {
                 resolve(boards);

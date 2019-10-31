@@ -1,5 +1,6 @@
 const models = require('../models');
 const uuid4 = require('uuid4');
+const Op = models.Sequelize.Op;
 
 exports.createUser = function (userData) {
 
@@ -86,7 +87,7 @@ exports.retrieveUserByUserUuid = function (user_uuid) {
         }
 
         models.User.findOne({
-            attributes: ['id', 'username', 'nickname', 'aaa_no',
+            attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
                 'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path'],
             where: { user_uuid: user_uuid }
         })
@@ -124,6 +125,21 @@ exports.retrieveUsersByEmailAndName = function (email, username) {
     })
 }
 
+exports.retrieveUsersByName = function (username) {
+    return new Promise((resolve, reject) => {
+        models.User.findAll({
+            attributes: ['user_uuid', 'username', 'nickname', 'profile_path'],
+            where: { username: {[Op.like]: `%${username}%`} },
+            limit: 5
+        })
+            .then((users) => {
+                resolve(users);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
 
 exports.retrieveUserById = function (id) {
     return new Promise((resolve, reject) => {

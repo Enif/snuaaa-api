@@ -8,7 +8,7 @@ import { retrievePostsByUser, retrievePostsByUserUuid } from '../controllers/pos
 import { retrievePhotosByUser, retrievePhotosByUserUuid } from '../controllers/photo.controller';
 import { retrieveCommentsByUser, retrieveCommentsByUserUuid } from '../controllers/comment.controller';
 import { retrieveUser, updateUser, deleteUser, retrieveUserPw, updateUserPw, 
-    retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid } from '../controllers/user.controller';
+    retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid, retrieveUsersByName } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
 
@@ -287,7 +287,16 @@ router.get('/:user_uuid', verifyTokenMiddleware, (req, res) => {
     const user_uuid = req.params.user_uuid;
     retrieveUserByUserUuid(user_uuid)
         .then((userInfo) => {
-            return res.json({ success: true, userInfo })
+            return res.json({
+                success: true,
+                userInfo: {
+                    username: userInfo.username,
+                    nickname: userInfo.nickname,
+                    aaa_no: userInfo.aaa_no,
+                    introduction: userInfo.introduction,
+                    profile_path: userInfo.profile_path
+                }
+            })
         })
         .catch((err) => {
             console.error(err);
@@ -357,6 +366,35 @@ router.get('/:user_uuid/comments', verifyTokenMiddleware, (req, res) => {
                 code: 0
             });
         });
+})
+
+
+router.get('/search/mini', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    if(req.query.name) {
+        retrieveUsersByName(req.query.name)
+        .then((users) => {
+            res.json({
+                success: true,
+                userList: users
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        })
+    }
+    else {
+        res.status(402).json({
+            error: 'name is required',
+            code: 0
+        });
+    }
+    
 })
 
 

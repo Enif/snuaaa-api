@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
-
+import uploadMiddleware from '../middlewares/upload';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveBoard, retrieveBoardsCanAccess } from '../controllers/board.controller';
 import { retrieveCategoryByBoard } from '../controllers/category.controller';
@@ -11,6 +11,8 @@ import { retrievePostsInBoard, createPost } from '../controllers/post.controller
 import { retrieveTagsOnBoard } from '../controllers/tag.controller';
 import { createDocument } from '../controllers/document.controller';
 import { createAttachedFile } from '../controllers/attachedFile.controller';
+import { retrieveExhibitions, createExhibition } from '../controllers/exhibition.controller';
+import { resizeForThumbnail } from '../lib/resize';
 
 const router = express.Router();
 
@@ -81,24 +83,12 @@ router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
     let offset = 0;
-    let postCount = 0;
     const ROWNUM = 10;
 
     if (req.query.page > 0) {
         offset = ROWNUM * (req.query.page - 1);
     }
 
-    // retrievePostCount(req.params.board_id)
-    // .then((count) => {
-    //     postCount = count;
-    //     return retrievePosts(req.params.board_id, ROWNUM, offset)
-    // })
-    // .then((postInfo) => {
-    //     res.json({
-    //         postCount: postCount,
-    //         postInfo: postInfo
-    //     })
-    // })
     retrievePostsInBoard(req.params.board_id, ROWNUM, offset)
         .then((postInfo) => {
             res.json({
@@ -262,5 +252,58 @@ router.post('/:board_id/document', verifyTokenMiddleware, upload.array('uploadFi
             });
     }
 })
+
+router.get('/:board_id/exhibitions', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    retrieveExhibitions()
+        .then((exhibitionInfo) => {
+            res.json(exhibitionInfo)
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                success: false,
+                error: 'RETRIEVE EXHIBITIONS FAIL',
+                code: 1
+            })
+        })
+})
+
+router.post('/:board_id/exhibition',
+    verifyTokenMiddleware,
+    uploadMiddleware('EH').single('poster'),
+        (req, res) => {
+            console.log(`[POST] ${req.baseUrl + req.url}`);
+
+            if (!req.file) {
+                res.status(409).json({
+                    error: 'POSTER IS NOT ATTACHED',
+                    code: 1
+                });
+            }
+
+            let basename = path.basename(req.file.filename, path.extname(req.file.filename));
+            resizeForThumbnail(req.file.path)
+            .then(() => {
+                req.body.poster_path = `/exhibition/${req.body.exhibition_no}/${req.file.filename}`;
+                req.body.poster_thumbnail_path = `/exhibition/${req.body.exhibition_no}/${basename}_thumb.jpeg`;
+                return createContent(req.decodedToken._id, req.params.board_id, req.body, 'EH')
+            })
+                .then((content_id) => {
+                    return createExhibition(content_id, req.body)
+                })
+                .then(() => {
+                    res.json({ success: true })
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.status(500).json({
+                        success: false,
+                        error: 'CREATE EXHIBITION FAIL',
+                        code: 1
+                    })
+                });
+        });
 
 export default router;

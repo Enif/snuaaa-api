@@ -85,6 +85,16 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: 'content_id'
             })
 
+            this.hasOne(models.Exhibition, {
+                as: 'exhibition',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.ExhibitPhoto, {
+                as: 'exhibitPhoto',
+                foreignKey: 'content_id'
+            })
+
             this.hasMany(models.Photo, {
                 as: 'albumPhoto',
                 foreignKey: 'album_id',
@@ -98,7 +108,9 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             this.belongsToMany(models.Tag, {
-                through: 'contentTag',
+                through: models.ContentTag,
+                // through: 'contentTag',
+                as: 'contentTags',
                 foreignKey: 'content_id',
                 otherKey: 'tag_id'
             })

@@ -50,7 +50,7 @@ exports.retrieveAttachedFilesInContent = function (content_id) {
         }
         else {
             models.AttachedFile.findAll({
-                attributes: ['file_id', 'original_name', 'file_type'],
+                attributes: ['file_id', 'original_name', 'file_type', 'download_count'],
                 where: { parent_id: content_id},
                 order: [
                     ['file_id', 'ASC']

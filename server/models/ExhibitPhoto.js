@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
                 photographer_id: {
                     type: DataTypes.INTEGER,
                 },
+                photographer_alt: {
+                    type: DataTypes.STRING(32),
+                },
                 file_path: {
                     type: DataTypes.STRING(256),
                 },

@@ -1,12 +1,9 @@
 import express from 'express';
-import multer from 'multer';
-import fs from 'fs';
 import path from 'path';
 const uuid4 = require('uuid4');
 import uploadMiddleware from '../middlewares/upload';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
-import { createContent, updateContent, deleteContent } from '../controllers/content.controller';
 import { retrieveExhibition } from '../controllers/exhibition.controller';
 import { createExhibitPhoto, retrieveExhibitPhotosInExhibition } from '../controllers/exhibitPhoto.controller';
 import { resizeForThumbnail } from '../lib/resize';
@@ -73,6 +70,7 @@ router.post('/:exhibition_id/exhibitPhoto',
                 code: 1
             });
         }
+
         else {
             let basename = path.basename(req.file.filename, path.extname(req.file.filename));
             resizeForThumbnail(req.file.path)
@@ -82,6 +80,7 @@ router.post('/:exhibition_id/exhibitPhoto',
                     }
                 })
                 .then((photographer) => {
+                    console.log(photographer)
                     let data = {
                         content_uuid: uuid4(),
                         author_id: req.decodedToken._id,
@@ -93,6 +92,7 @@ router.post('/:exhibition_id/exhibitPhoto',
                         exhibition_id: req.body.exhibition_id,
                         order: req.body.order,
                         photographer_id: photographer ? photographer.user_id : null,
+                        photographer_alt: photographer ? null : req.body.photographer_alt,
                         file_path: `/exhibition/${req.body.exhibition_no}/${req.file.filename}`,
                         thumbnail_path: `/exhibition/${req.body.exhibition_no}/${basename}_thumb.jpeg`,
                         location: req.body.location,

@@ -15,6 +15,7 @@ exports.createExhibitPhoto = function (data) {
                 exhibition_id: data.exhibition_id,
                 order: data.order,
                 photographer_id: data.photographer_id,
+                photographer_alt: data.photographer_alt,
                 file_path: data.file_path,
                 thumbnail_path: data.thumbnail_path,
                 location: data.location,
@@ -27,11 +28,11 @@ exports.createExhibitPhoto = function (data) {
                 date: data.date
             }
         }, {
-                include: [{
-                    model: models.ExhibitPhoto,
-                    as: 'exhibitPhoto',
-                }]
-            })
+            include: [{
+                model: models.ExhibitPhoto,
+                as: 'exhibitPhoto',
+            }]
+        })
             .then(() => {
                 resolve();
             })
@@ -90,11 +91,11 @@ exports.retrieveExhibitPhotosInExhibition = function (exhibition_id) {
                 where: {
                     exhibition_id: exhibition_id
                 },
-                order: [
-                    ['order', 'ASC'],
-                    ['created_at', 'ASC']
-                ]
-            }]
+            }],
+            order: [
+                ['exhibitPhoto', 'order', 'ASC'],
+                ['created_at', 'ASC']
+            ]
         })
             .then((info) => {
                 resolve(info);
@@ -107,13 +108,14 @@ exports.retrieveExhibitPhotosInExhibition = function (exhibition_id) {
 
 exports.updateExhibitPhoto = function (exhibitPhoto_id, data) {
     return new Promise((resolve, reject) => {
-
         if (!exhibitPhoto_id) {
             reject('exhibitPhoto_id can not be null')
         }
         else {
             models.ExhibitPhoto.update({
                 photographer_id: data.photographer_id,
+                photographer_alt: data.photographer_alt,
+                order: data.order,
                 file_path: data.file_path,
                 thumbnail_path: data.thumbnail_path,
                 location: data.location,
@@ -125,10 +127,10 @@ exports.updateExhibitPhoto = function (exhibitPhoto_id, data) {
                 iso: data.iso,
                 date: data.date
             }, {
-                    where: {
-                        content_id: exhibitPhoto_id
-                    }
-                })
+                where: {
+                    content_id: exhibitPhoto_id
+                }
+            })
                 .then(() => {
                     resolve();
                 })

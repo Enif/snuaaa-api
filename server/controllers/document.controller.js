@@ -118,20 +118,28 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
     })
 }
 
-
-exports.createDocument = function (content_id, data) {
+exports.createDocument = function (data) {
     return new Promise((resolve, reject) => {
-        if (!content_id) {
-            reject('id can not be null')
-        }
 
-        models.Document.create({
-            content_id: content_id,
-            generation: data.generation,
-            file_path: data.file_path
+        models.Content.create({
+            content_uuid: data.content_uuid,
+            author_id: data.author_id,
+            board_id: data.board_id,
+            category_id: data.category_id,
+            title: data.title,
+            text: data.text,
+            type: data.type,
+            document: {
+                generation: data.generation
+            }
+        }, {
+            include: [{
+                model: models.Document,
+                as: 'document',
+            }]
         })
-            .then(() => {
-                resolve();
+            .then((content) => {
+                resolve(content.dataValues.content_id);
             })
             .catch((err) => {
                 reject(err);

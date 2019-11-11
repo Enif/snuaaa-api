@@ -85,6 +85,11 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: 'content_id'
             })
 
+            this.hasOne(models.Document, {
+                as: 'document',
+                foreignKey: 'content_id'
+            })
+
             this.hasOne(models.Exhibition, {
                 as: 'exhibition',
                 foreignKey: 'content_id'

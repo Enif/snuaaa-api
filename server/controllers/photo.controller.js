@@ -14,7 +14,7 @@ exports.retrievePhoto = function (photo_id) {
                 include: [{
                     model: models.User,
                     required: true,
-                    attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path']
                 },
                 {
                     model: models.Board,

@@ -7,7 +7,7 @@ import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveBoard, retrieveBoardsCanAccess } from '../controllers/board.controller';
 import { retrieveCategoryByBoard } from '../controllers/category.controller';
 import { createContent } from '../controllers/content.controller';
-import { retrievePostsInBoard, createPost } from '../controllers/post.controller';
+import { retrievePostsInBoard, createPost, searchPostsInBoard } from '../controllers/post.controller';
 import { retrieveTagsOnBoard } from '../controllers/tag.controller';
 import { createDocument } from '../controllers/document.controller';
 import { createAttachedFile } from '../controllers/attachedFile.controller';
@@ -106,6 +106,34 @@ router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {
             })
         })
 })
+
+router.get('/:board_id/posts/search', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    let offset = 0;
+    const ROWNUM = 10;
+
+    if (req.query.page > 0) {
+        offset = ROWNUM * (req.query.page - 1);
+    }
+
+    searchPostsInBoard(req.params.board_id, req.query.keyword, ROWNUM, offset)
+        .then((postInfo) => {
+            res.json({
+                postCount: postInfo.count,
+                postInfo: postInfo.rows
+            })
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(403).json({
+                success: false,
+                error: 'RETRIEVE POST FAIL',
+                code: 1
+            })
+        })
+})
+
 
 router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);

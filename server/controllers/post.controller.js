@@ -72,6 +72,51 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
     })
 }
 
+
+exports.searchPostsInBoard = function (board_id, keyword, rowNum, offset) {
+    return new Promise((resolve, reject) => {
+        if (!board_id) {
+            reject('id can not be null');
+        }
+
+        models.Post.findAndCountAll({
+            include: [{
+                model: models.Content,
+                as: 'content',
+                where: {
+                    board_id: board_id,
+                    title: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                },
+                required: true,
+                include: [{
+                    model: models.User,
+                    required: true,
+                    attributes: ['nickname']
+                }]
+            }],
+            order: [
+                [{
+                    model: models.Content,
+                    as: 'content'
+                },
+                    'created_at', 'DESC'
+                ]
+            ],
+            limit: rowNum,
+            offset: offset
+        })
+            .then((postInfo) => {
+                resolve(postInfo);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+
 exports.retrieveRecentPosts = function (level) {
     return new Promise((resolve, reject) => {
 
@@ -282,7 +327,7 @@ exports.createPost = function (content_id, data) {
         }
 
         models.Post.create({
-            content_id: content_id
+            content_id: content_id,
         })
             .then(() => {
                 resolve();

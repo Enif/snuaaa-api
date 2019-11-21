@@ -11,7 +11,7 @@ exports.retrieveComments = function (parent_id) {
             include: [{
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'nickname', 'profile_path']
+                attributes: ['user_id', 'user_uuid', 'nickname', 'profile_path']
             }],
             where: { parent_id: parent_id },
             order: ['created_at']

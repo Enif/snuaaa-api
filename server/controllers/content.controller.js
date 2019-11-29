@@ -15,8 +15,6 @@ exports.createContent = function (user_id, board_id, data, type) {
             title: data.title,
             text: data.text,
             type: type
-        }, {
-            silent: true
         })
             .then((content) => {
                 resolve(content.dataValues.content_id);

@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: 'content_id'
             })
 
-            this.hasOne(models.Content, {
+            this.hasOne(models.Photo, {
                 as: 'thumbnail',
                 foreignKey: 'content_id',
                 sourceKey: 'tn_photo_id'

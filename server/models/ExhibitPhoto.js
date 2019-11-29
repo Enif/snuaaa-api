@@ -75,10 +75,10 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: 'content_id'
             })
 
-            this.hasOne(models.User, {
+            this.belongsTo(models.User, {
                 as: 'photographer',
-                foreignKey: 'user_id',
-                sourceKey: 'photographer_id'
+                foreignKey: 'photographer_id',
+                targetKey: 'user_id'
             })
         }
     }

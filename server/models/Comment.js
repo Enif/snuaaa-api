@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             this.belongsToMany(models.User, {
-                through: 'CommentLike',
+                through: 'commentLike',
                 foreignKey: 'comment_id',
                 otherKey: 'comment_id'
             })

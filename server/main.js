@@ -30,7 +30,7 @@ if(process.env.NODE_ENV == 'develop') {
 else {
     // [TODO] SET CORS OPTIONS AFTER PUBLISHING
     var corsOptions = {
-        origin: 'https://snuaaa.org',
+        origin: 'https://www.snuaaa.net',
         optionsSuccessStatus: 200
     }
     app.use(cors(corsOptions))

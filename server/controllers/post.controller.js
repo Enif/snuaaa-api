@@ -7,21 +7,19 @@ exports.retrievePost = function (content_id) {
             reject('id can not be null');
         }
 
-        models.Post.findOne({
+        models.Content.findOne({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Post,
+                as: 'post',
+            }, {
+                model: models.User,
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path']
-                },
-                {
-                    model: models.Board,
-                    required: true,
-                    attributes: ['board_id', 'board_name', 'lv_read']
-                }]
+                attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path']
+            },
+            {
+                model: models.Board,
+                required: true,
+                attributes: ['board_id', 'board_name', 'lv_read']
             }],
             where: { content_id: content_id }
         })
@@ -259,7 +257,7 @@ exports.retrievePostsByUserUuid = function (user_uuid) {
                         required: true,
                         where: {
                             user_uuid: user_uuid,
-                        }        
+                        }
                     }]
                 }],
                 order: [

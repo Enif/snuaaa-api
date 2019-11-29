@@ -205,7 +205,8 @@ router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
 router.delete('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
 
-    deleteUser(decodedToken._id)
+    try {
+        deleteUser(req.decodedToken._id)
         .then(() => {
             return res.json({ success: true })
         })
@@ -216,6 +217,17 @@ router.delete('/', verifyTokenMiddleware, (req, res) => {
                 code: 0
             });
         });
+
+    }
+    catch (err) {
+        console.error(err)
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
+        });
+
+    }
+
 })
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {

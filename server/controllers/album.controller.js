@@ -151,12 +151,12 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id)
                     order: [['content_id', 'DESC']]
                 }]
             }, {
-                model: models.Content,
+                model: models.Photo,
                 as: 'thumbnail',
-                include: [{
-                    model: models.Photo,
-                    as: 'photo'
-                }]
+                // include: [{
+                //     model: models.Photo,
+                //     as: 'photo'
+                // }]
             }],
             order: [
                 [{

@@ -75,9 +75,19 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             this.belongsToMany(models.User, {
-                through: 'ContentLike',
+                through: 'contentLike',
                 foreignKey: 'content_id',
                 otherKey: 'content_id'
+            })
+
+            this.hasOne(models.Post, {
+                as: 'post',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.Album, {
+                as: 'album',
+                foreignKey: 'content_id'
             })
 
             this.hasOne(models.Photo, {

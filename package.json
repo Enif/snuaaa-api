@@ -9,6 +9,7 @@
     "serve": "node ./build/main.js",
     "babel-node": "babel-node server/main.js",
     "start": "nodemon --exec npm run babel-node",
+    "debug": "nodemon --exec --inspect npm run babel-node",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf ./build"
   },

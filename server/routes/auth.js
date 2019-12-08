@@ -4,6 +4,7 @@ import multer from 'multer';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveUser, retrieveUserById, updateLoginDate } from '../controllers/user.controller';
+import { createStatsLogin } from '../controllers/statsLogin.controller';
 import { createUser, checkDupId } from '../controllers/user.controller';
 import { resize } from '../lib/resize';
 
@@ -30,7 +31,7 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
     retrieveUser(req.decodedToken._id)
     .then((userInfo) => {
         user = userInfo;
-        return updateLoginDate(user.user_id)
+        return Promise.all([createStatsLogin(user.user_id), updateLoginDate(user.user_id)])
     })
     .then(() => {
         return createToken({
@@ -88,7 +89,7 @@ router.post('/login', (req, res) => {
         })
     })
     .then(() => {
-        return updateLoginDate(userInfo.user_id)
+        return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
     })
     .then(() => {
         return createToken({

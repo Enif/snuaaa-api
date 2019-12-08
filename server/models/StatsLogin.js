@@ -2,19 +2,24 @@ import { Model } from 'sequelize';
 
 module.exports = (sequelize, DataTypes) => {
 
-    class Post extends Model {
+    class StatsLogin extends Model {
 
         static init() {
             super.init({
-                content_id: {
+                user_id: {
                     type: DataTypes.INTEGER,
                     allowNull: false,
                     primaryKey: true,
                 },
+                login_at: {
+                    type: DataTypes.DATE,
+                    allowNull: false,
+                    primaryKey: true
+                }
             }, {
                     sequelize,
-                    modelName: 'post',
-                    tableName: 'tb_post',
+                    modelName: 'statsLogin',
+                    tableName: 'tb_stats_login',
                     timestamps: false,
                     underscored: true
                 }
@@ -22,13 +27,12 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         static associate(models) {
-            this.belongsTo(models.Content, {
-                // as: 'content',
-                foreignKey: 'content_id',
-                targetKey: 'content_id'
+            this.belongsTo(models.User, {
+                foreignKey: 'user_id',
+                targetKey: 'user_id'
             })
         }
     }
 
-    return Post;
+    return StatsLogin;
 }

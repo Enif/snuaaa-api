@@ -135,6 +135,7 @@ exports.retrieveCommentsByUserUuid = function(user_uuid) {
                 {
                     model: models.User,
                     required: true,
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
                     where: {
                         user_uuid: user_uuid,
                     }        

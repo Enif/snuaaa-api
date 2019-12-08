@@ -117,7 +117,7 @@ router.get('/:board_id/posts/search', verifyTokenMiddleware, (req, res) => {
         offset = ROWNUM * (req.query.page - 1);
     }
 
-    searchPostsInBoard(req.params.board_id, req.query.keyword, ROWNUM, offset)
+    searchPostsInBoard(req.params.board_id, req.query.type, req.query.keyword, ROWNUM, offset)
         .then((postInfo) => {
             res.json({
                 postCount: postInfo.count,
@@ -156,7 +156,13 @@ router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
 router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFiles', 3), (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
-    createContent(req.decodedToken._id, req.params.board_id, req.body, 'PO')
+    let postData = {
+        ...req.body,
+        author_id: req.decodedToken._id,
+        board_id: req.params.board_id
+    }
+
+    createPost(postData)
         .then((content_id) => {
             if (req.files) {
                 return Promise.all(req.files.map((file) => {
@@ -193,10 +199,7 @@ router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFile
                         file_type: file_type
                     }
                     return createAttachedFile(content_id, data)
-                }).concat(createPost(content_id, req.body)))
-            }
-            else {
-                return createPost(content_id, req.body)
+                }))
             }
         })
         .then(() => {

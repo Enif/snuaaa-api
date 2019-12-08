@@ -210,13 +210,14 @@ router.post('/:album_id/photos', verifyTokenMiddleware, upload.array('uploadPhot
             .then(() => {
                 return Promise.all(data.map((data) => {
                     return new Promise((resolve, reject) => {
-                        createContent(req.decodedToken._id, data.board_id, data, 'PH')
+                        let photoData = {
+                            ...data,
+                            author_id: req.decodedToken._id
+                        }
+                        createPhoto(photoData)
                             .then((content_id) => {
                                 if (data.tags.length > 0) {
-                                    return Promise.all(data.tags.map(tag_id => createContentTag(content_id, tag_id)).concat(createPhoto(content_id, data)))
-                                }
-                                else {
-                                    return createPhoto(content_id, data)
+                                    return Promise.all(data.tags.map(tag_id => createContentTag(content_id, tag_id)))
                                 }
                             })
                             .then(() => {
@@ -242,11 +243,6 @@ router.post('/:album_id/photos', verifyTokenMiddleware, upload.array('uploadPhot
     }
 })
 
-
-// router.get('/:album_id/photo/:path', (req, res) => {
-//     console.log('[retrive Photo] ');
-//     res.sendFile(req.params.album_id + '/' + req.params.path, {root: './upload/album'})
-// })
 
 
 export default router;

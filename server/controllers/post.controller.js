@@ -1,5 +1,13 @@
 const models = require('../models');
+const uuid4 = require('uuid4');
 const Op = models.Sequelize.Op;
+
+const SearchTypeEnum = Object.freeze({
+    ALL: 'A',
+    TITLE: 'T',
+    TEXT: 'X',
+    USER: 'U'
+})
 
 exports.retrievePost = function (content_id) {
     return new Promise((resolve, reject) => {
@@ -38,25 +46,18 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
             reject('id can not be null');
         }
 
-        models.Post.findAndCountAll({
+        models.Content.findAndCountAll({
             include: [{
-                model: models.Content,
-                as: 'content',
-                where: { board_id: board_id },
+                model: models.Post,
+                as: 'post',
+            }, {
+                model: models.User,
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['nickname']
-                }]
+                attributes: ['nickname']
             }],
+            where: { board_id: board_id },
             order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'created_at', 'DESC'
-                ]
+                ['created_at', 'DESC']
             ],
             limit: rowNum,
             offset: offset
@@ -71,36 +72,73 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
 }
 
 
-exports.searchPostsInBoard = function (board_id, keyword, rowNum, offset) {
+exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('id can not be null');
         }
 
-        models.Post.findAndCountAll({
-            include: [{
-                model: models.Content,
-                as: 'content',
-                where: {
-                    board_id: board_id,
+        let contentCondition;
+        let userCondition;
+        if (type === SearchTypeEnum.ALL) {
+            contentCondition = {
+                board_id: board_id,
+                [Op.or]: [{
                     title: {
                         [Op.like]: `%${keyword}%`
+                    },
+                    text: {
+                        [Op.like]: `%${keyword}%`
                     }
-                },
-                required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['nickname']
                 }]
+            }
+        }
+        else if (type === SearchTypeEnum.TITLE) {
+            contentCondition = {
+                board_id: board_id,
+                title: {
+                    [Op.like]: `%${keyword}%`
+                }
+            }
+        }
+        else if (type === SearchTypeEnum.TEXT) {
+            contentCondition = {
+                board_id: board_id,
+                text: {
+                    [Op.like]: `%${keyword}%`
+                }
+            }
+        }
+        else if (type === SearchTypeEnum.USER) {
+            contentCondition = {
+                board_id: board_id,
+            }
+            userCondition = {                
+                nickname: {
+                    [Op.like]: `%${keyword}%`
+                }
+            }
+        }
+        else {
+            contentCondition = {
+                board_id: board_id
+            }
+        }
+
+        models.Content.findAndCountAll({
+            include: [{
+                model: models.Post,
+                required: true,
+                as: 'post'
+            }, {
+                model: models.User,
+                required: true,
+                attributes: ['nickname'],
+                where: userCondition
             }],
+            where: contentCondition,
             order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'created_at', 'DESC'
-                ]
+                ['created_at', 'DESC']
             ],
             limit: rowNum,
             offset: offset
@@ -118,29 +156,23 @@ exports.searchPostsInBoard = function (board_id, keyword, rowNum, offset) {
 exports.retrieveRecentPosts = function (level) {
     return new Promise((resolve, reject) => {
 
-        models.Post.findAll({
+        models.Content.findAll({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Post,
+                as: 'post',
+                required: true
+            }, {
+                model: models.Board,
                 required: true,
-                include: [{
-                    model: models.Board,
-                    required: true,
-                    attributes: ['board_id', 'board_name'],
-                    where: {
-                        lv_read: {
-                            [Op.lte]: level
-                        }
+                attributes: ['board_id', 'board_name'],
+                where: {
+                    lv_read: {
+                        [Op.lte]: level
                     }
-                }]
+                }
             }],
             order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'updated_at', 'DESC'
-                ]
+                ['updated_at', 'DESC']
             ],
             limit: 7
         })
@@ -156,33 +188,27 @@ exports.retrieveRecentPosts = function (level) {
 exports.retrieveAllPosts = function (level, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
-        models.Post.findAndCountAll({
+        models.Content.findAndCountAll({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Post,
+                as: 'post',
+                required: true
+            }, {
+                model: models.Board,
                 required: true,
-                include: [{
-                    model: models.Board,
-                    required: true,
-                    attributes: ['board_id', 'board_name'],
-                    where: {
-                        lv_read: {
-                            [Op.lte]: level
-                        }
+                attributes: ['board_id', 'board_name'],
+                where: {
+                    lv_read: {
+                        [Op.lte]: level
                     }
-                }, {
-                    model: models.User,
-                    required: true,
-                    attributes: ['nickname']
-                }]
+                }
+            }, {
+                model: models.User,
+                required: true,
+                attributes: ['nickname']
             }],
             order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'updated_at', 'DESC'
-                ]
+                ['updated_at', 'DESC']
             ],
             limit: rowNum,
             offset: offset
@@ -202,27 +228,22 @@ exports.retrievePostsByUser = function (user_id) {
             reject('id can not be null');
         }
         else {
-            models.Post.findAll({
+            models.Content.findAll({
                 include: [{
-                    model: models.Content,
-                    as: 'content',
+                    model: models.Post,
+                    as: 'post',
+                    required: true
+                }, {
+                    model: models.Board,
                     required: true,
-                    include: [{
-                        model: models.Board,
-                        required: true,
-                        attributes: ['board_id', 'board_name']
-                    }],
-                    where: {
-                        author_id: user_id,
-                    }
-                }],
+                    attributes: ['board_id', 'board_name']
+                },
+                ],
+                where: {
+                    author_id: user_id,
+                },
                 order: [
-                    [{
-                        model: models.Content,
-                        as: 'content'
-                    },
-                        'updated_at', 'DESC'
-                    ]
+                    ['updated_at', 'DESC']
                 ],
                 limit: 10
             })
@@ -242,31 +263,26 @@ exports.retrievePostsByUserUuid = function (user_uuid) {
             reject('id can not be null');
         }
         else {
-            models.Post.findAll({
+            models.Content.findAll({
                 include: [{
-                    model: models.Content,
-                    as: 'content',
+                    model: models.Post,
+                    as: 'post',
                     required: true,
-                    include: [{
-                        model: models.Board,
-                        required: true,
-                        attributes: ['board_id', 'board_name']
-                    },
-                    {
-                        model: models.User,
-                        required: true,
-                        where: {
-                            user_uuid: user_uuid,
-                        }
-                    }]
+                }, {
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name']
+                },
+                {
+                    model: models.User,
+                    required: true,
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
+                    where: {
+                        user_uuid: user_uuid,
+                    }
                 }],
                 order: [
-                    [{
-                        model: models.Content,
-                        as: 'content'
-                    },
-                        'updated_at', 'DESC'
-                    ]
+                    ['updated_at', 'DESC']
                 ],
                 limit: 10
             })
@@ -284,51 +300,52 @@ exports.retrievePostsByUserUuid = function (user_uuid) {
 exports.retrieveSoundBox = function () {
     return new Promise((resolve, reject) => {
 
-        models.Post.findOne({
+        models.Content.findOne({
+            attributes: ['content_id', 'title', 'text'],
             include: [{
-                model: models.Content,
-                as: 'content',
-                attributes: ['content_id', 'title', 'text'],
+                model: models.Post,
+                as: 'post',
                 required: true,
-                include: [{
-                    model: models.Board,
-                    required: true,
-                    attributes: [],
-                    where: { board_id: 'brd01' }
-                }]
+            }, {
+                model: models.Board,
+                required: true,
+                attributes: [],
             }],
+            where: { board_id: 'brd01' },
             order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'updated_at', 'DESC'
-                ]
+                ['updated_at', 'DESC']
             ],
             limit: 1
         })
-
             .then(function (post) {
                 resolve(post);
             })
             .catch((err) => {
                 reject(err)
             })
-
     })
 }
 
-exports.createPost = function (content_id, data) {
+exports.createPost = function (data) {
     return new Promise((resolve, reject) => {
-        if (!content_id) {
-            reject('id can not be null')
-        }
-
-        models.Post.create({
-            content_id: content_id,
+        models.Content.create({
+            content_uuid: uuid4(),
+            author_id: data.author_id,
+            board_id: data.board_id,
+            category_id: data.category_id,
+            title: data.title,
+            text: data.text,
+            type: 'PO',
+            post: {
+            }
+        }, {
+            include: [{
+                model: models.Post,
+                as: 'post'
+            }]
         })
-            .then(() => {
-                resolve();
+            .then((content) => {
+                resolve(content.dataValues.content_id);
             })
             .catch((err) => {
                 reject(err);

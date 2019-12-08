@@ -48,7 +48,7 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 
     retrieveUser(req.decodedToken._id)
         .then((userInfo) => {
-            return res.json({ success: true, userInfo })
+            return res.json(userInfo)
         })
         .catch((err) => {
             console.error(err);

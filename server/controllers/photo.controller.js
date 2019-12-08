@@ -6,35 +6,35 @@ exports.retrievePhoto = function (photo_id) {
             reject('id can not be null')
         }
 
-        models.Photo.findOne({
+        models.Content.findOne({
             include: [{
-                model: models.Content,
-                as: 'contentPhoto',
+                model: models.Photo,
+                as: 'photo',
                 required: true,
                 include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path']
-                },
-                {
-                    model: models.Board,
-                    required: true,
-                    attributes: ['board_id', 'board_name', 'lv_read']
-                },
-                {
-                    model: models.Tag,
-                    through: models.ContentTag,
-                    as: 'contentTags'
+                    as: 'album',
+                    model: models.Content,
                 }]
-            }, {
-                as: 'album',
-                model: models.Content,
-                // required: true
+            },
+            {
+                model: models.User,
+                required: true,
+                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path']
+            },
+            {
+                model: models.Board,
+                required: true,
+                attributes: ['board_id', 'board_name', 'lv_read']
+            },
+            {
+                model: models.Tag,
+                through: models.ContentTag,
+                as: 'contentTags'
             }],
             where: { content_id: photo_id },
             order: [
-                ['contentPhoto', 'contentTags', 'tag_type', 'ASC'],
-                ['contentPhoto', 'contentTags', 'tag_id', 'ASC']
+                ['contentTags', 'tag_type', 'ASC'],
+                ['contentTags', 'tag_id', 'ASC']
             ]
         })
             .then((photoInfo) => {
@@ -85,13 +85,13 @@ exports.retrievePhotoCountInBoard = function (board_id) {
             reject('id can not be null');
         }
         else {
-            models.Photo.count({
+            models.Content.count({
                 include: [{
-                    model: models.Content,
-                    as: 'contentPhoto',
-                    where: { board_id: board_id },
+                    model: models.Photo,
+                    as: 'photo',
                     required: true
-                }]
+                }],
+                where: { board_id: board_id }
             })
                 .then((count) => {
                     resolve(count);
@@ -145,19 +145,18 @@ exports.retrievePhotoCountByTag = function (tags) {
             reject('tag can not be null');
         }
         else {
-            models.Photo.count({
+            models.Content.count({
                 distinct: true,
                 include: [{
-                    model: models.Content,
-                    as: 'contentPhoto',
+                    model: models.Photo,
+                    as: 'photo',
                     required: true,
-                    include: [{
-                        model: models.Tag,
-                        as: 'contentTags',
-                        where: {
-                            tag_id: tags
-                        }
-                    }]
+                }, {
+                    model: models.Tag,
+                    as: 'contentTags',
+                    where: {
+                        tag_id: tags
+                    }
                 }]
             })
                 .then((count) => {
@@ -214,27 +213,22 @@ exports.retrievePhotosByUser = function (user_id) {
             reject('id can not be null');
         }
         else {
-            models.Photo.findAll({
+            models.Content.findAll({
                 include: [{
-                    model: models.Content,
-                    as: 'contentPhoto',
+                    model: models.Photo,
+                    as: 'photo',
                     required: true,
-                    where: {
-                        author_id: user_id,
-                    }
                 }],
+                where: {
+                    author_id: user_id,
+                },
                 order: [
-                    [{
-                        model: models.Content,
-                        as: 'contentPhoto'
-                    },
-                        'updated_at', 'DESC'
-                    ]
+                    ['updated_at', 'DESC']
                 ],
                 limit: 16
             })
-                .then(function (posts) {
-                    resolve(posts);
+                .then((photos) => {
+                    resolve(photos);
                 })
                 .catch((err) => {
                     reject(err)
@@ -249,31 +243,26 @@ exports.retrievePhotosByUserUuid = function (user_uuid) {
             reject('user_uuid can not be null');
         }
         else {
-            models.Photo.findAll({
+            models.Content.findAll({
                 include: [{
-                    model: models.Content,
-                    as: 'contentPhoto',
+                    model: models.Photo,
+                    as: 'photo',
                     required: true,
-                    include: [{
-                        model: models.User,
-                        required: true,
-                        where: {
-                            user_uuid: user_uuid,
-                        }
-                    }]
+                }, {
+                    model: models.User,
+                    required: true,
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
+                    where: {
+                        user_uuid: user_uuid,
+                    }
                 }],
                 order: [
-                    [{
-                        model: models.Content,
-                        as: 'contentPhoto'
-                    },
-                        'updated_at', 'DESC'
-                    ]
+                    ['updated_at', 'DESC']
                 ],
                 limit: 16
             })
-                .then(function (posts) {
-                    resolve(posts);
+                .then((photos) => {
+                    resolve(photos);
                 })
                 .catch((err) => {
                     reject(err)
@@ -282,15 +271,18 @@ exports.retrievePhotosByUserUuid = function (user_uuid) {
     })
 };
 
-exports.createPhoto = function (content_id, data) {
+exports.createPhoto = function (data) {
     return new Promise((resolve, reject) => {
 
-        if (!content_id) {
-            reject('id can not be null')
-        }
-        else {
-            models.Photo.create({
-                content_id: content_id,
+        models.Content.create({
+            content_uuid: data.content_uuid,
+            author_id: data.author_id,
+            board_id: data.board_id,
+            category_id: data.category_id,
+            title: data.title,
+            text: data.text,
+            type: 'PH',
+            photo: {
                 album_id: data.album_id,
                 file_path: data.file_path,
                 thumbnail_path: data.thumbnail_path,
@@ -302,14 +294,19 @@ exports.createPhoto = function (content_id, data) {
                 f_stop: data.f_stop,
                 iso: data.iso,
                 date: data.date
+            }
+        }, {
+            include: [{
+                model: models.Photo,
+                as: 'photo'
+            }]
+        })
+            .then((content) => {
+                resolve(content.dataValues.content_id);
             })
-                .then(() => {
-                    resolve();
-                })
-                .catch((err) => {
-                    reject(err);
-                })
-        }
+            .catch((err) => {
+                reject(err);
+            })
     })
 }
 
@@ -332,10 +329,10 @@ exports.updatePhoto = function (photo_id, data) {
                 iso: data.iso,
                 date: data.date
             }, {
-                    where: {
-                        content_id: photo_id
-                    }
-                })
+                where: {
+                    content_id: photo_id
+                }
+            })
                 .then(() => {
                     resolve();
                 })

@@ -55,11 +55,11 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         static associate(models) {
-            this.belongsTo(models.Content, {
-                as: 'contentPhoto',
-                foreignKey: 'content_id',
-                targetKey: 'content_id'
-            })
+            // this.belongsTo(models.Content, {
+            //     as: 'photo',
+            //     foreignKey: 'content_id',
+            //     targetKey: 'content_id'
+            // })
             this.belongsTo(models.Content, {
                 as: 'album',
                 foreignKey: 'album_id',

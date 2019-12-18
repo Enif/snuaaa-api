@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
+import uploadMiddleware from '../middlewares/upload';
 
 import { createContent, updateContent, deleteContent } from '../controllers/content.controller';
 import { retrieveAlbum, updateAlbum, updateAlbumThumbnail } from '../controllers/album.controller';
@@ -133,115 +134,68 @@ router.get('/:album_id/photos', verifyTokenMiddleware, (req, res) => {
         })
 })
 
-router.post('/:album_id/photos', verifyTokenMiddleware, upload.array('uploadPhotos'), (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+router.post('/:album_id/photos',
+    verifyTokenMiddleware,
+    uploadMiddleware('PH').single('uploadPhoto'),
+    (req, res) => {
+        console.log(`[POST] ${req.baseUrl + req.url}`);
 
-
-    if (!req.files) {
-        res.status(409).json({
-            error: 'PHOTO IS NOT ATTACHED',
-            code: 1
-        });
-    }
-    else {
-        const data = [];
-        if (req.files.length > 1) {
-            for (let i = 0; i < req.files.length; i++) {
-                let tags;
-                if (req.body.tags[i]) {
-                    tags = req.body.tags[i].split(',')
-                }
-                else {
-                    tags = [];
-                }
-                let basename = path.basename(req.files[i].filename, path.extname(req.files[i].filename));
-                data.push({
-                    type: 'PH',
-                    board_id: req.body.board_id[i],
-                    title: req.body.title[i],
-                    text: req.body.text[i],
-                    date: req.body.date[i] ? new Date(req.body.date[i]) : null,
-                    location: req.body.location[i],
-                    camera: req.body.camera[i],
-                    lens: req.body.lens[i],
-                    focal_length: req.body.focal_length[i],
-                    f_stop: req.body.f_stop[i],
-                    exposure_time: req.body.exposure_time[i],
-                    iso: req.body.iso[i],
-                    tags: tags,
-                    album_id: req.params.album_id,
-                    file_path: `/album/${req.params.album_id}/${req.files[i].filename}`,
-                    thumbnail_path: `/album/${req.params.album_id}/${basename}_thumb.jpeg`
-                })
+        try {
+            if (!req.file) {
+                res.status(409).json({
+                    error: 'PHOTO IS NOT ATTACHED',
+                    code: 1
+                });
             }
-        }
-        else {
-            let tags;
-            if (req.body.tags) {
-                tags = req.body.tags.split(',')
+            else if (!req.body.photoInfo) {
+                res.status(409).json({
+                    error: 'PHOTO DATA IS NOT ATTACHED',
+                    code: 1
+                });
             }
             else {
-                tags = [];
-            }
-            let basename = path.basename(req.files[0].filename, path.extname(req.files[0].filename));
-            data.push({
-                type: 'PH',
-                board_id: req.body.board_id,
-                title: req.body.title,
-                text: req.body.text,
-                date: req.body.date ? new Date(req.body.date) : null,
-                location: req.body.location,
-                camera: req.body.camera,
-                lens: req.body.lens,
-                focal_length: req.body.focal_length,
-                f_stop: req.body.f_stop,
-                exposure_time: req.body.exposure_time,
-                iso: req.body.iso,
-                tags: tags,
-                album_id: req.params.album_id,
-                file_path: `/album/${req.params.album_id}/${req.files[0].filename}`,
-                thumbnail_path: `/album/${req.params.album_id}/${basename}_thumb.jpeg`
-            })
-        }
 
-        Promise.all(req.files.map((file) => {
-            return resizeForThumbnail(file.path)
-        }))
-            .then(() => {
-                return Promise.all(data.map((data) => {
-                    return new Promise((resolve, reject) => {
+                const photoInfo = JSON.parse(req.body.photoInfo)
+
+                let basename = path.basename(req.file.filename, path.extname(req.file.filename));
+                resizeForThumbnail(req.file.path)
+                    .then(() => {
                         let photoData = {
-                            ...data,
-                            author_id: req.decodedToken._id
+                            ...photoInfo,
+                            type: 'PH',
+                            author_id: req.decodedToken._id,
+                            date: photoInfo.date ? new Date(photoInfo.date) : null,
+                            album_id: req.params.album_id,
+                            file_path: `/album/${req.params.album_id}/${req.file.filename}`,
+                            thumbnail_path: `/album/${req.params.album_id}/${basename}_thumb.jpeg`
                         }
-                        createPhoto(photoData)
-                            .then((content_id) => {
-                                if (data.tags.length > 0) {
-                                    return Promise.all(data.tags.map(tag_id => createContentTag(content_id, tag_id)))
-                                }
-                            })
-                            .then(() => {
-                                resolve()
-                            })
-                            .catch((err) => {
-                                reject(err)
-                            })
+                        return createPhoto(photoData)
                     })
-                }))
-            })
-            .then(() => {
-                res.json({ success: true });
-            })
-            .catch((err) => {
-                // throw err;
-                console.log(err)
-                res.status(500).json({
-                    error: 'internal server error',
-                    code: 0
-                });
-            })
-    }
-})
+                    .then((content_id) => {
+                        if (photoInfo.tags && photoInfo.tags.length > 0) {
+                            return Promise.all(photoInfo.tags.map(tag_id => createContentTag(content_id, tag_id)))
+                        }
+                    })
+                    .then(() => {
+                        res.json({ success: true });
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                        res.status(500).json({
+                            error: 'internal server error',
+                            code: 0
+                        });
+                    })
+            }
+        }
+        catch (err) {
+            console.error(err)
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        }
+    })
 
 
 

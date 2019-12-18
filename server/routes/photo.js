@@ -65,21 +65,21 @@ router.patch('/:photo_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     try {
-        const objectData = {
+        const contentData = {
             title: req.body.title,
             text: req.body.text
         }
         const photoData = req.body.photo;
-        console.log(photoData)
+        const tagData = req.body.tags;
     
         Promise.all([
             retrieveTagsByContent(req.params.photo_id),
-            updateContent(req.params.photo_id, objectData),
+            updateContent(req.params.photo_id, contentData),
             updatePhoto(req.params.photo_id, photoData)
         ])
             .then((infos) => {
                 const prevTags = infos[0].map(tag => tag.tag_id);
-                const newTags = photoData.tags;
+                const newTags = tagData.map(tag => tag.tag_id);
                 const updateTag = [];
     
                 if (prevTags && prevTags.length > 0) {

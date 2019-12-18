@@ -29,12 +29,12 @@ exports.retrievePhoto = function (photo_id) {
             {
                 model: models.Tag,
                 through: models.ContentTag,
-                as: 'contentTags'
+                as: 'tags'
             }],
             where: { content_id: photo_id },
             order: [
-                ['contentTags', 'tag_type', 'ASC'],
-                ['contentTags', 'tag_id', 'ASC']
+                ['tags', 'tag_type', 'ASC'],
+                ['tags', 'tag_id', 'ASC']
             ]
         })
             .then((photoInfo) => {

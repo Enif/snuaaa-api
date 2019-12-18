@@ -134,111 +134,59 @@ router.post('/:board_id/album', verifyTokenMiddleware, (req, res) => {
         });
 })
 
-router.post('/:board_id/photos', verifyTokenMiddleware, upload.array('uploadPhotos'), (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+router.post('/:board_id/photos',
+    verifyTokenMiddleware, upload.single('uploadPhoto'),
+    (req, res) => {
+        console.info(`[POST] ${req.baseUrl + req.url}`);
 
-
-    if (!req.files) {
-        res.status(409).json({
-            error: 'PHOTO IS NOT ATTACHED',
-            code: 1
-        });
-    }
-    else {
-        const data = [];
-
-        if (req.files.length > 1) {
-            for (let i = 0; i < req.files.length; i++) {
-                let tags;
-                if (req.body.tags[i]) {
-                    tags = req.body.tags[i].split(',')
-                }
-                else {
-                    tags = [];
-                }
-                let basename = path.basename(req.files[i].filename, path.extname(req.files[i].filename));
-                data.push({
-                    type: 'PH',
-                    title: req.body.title[i],
-                    text: req.body.text[i],
-                    date: req.body.date[i] ? (new Date(req.body.date[i])) : null,
-                    location: req.body.location[i],
-                    camera: req.body.camera[i],
-                    lens: req.body.lens[i],
-                    focal_length: req.body.focal_length[i],
-                    f_stop: req.body.f_stop[i],
-                    exposure_time: req.body.exposure_time[i],
-                    iso: req.body.iso[i],
-                    tags: tags,
-                    board_id: req.params.board_id,
-                    file_path: '/album/default/' + req.files[i].filename,
-                    thumbnail_path: `/album/default/${basename}_thumb.jpeg`
-                })
-            }
-        }
-        else {
-            let tags;
-            if (req.body.tags) {
-                tags = req.body.tags.split(',')
-            }
-            else {
-                tags = [];
-            }
-            let basename = path.basename(req.files[0].filename, path.extname(req.files[0].filename));
-            data.push({
-                type: 'PH',
-                title: req.body.title,
-                text: req.body.text,
-                date: req.body.date ? new Date(req.body.date) : null,
-                location: req.body.location,
-                camera: req.body.camera,
-                lens: req.body.lens,
-                focal_length: req.body.focal_length,
-                f_stop: req.body.f_stop,
-                exposure_time: req.body.exposure_time,
-                iso: req.body.iso,
-                tags: tags,
-                board_id: req.params.board_id,
-                file_path: '/album/default/' + req.files[0].filename,
-                thumbnail_path: `/album/default/${basename}_thumb.jpeg`
-            })
-        }
-
-        Promise.all(req.files.map((file) => {
-            return resizeForThumbnail(file.path)
-        }))
-            .then(() => {
-                return Promise.all(data.map((data) => {
-                    return new Promise((resolve, reject) => {
-                        createContent(req.decodedToken._id, data.board_id, data, 'PH')
-                            .then((content_id) => {
-                                if (data.tags.length > 0) {
-                                    return Promise.all(data.tags.map(tag_id => createContentTag(content_id, tag_id)).concat(createPhoto(content_id, data)))
-                                }
-                                else {
-                                    return createPhoto(content_id, data)
-                                }
-                            })
-                            .then(() => {
-                                resolve()
-                            })
-                            .catch((err) => {
-                                reject(err)
-                            })
-                    })
-                }))
-            })
-            .then(() => {
-                res.json({ success: true });
-            })
-            .catch((err) => {
-                console.log(err)
+        try {
+            if (!req.file) {
                 res.status(409).json({
-                    error: 'CREATE PHOTO FAIL',
+                    error: 'PHOTO IS NOT ATTACHED',
                     code: 1
                 });
-            })
-    }
-})
+            }
+            else {
+
+                const photoInfo = JSON.parse(req.body.photoInfo)
+                let basename = path.basename(req.file.filename, path.extname(req.file.filename));
+                resizeForThumbnail(req.file.path)
+                    .then(() => {
+                        let photoData = {
+                            ...photoInfo,
+                            type: 'PH',
+                            author_id: req.decodedToken._id,
+                            date: req.body.date ? new Date(req.body.date) : null,
+                            board_id: req.params.board_id,
+                            file_path: '/album/default/' + req.file.filename,
+                            thumbnail_path: `/album/default/${basename}_thumb.jpeg`
+                        }
+                        return createPhoto(photoData)
+                    })
+                    .then((content_id) => {
+                        if (photoInfo.tags && photoInfo.tags.length > 0) {
+                            return Promise.all(photoInfo.tags.map(tag_id => createContentTag(content_id, tag_id)))
+                        }
+                    })
+                    .then(() => {
+                        res.json({ success: true });
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        res.status(409).json({
+                            error: 'CREATE PHOTO FAIL',
+                            code: 1
+                        });
+                    })
+            }
+        }
+        catch (err) {
+            console.error(err)
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        }
+    })
 
 export default router;

@@ -125,7 +125,7 @@ module.exports = (sequelize, DataTypes) => {
             this.belongsToMany(models.Tag, {
                 through: models.ContentTag,
                 // through: 'contentTag',
-                as: 'contentTags',
+                as: 'tags',
                 foreignKey: 'content_id',
                 otherKey: 'tag_id'
             })

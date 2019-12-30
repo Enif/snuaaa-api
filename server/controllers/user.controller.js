@@ -38,7 +38,7 @@ exports.retrieveUser = function (user_id) {
 
         models.User.findOne({
             attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
-                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path'],
+                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path', 'login_at'],
             where: { user_id: user_id }
         })
             .then((user) => {
@@ -129,7 +129,7 @@ exports.retrieveUsersByName = function (username) {
     return new Promise((resolve, reject) => {
         models.User.findAll({
             attributes: ['user_uuid', 'username', 'nickname', 'profile_path'],
-            where: { username: {[Op.like]: `%${username}%`} },
+            where: { username: { [Op.like]: `%${username}%` } },
             limit: 5
         })
             .then((users) => {
@@ -185,8 +185,8 @@ exports.updateUser = function (user_id, data) {
             level: data.level,
             profile_path: data.profile_path,
         }, {
-                where: { user_id: user_id }
-            })
+            where: { user_id: user_id }
+        })
             .then(() => {
                 resolve()
             })
@@ -210,8 +210,8 @@ exports.updateUserPw = function (user_id, password) {
             models.User.update({
                 password: password
             }, {
-                    where: { user_id: user_id }
-                })
+                where: { user_id: user_id }
+            })
                 .then(() => {
                     resolve()
                 })
@@ -253,11 +253,11 @@ exports.updateLoginDate = function (user_id) {
         models.User.update({
             login_at: new Date()
         }, {
-                where: {
-                    user_id: user_id
-                },
-                silent: true
-            }
+            where: {
+                user_id: user_id
+            },
+            silent: true
+        }
         )
             .then(() => {
                 resolve();

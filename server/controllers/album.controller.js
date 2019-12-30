@@ -24,22 +24,20 @@ exports.retrieveAlbum = function (content_id) {
             reject('id can not be null');
         }
 
-        models.Album.findOne({
+        models.Content.findOne({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Album,
+                as: 'album',
+                required: true
+            }, {
+                model: models.User,
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['user_id', 'nickname', 'introduction', 'profile_path'],
-                    paranoid: false
-                },
-                {
-                    model: models.Board,
-                    required: true,
-                    attributes: ['board_id', 'board_name', 'lv_read']
-                }]
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path'],
+                paranoid: false
+            }, {
+                model: models.Board,
+                required: true,
+                attributes: ['board_id', 'board_name', 'lv_read']
             }],
             where: { content_id: content_id }
         })
@@ -138,7 +136,7 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id)
                 include: [{
                     model: models.User,
                     required: true,
-                    attributes: ['nickname']  
+                    attributes: ['nickname']
                 }, {
                     model: models.Category
                 }, {
@@ -169,12 +167,12 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id)
             limit: rowNum,
             offset: offset
         })
-        .then((albums) => {
-            resolve(albums);
-        })
-        .catch((err) => {
-            reject(err);
-        });
+            .then((albums) => {
+                resolve(albums);
+            })
+            .catch((err) => {
+                reject(err);
+            });
     })
 }
 

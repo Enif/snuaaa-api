@@ -45,6 +45,18 @@ module.exports = (sequelize, DataTypes) => {
                 }
             );
         }
+
+        static associate(models) {
+            this.hasMany(models.Tag, {
+                as: 'tags',
+                foreignKey: 'board_id'
+            })
+
+            this.hasMany(models.Category, {
+                as: 'categories',
+                foreignKey: 'board_id'
+            })
+        }
     }
 
     return Board;

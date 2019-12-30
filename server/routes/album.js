@@ -36,29 +36,39 @@ const upload = multer({ storage })
 router.get('/:album_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    let albumInfo = {};
-    retrieveAlbum(req.params.album_id)
-        .then((info) => {
-            albumInfo = info;
-            return Promise.all([
-                retrieveCategoryByBoard(albumInfo.content.board_id),
-                retrieveTagsOnBoard(albumInfo.content.board_id)
-            ])
-        })
-        .then((infos) => {
-            res.json({
-                albumInfo: albumInfo,
-                categoryInfo: infos[0],
-                tagInfo: infos[1]
+    try {
+
+        let albumInfo = {};
+        retrieveAlbum(req.params.album_id)
+            .then((info) => {
+                albumInfo = info;
+                return Promise.all([
+                    retrieveCategoryByBoard(albumInfo.board_id),
+                    retrieveTagsOnBoard(albumInfo.board_id)
+                ])
             })
+            .then((infos) => {
+                res.json({
+                    albumInfo: albumInfo,
+                    categoryInfo: infos[0],
+                    tagInfo: infos[1]
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({
+                    error: 'internal server error',
+                    code: 0
+                })
+            })
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
         })
-        .catch((err) => {
-            console.error(err);
-            return res.status(409).json({
-                error: 'RETRIEVE ALBUM FAIL',
-                code: 1
-            });
-        })
+    }
 })
 
 router.patch('/:album_id', verifyTokenMiddleware, (req, res) => {

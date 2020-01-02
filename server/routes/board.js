@@ -49,35 +49,37 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 
 router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    let resBoardInfo;
-    let resCategoryInfo;
-    retrieveBoard(req.params.board_id)
-        .then((boardInfo) => {
-            resBoardInfo = boardInfo;
-            if (boardInfo.lv_read > req.decodedToken.level) {
-                const err = {
-                    status: 403,
-                    code: 4001
+    try {
+        retrieveBoard(req.params.board_id)
+            .then((boardInfo) => {
+                if (boardInfo.lv_read > req.decodedToken.level) {
+                    const err = {
+                        status: 403,
+                        code: 4001
+                    }
+                    next(err);
                 }
-                next(err);
-            }
-            else {
-                return retrieveCategoryByBoard(req.params.board_id)
-            }
-        })
-        .then((categories) => {
-            if (categories) {
-                resCategoryInfo = categories;
-                res.json({ resBoardInfo, resCategoryInfo });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).json({
-                success: false,
-                code: 499
+                else {
+                    res.json({
+                        boardInfo: boardInfo
+                    })
+                }
             })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({
+                    error: 'internal server error',
+                    code: 0
+                })
+            })
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
         })
+    }
 })
 
 router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {

@@ -79,6 +79,10 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: 'user_id',
                 otherKey: 'user_id'
             })
+
+            this.hasMany(models.StatsLogin, {
+                foreignKey: 'user_id'
+            })
         }
     }
 

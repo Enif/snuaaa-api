@@ -153,7 +153,7 @@ exports.retrievePhotoCountByTag = function (tags) {
                     required: true,
                 }, {
                     model: models.Tag,
-                    as: 'contentTags',
+                    as: 'tags',
                     where: {
                         tag_id: tags
                     }
@@ -184,7 +184,7 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
                 {
                     model: models.Tag,
                     through: models.ContentTag,
-                    as: 'contentTags',
+                    as: 'tags',
                     where: {
                         tag_id: tags
                     }

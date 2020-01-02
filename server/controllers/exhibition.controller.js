@@ -34,25 +34,23 @@ exports.retrieveExhibition = function (exhibition_id) {
 
 exports.retrieveExhibitions = function () {
     return new Promise((resolve, reject) => {
-        models.Exhibition.findAll({
+        models.Content.findAll({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Exhibition,
+                as: 'exhibition',
+                required: true
+            }, {
+                model: models.User,
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
-                },
-                {
-                    model: models.Board,
-                    required: true,
-                    attributes: ['board_id', 'board_name', 'lv_read']
-                }
-                ]
-            }],
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+            }, {
+                model: models.Board,
+                required: true,
+                attributes: ['board_id', 'board_name', 'lv_read']
+            }
+            ],
             order: [
-                ['exhibition_no', 'DESC']
+                ['exhibition', 'exhibition_no', 'DESC']
             ]
         })
             .then((exhibitionInfo) => {

@@ -36,11 +36,11 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
                     let current = Date.parse(new Date());
                     // Update login history only after later than 1hours from last history.
                     if (current - recentLogin > 60 * 60 * 1000) {
-                        return Promise.all([createStatsLogin(user.user_id), updateLoginDate(user.user_id)])
+                        return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
                     }
                 }
                 else {
-                    return Promise.all([createStatsLogin(user.user_id), updateLoginDate(user.user_id)])
+                    return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
                 }
             })
             .then(() => {
@@ -108,6 +108,17 @@ router.post('/login', (req, res) => {
                 })
             })
             .then(() => {
+                if (userInfo.login_at) {
+                    let recentLogin = Date.parse(new Date(userInfo.login_at));
+                    let current = Date.parse(new Date());
+                    // Update login history only after later than 1hours from last history.
+                    if (current - recentLogin > 60 * 60 * 1000) {
+                        return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
+                    }
+                }
+                else {
+                    return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
+                }
                 return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
             })
             .then(() => {

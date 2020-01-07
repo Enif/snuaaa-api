@@ -117,7 +117,7 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             this.hasMany(models.AttachedFile, {
-                as: 'AttachedFiles',
+                as: 'attachedFiles',
                 foreignKey: 'parent_id',
                 sourceKey: 'content_id'
             })

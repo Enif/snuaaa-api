@@ -28,6 +28,10 @@ exports.retrievePost = function (content_id) {
                 model: models.Board,
                 required: true,
                 attributes: ['board_id', 'board_name', 'lv_read']
+            },
+            {
+                model: models.AttachedFile,
+                as: 'attachedFiles',
             }],
             where: { content_id: content_id }
         })

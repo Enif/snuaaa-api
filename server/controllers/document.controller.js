@@ -17,7 +17,7 @@ exports.retrieveDocument = function (doc_id) {
                     attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
                 }, {
                     model: models.AttachedFile,
-                    as: 'AttachedFiles',
+                    as: 'attachedFiles',
                     separate: true
                 }]
             }],
@@ -91,7 +91,7 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
                     attributes: ['category_name']
                 }, {
                     model: models.AttachedFile,
-                    as: 'AttachedFiles',
+                    as: 'attachedFiles',
                     separate: true
                 }],
                 where: contentCondition

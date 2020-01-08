@@ -53,10 +53,7 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
             .then((token) => {
                 return res.status(200).json({
                     success: true,
-                    user_id: user.user_id,
-                    level: user.level,
-                    profile_path: user.profile_path,
-                    nickname: user.nickname,
+                    userInfo: user,
                     autoLogin: req.decodedToken.autoLogin,
                     token
                 });
@@ -122,6 +119,7 @@ router.post('/login', (req, res) => {
                 return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
             })
             .then(() => {
+                delete userInfo.password
                 return createToken({
                     _id: userInfo.user_id,
                     level: userInfo.level,
@@ -137,10 +135,11 @@ router.post('/login', (req, res) => {
                     })
                     .json({
                         sucess: true,
-                        user_id: userInfo.user_id,
-                        level: userInfo.level,
-                        profile_path: userInfo.profile_path,
-                        nickname: userInfo.nickname,
+                        userInfo: userInfo,
+                        // user_id: userInfo.user_id,
+                        // level: userInfo.level,
+                        // profile_path: userInfo.profile_path,
+                        // nickname: userInfo.nickname,
                         autoLogin: req.body.autoLogin ? true : false,
                         token: token
                     })
@@ -177,10 +176,12 @@ router.get('/login/guest', (req, res) => {
                     })
                     .json({
                         sucess: true,
-                        user_id: -1,
-                        level: 0,
-                        profile_path: null,
-                        nickname: 'guest',
+                        userInfo: {
+                            user_id: -1,
+                            level: 0,
+                            profile_path: null,
+                            nickname: 'guest',
+                        },
                         autoLogin: false,
                         token: token
                     })

@@ -6,20 +6,19 @@ exports.retrieveDocument = function (doc_id) {
             reject('id can not be null')
         }
 
-        models.Document.findOne({
+        models.Content.findOne({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Document,
+                as: 'document',
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
-                }, {
-                    model: models.AttachedFile,
-                    as: 'attachedFiles',
-                    separate: true
-                }]
+            }, {
+                model: models.User,
+                required: true,
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+            }, {
+                model: models.AttachedFile,
+                as: 'attachedFiles',
+                separate: true
             }],
             where: { content_id: doc_id }
         })

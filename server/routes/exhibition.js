@@ -80,7 +80,7 @@ router.post('/:exhibition_id/exhibitPhoto',
                     }
                 })
                 .then((photographer) => {
-                    console.log(photographer)
+                    // console.log(photographer)
                     let data = {
                         content_uuid: uuid4(),
                         author_id: req.decodedToken._id,

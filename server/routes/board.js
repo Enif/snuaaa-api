@@ -155,7 +155,7 @@ router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
 })
 
 
-router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFiles', 3), (req, res) => {
+router.post('/:board_id/post', verifyTokenMiddleware, (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     let postData = {
@@ -166,46 +166,10 @@ router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFile
 
     createPost(postData)
         .then((content_id) => {
-            if (req.files) {
-                return Promise.all(req.files.map((file) => {
-                    let file_type = ''
-                    let extention = path.extname(file.path).substr(1);
-                    if (['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG'].includes(extention)) {
-                        file_type = 'IMG';
-                    }
-                    else if (['doc', 'DOC', 'docx', 'DOCX'].includes(extention)) {
-                        file_type = 'DOC';
-                    }
-                    else if (['xls', 'XLS', 'xlsx', 'XLSX'].includes(extention)) {
-                        file_type = 'XLS';
-                    }
-                    else if (['ppt', 'PPT', 'pptx', 'PPTX'].includes(extention)) {
-                        file_type = 'PPT';
-                    }
-                    else if (['pdf', 'PPT'].includes(extention)) {
-                        file_type = 'PDF';
-                    }
-                    else if (['hwp', 'HWP'].includes(extention)) {
-                        file_type = 'HWP';
-                    }
-                    else if (['zip', 'ZIP'].includes(extention)) {
-                        file_type = 'ZIP';
-                    }
-                    else {
-                        file_type = 'N';
-                        console.error(extention)
-                    }
-                    let data = {
-                        original_name: file.originalname,
-                        file_path: file.path,
-                        file_type: file_type
-                    }
-                    return createAttachedFile(content_id, data)
-                }))
-            }
-        })
-        .then(() => {
-            res.json({ success: true })
+            res.json({
+                content_id: content_id,
+                success: true
+            })
         })
         .catch((err) => {
             console.error(err);
@@ -218,85 +182,39 @@ router.post('/:board_id/post', verifyTokenMiddleware, upload.array('attachedFile
 });
 
 
-router.post('/:board_id/document', verifyTokenMiddleware, upload.array('uploadFiles', 3), (req, res) => {
+router.post('/:board_id/document', verifyTokenMiddleware, (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
 
     try {
-        if (!req.files) {
-            res.status(409).json({
-                error: 'FILE IS NOT ATTACHED',
-                code: 1
-            });
-        }
-        else {
-            let user_id = req.decodedToken._id;
-            let file_path = new Array();
-            req.files.forEach(file => {
-                file_path.push('/file/' + file.filename)
-            });
-            req.body.file_path = file_path
+        let user_id = req.decodedToken._id;
 
-            let data = {
-                content_uuid: uuid4(),
-                author_id: user_id,
-                board_id: req.params.board_id,
-                category_id: req.body.category_id,
-                title: req.body.title,
-                text: req.body.text,
-                type: 'DO',
-                generation: req.body.generation ? req.body.generation : null
-            }
-
-            createDocument(data)
-                .then((content_id) => {
-                    return Promise.all(req.files.map((file) => {
-                        let file_type = ''
-                        let extention = path.extname(file.path).substr(1);
-                        if (['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG'].includes(extention)) {
-                            file_type = 'IMG';
-                        }
-                        else if (['doc', 'DOC', 'docx', 'DOCX'].includes(extention)) {
-                            file_type = 'DOC';
-                        }
-                        else if (['xls', 'XLS', 'xlsx', 'XLSX'].includes(extention)) {
-                            file_type = 'XLS';
-                        }
-                        else if (['ppt', 'PPT', 'pptx', 'PPTX'].includes(extention)) {
-                            file_type = 'PPT';
-                        }
-                        else if (['pdf', 'PPT'].includes(extention)) {
-                            file_type = 'PDF';
-                        }
-                        else if (['hwp', 'HWP'].includes(extention)) {
-                            file_type = 'HWP';
-                        }
-                        else if (['zip', 'ZIP'].includes(extention)) {
-                            file_type = 'ZIP';
-                        }
-                        else {
-                            file_type = 'N';
-                            console.error(extention)
-                        }
-                        let fileData = {
-                            original_name: file.originalname,
-                            file_path: file.path,
-                            file_type: file_type
-                        }
-                        return createAttachedFile(content_id, fileData)
-                    }))
-                })
-                .then(() => {
-                    return res.json({ success: true })
-                })
-                .catch((err) => {
-                    console.error(err);
-                    return res.status(403).json({
-                        success: false,
-                        error: 'RETRIEVE POST FAIL',
-                        code: 1
-                    })
-                });
+        let data = {
+            content_uuid: uuid4(),
+            author_id: user_id,
+            board_id: req.params.board_id,
+            category_id: req.body.category_id,
+            title: req.body.title,
+            text: req.body.text,
+            type: 'DO',
+            generation: req.body.generation ? req.body.generation : null
         }
+
+        createDocument(data)
+            .then((content_id) => {
+                return res.json({
+                    content_id: content_id,
+                    success: true
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+                return res.status(403).json({
+                    success: false,
+                    error: 'RETRIEVE POST FAIL',
+                    code: 1
+                })
+            });
+
     }
     catch (err) {
         console.error(err);

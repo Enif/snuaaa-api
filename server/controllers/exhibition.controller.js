@@ -19,7 +19,7 @@ exports.retrieveExhibition = function (exhibition_id) {
             {
                 model: models.Board,
                 required: true,
-                attributes: ['board_id', 'board_name', 'lv_read']
+                attributes: ['board_id', 'board_name', 'lv_read', 'lv_write']
             }],
             where: { content_id: exhibition_id }
         })

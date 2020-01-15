@@ -30,16 +30,16 @@ module.exports = (sequelize, DataTypes) => {
                     type: DataTypes.STRING(256),
                 },
                 location: {
-                    type: DataTypes.STRING(64),
+                    type: DataTypes.STRING(256),
                 },
                 camera: {
-                    type: DataTypes.STRING(64),
+                    type: DataTypes.STRING(256),
                 },
                 lens: {
-                    type: DataTypes.STRING(64),
+                    type: DataTypes.STRING(256),
                 },
                 exposure_time: {
-                    type: DataTypes.STRING(32),
+                    type: DataTypes.STRING(256),
                 },
                 focal_length: {
                     type: DataTypes.STRING(32),

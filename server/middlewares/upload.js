@@ -35,6 +35,15 @@ const uploadMiddleware = function (type) {
                     cb(null, path.join('.', 'upload', 'album', 'default'));
                 }
             }
+            else if (type === 'AF') {
+                if (!(fs.existsSync(path.join('.', 'upload', 'file')))) {
+                    fs.mkdirSync(path.join('.', 'upload', 'file'));
+                }
+                if (!(fs.existsSync(path.join('.', 'upload', 'file', req.params.content_id)))) {
+                    fs.mkdirSync(path.join('.', 'upload', 'file', req.params.content_id));
+                };
+                cb(null, path.join('.', 'upload', 'file', req.params.content_id));
+            }
             else {
                 if (!(fs.existsSync(path.join('.', 'upload', 'default')))) {
                     fs.mkdirSync(path.join('.', 'upload', 'default'));

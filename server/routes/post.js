@@ -5,7 +5,6 @@ import { verifyTokenMiddleware } from '../middlewares/auth';
 import { updateContent, deleteContent, increaseViewNum } from '../controllers/content.controller';
 import { retrievePost } from '../controllers/post.controller';
 import { checkLike } from '../controllers/contentLike.controller';
-import { retrieveAttachedFilesInContent } from "../controllers/attachedFile.controller";
 
 
 const router = express.Router();
@@ -29,13 +28,12 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
             else {
                 return Promise.all([
                     checkLike(req.params.post_id, req.decodedToken._id),
-                    retrieveAttachedFilesInContent(req.params.post_id),
                     increaseViewNum(req.params.post_id)
                 ])
             }
         })
         .then((infos) => {
-            res.json({ postInfo: resPostInfo, likeInfo: infos[0], fileInfo: infos[1] })
+            res.json({ postInfo: resPostInfo, likeInfo: infos[0] })
         })
         .catch((err) => {
             console.error(err)

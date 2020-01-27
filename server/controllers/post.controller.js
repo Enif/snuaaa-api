@@ -1,6 +1,7 @@
 const models = require('../models');
 const uuid4 = require('uuid4');
 const Op = models.Sequelize.Op;
+import ContentTypeEnum from '../enums/contentTypeEnum';
 
 const SearchTypeEnum = Object.freeze({
     ALL: 'A',
@@ -19,6 +20,7 @@ exports.retrievePost = function (content_id) {
             include: [{
                 model: models.Post,
                 as: 'post',
+                required: true
             }, {
                 model: models.User,
                 required: true,
@@ -90,7 +92,9 @@ exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) 
                 [Op.or]: [{
                     title: {
                         [Op.like]: `%${keyword}%`
-                    },
+                    }
+                },
+                {
                     text: {
                         [Op.like]: `%${keyword}%`
                     }
@@ -117,7 +121,7 @@ exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) 
             contentCondition = {
                 board_id: board_id,
             }
-            userCondition = {                
+            userCondition = {
                 nickname: {
                     [Op.like]: `%${keyword}%`
                 }
@@ -164,7 +168,9 @@ exports.retrieveRecentPosts = function (level) {
             include: [{
                 model: models.Post,
                 as: 'post',
-                required: true
+            }, {
+                model: models.Document,
+                as: 'document'
             }, {
                 model: models.Board,
                 required: true,
@@ -175,6 +181,13 @@ exports.retrieveRecentPosts = function (level) {
                     }
                 }
             }],
+            where: {
+                [Op.or]: [{
+                    type: ContentTypeEnum.POST
+                }, {
+                    type: ContentTypeEnum.DOCUMENT
+                }]
+            },
             order: [
                 ['updated_at', 'DESC']
             ],

@@ -148,7 +148,8 @@ exports.retrieveUserById = function (id) {
         }
 
         models.User.findOne({
-            attributes: ['user_id', 'user_uuid', 'id', 'password', 'username', 'nickname', 'level', 'email', 'profile_path'],
+            attributes: ['user_id', 'user_uuid', 'id', 'password',
+            'username', 'nickname', 'level', 'email', 'profile_path', 'login_at'],
             where: { id: id }
         })
             .then((user) => {

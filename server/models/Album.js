@@ -28,15 +28,15 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         static associate(models) {
-            this.belongsTo(models.Content, {
-                foreignKey: 'content_id',
-                targetKey: 'content_id'
-            })
+            // this.belongsTo(models.Content, {
+            //     foreignKey: 'content_id',
+            //     targetKey: 'content_id'
+            // })
 
-            this.hasOne(models.Photo, {
+            this.belongsTo(models.Content, {
                 as: 'thumbnail',
-                foreignKey: 'content_id',
-                sourceKey: 'tn_photo_id'
+                targetKey: 'content_id',
+                foreignKey: 'tn_photo_id'
             })
         }
     }

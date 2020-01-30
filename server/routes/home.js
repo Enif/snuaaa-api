@@ -10,6 +10,7 @@ import { verifyTokenMiddleware } from '../middlewares/auth';
 import { retrieveSoundBox, retrieveRecentPosts, retrieveAllPosts } from '../controllers/post.controller';
 import { retrievePhotosInBoard } from '../controllers/photo.controller';
 import { retrieveRecentComments, retrieveAllComments } from '../controllers/comment.controller';
+import { retrieveAlbumsInBoard } from '../controllers/album.controller';
 
 const router = express.Router();
 
@@ -65,9 +66,9 @@ router.get('/posts/all', verifyTokenMiddleware, (req, res) => {
 
 router.get('/memory', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrievePhotosInBoard('brd31', 9, 0)
-        .then((photos) => {
-            res.json(photos)
+    retrieveAlbumsInBoard('brd31', 4, 0)
+        .then((albums) => {
+            res.json(albums)
         })
         .catch((err) => {
             console.error(err);

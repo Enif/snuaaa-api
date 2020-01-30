@@ -12,33 +12,42 @@ const router = express.Router();
 router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    let resPostInfo = {}
-
-    retrievePost(req.params.post_id)
-        .then((postInfo) => {
-            resPostInfo = postInfo;
-
-            if (postInfo.board.lv_read > req.decodedToken.level) {
-                const err = {
-                    status: 403,
-                    code: 4001
+    try {
+        let resPostInfo = {}
+    
+        retrievePost(req.params.post_id)
+            .then((postInfo) => {
+                resPostInfo = postInfo;
+    
+                if (postInfo.board.lv_read > req.decodedToken.level) {
+                    const err = {
+                        status: 403,
+                        code: 4001
+                    }
+                    next(err);
                 }
-                next(err);
-            }
-            else {
-                return Promise.all([
-                    checkLike(req.params.post_id, req.decodedToken._id),
-                    increaseViewNum(req.params.post_id)
-                ])
-            }
-        })
-        .then((infos) => {
-            res.json({ postInfo: resPostInfo, likeInfo: infos[0] })
-        })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).json()
-        })
+                else {
+                    return Promise.all([
+                        checkLike(req.params.post_id, req.decodedToken._id),
+                        increaseViewNum(req.params.post_id)
+                    ])
+                }
+            })
+            .then((infos) => {
+                res.json({ postInfo: resPostInfo, likeInfo: infos[0] })
+            })
+            .catch((err) => {
+                console.error(err)
+                res.status(500).json()
+            })
+    }
+    catch (err) {
+        console.error(err)
+        return res.status(500).json({
+            success: false,
+            message: 'INTERNAL SERVER ERROR'
+        });
+    }
 })
 
 router.patch('/:post_id', verifyTokenMiddleware, (req, res) => {

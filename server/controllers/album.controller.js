@@ -99,12 +99,13 @@ exports.retrieveAlbumCount = function (board_id, category_id) {
         board_id && (condition.board_id = board_id);
         category_id && (condition.category_id = category_id);
 
-        models.Album.count({
+        models.Content.count({
             include: [{
-                model: models.Content,
-                where: condition,
+                model: models.Album,
+                as: 'album',
                 required: true
-            }]
+            }],
+            where: condition,
         })
             .then((count) => {
                 resolve(count)
@@ -127,42 +128,39 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id)
         };
         category_id && (condition.category_id = category_id);
 
-        models.Album.findAll({
+        models.Content.findAll({
             include: [{
-                model: models.Content,
-                as: 'content',
-                where: condition,
+                model: models.Album,
+                as: 'album',
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['nickname']
-                }, {
-                    model: models.Category
-                }, {
-                    model: models.Photo,
-                    as: 'albumPhoto',
-                    attributes: ['thumbnail_path'],
-                    required: false,
-                    separate: true,
-                    limit: 1,
-                    order: [['content_id', 'DESC']]
-                }]
+                include: [
+                    {
+                        model: models.Content,
+                        as: 'thumbnail',
+                        include: [{
+                            model: models.Photo,
+                            as: 'photo',
+                            required: true
+                        }]
+                    }]
+            }, {
+                model: models.User,
+                required: true,
+                attributes: ['nickname']
+            }, {
+                model: models.Category
             }, {
                 model: models.Photo,
-                as: 'thumbnail',
-                // include: [{
-                //     model: models.Photo,
-                //     as: 'photo'
-                // }]
+                as: 'albumPhoto',
+                attributes: ['thumbnail_path'],
+                required: false,
+                separate: true,
+                limit: 1,
+                order: [['content_id', 'DESC']]
             }],
+            where: condition,
             order: [
-                [{
-                    model: models.Content,
-                    as: 'content'
-                },
-                    'created_at', 'DESC'
-                ]
+                ['created_at', 'DESC']
             ],
             limit: rowNum,
             offset: offset

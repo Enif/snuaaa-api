@@ -1,0 +1,4 @@
+{
+    "verbose": true,
+    "ignore": ["build", "build/*", "log/*", "riseset/*", "upload", "upload/*"]
+}

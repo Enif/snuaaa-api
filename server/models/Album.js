@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false,
                     primaryKey: true,
                 },
+                is_private: {
+                    type: DataTypes.BOOLEAN
+                },
+                tn_photo_id: {
+                    type: DataTypes.INTEGER
+                }
             }, {
                     sequelize,
                     modelName: 'album',
@@ -22,9 +28,15 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         static associate(models) {
+            // this.belongsTo(models.Content, {
+            //     foreignKey: 'content_id',
+            //     targetKey: 'content_id'
+            // })
+
             this.belongsTo(models.Content, {
-                foreignKey: 'content_id',
-                targetKey: 'content_id'
+                as: 'thumbnail',
+                targetKey: 'content_id',
+                foreignKey: 'tn_photo_id'
             })
         }
     }

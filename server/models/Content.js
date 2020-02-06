@@ -75,19 +75,57 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             this.belongsToMany(models.User, {
-                through: 'ContentLike',
+                through: 'contentLike',
                 foreignKey: 'content_id',
                 otherKey: 'content_id'
             })
 
+            this.hasOne(models.Post, {
+                as: 'post',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.Album, {
+                as: 'album',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.Photo, {
+                as: 'photo',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.Document, {
+                as: 'document',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.Exhibition, {
+                as: 'exhibition',
+                foreignKey: 'content_id'
+            })
+
+            this.hasOne(models.ExhibitPhoto, {
+                as: 'exhibitPhoto',
+                foreignKey: 'content_id'
+            })
+
+            this.hasMany(models.Photo, {
+                as: 'albumPhoto',
+                foreignKey: 'album_id',
+                sourceKey: 'content_id'
+            })
+
             this.hasMany(models.AttachedFile, {
-                as: 'AttachedFiles',
+                as: 'attachedFiles',
                 foreignKey: 'parent_id',
                 sourceKey: 'content_id'
             })
 
             this.belongsToMany(models.Tag, {
-                through: 'contentTag',
+                through: models.ContentTag,
+                // through: 'contentTag',
+                as: 'tags',
                 foreignKey: 'content_id',
                 otherKey: 'tag_id'
             })

@@ -69,15 +69,19 @@ module.exports = (sequelize, DataTypes) => {
 
         static associate(models) {
             this.belongsToMany(models.Comment, {
-                through: 'CommentLike',
+                through: 'commentLike',
                 foreignKey: 'user_id',
                 otherKey: 'user_id'
             })
 
             this.belongsToMany(models.Content, {
-                through: 'ContentLike',
+                through: 'contentLike',
                 foreignKey: 'user_id',
                 otherKey: 'user_id'
+            })
+
+            this.hasMany(models.StatsLogin, {
+                foreignKey: 'user_id'
             })
         }
     }

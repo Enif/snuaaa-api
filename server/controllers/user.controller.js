@@ -1,5 +1,6 @@
 const models = require('../models');
 const uuid4 = require('uuid4');
+const Op = models.Sequelize.Op;
 
 exports.createUser = function (userData) {
 
@@ -32,12 +33,36 @@ exports.createUser = function (userData) {
 exports.retrieveUser = function (user_id) {
     return new Promise((resolve, reject) => {
         if (!user_id) {
-            reject('id can not be null');
+            reject('user_id can not be null');
         }
 
         models.User.findOne({
             attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
-                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path'],
+                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path', 'login_at'],
+            where: { user_id: user_id }
+        })
+            .then((user) => {
+                if (!user) {
+                    reject('id is not correct');
+                }
+                else {
+                    resolve(user);
+                }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+exports.retrieveUserPw = function (user_id) {
+    return new Promise((resolve, reject) => {
+        if (!user_id) {
+            reject('user_id can not be null');
+        }
+
+        models.User.findOne({
+            attributes: ['password'],
             where: { user_id: user_id }
         })
             .then((user) => {
@@ -55,14 +80,75 @@ exports.retrieveUser = function (user_id) {
 }
 
 
-exports.retrieveLoginUser = function (id) {
+exports.retrieveUserByUserUuid = function (user_uuid) {
+    return new Promise((resolve, reject) => {
+        if (!user_uuid) {
+            reject('user_uuid can not be null');
+        }
+
+        models.User.findOne({
+            attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
+                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path'],
+            where: { user_uuid: user_uuid }
+        })
+            .then((user) => {
+                if (!user) {
+                    reject('id is not correct');
+                }
+                else {
+                    resolve(user);
+                }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+
+exports.retrieveUsersByEmailAndName = function (email, username) {
+    return new Promise((resolve, reject) => {
+        if (!email) {
+            reject('email can not be null');
+        }
+
+        models.User.findAll({
+            attributes: ['id'],
+            where: { email: email, username: username }
+        })
+            .then((users) => {
+                resolve(users);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+exports.retrieveUsersByName = function (username) {
+    return new Promise((resolve, reject) => {
+        models.User.findAll({
+            attributes: ['user_uuid', 'username', 'nickname', 'profile_path'],
+            where: { username: { [Op.like]: `%${username}%` } },
+            limit: 5
+        })
+            .then((users) => {
+                resolve(users);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+exports.retrieveUserById = function (id) {
     return new Promise((resolve, reject) => {
         if (!id) {
             reject('id can not be null');
         }
 
         models.User.findOne({
-            attributes: ['user_id', 'user_uuid', 'id', 'password', 'nickname', 'level', 'profile_path'],
+            attributes: ['user_id', 'user_uuid', 'id', 'password', 'username', 'nickname', 'level', 'email', 'profile_path'],
             where: { id: id }
         })
             .then((user) => {
@@ -84,11 +170,10 @@ exports.updateUser = function (user_id, data) {
     return new Promise((resolve, reject) => {
 
         if (!user_id) {
-            reject('id can not be null');
+            reject('user_id can not be null');
         }
 
         models.User.update({
-            user_id: user_id,
             username: data.username,
             nickname: data.nickname,
             aaa_no: data.aaa_no,
@@ -100,8 +185,8 @@ exports.updateUser = function (user_id, data) {
             level: data.level,
             profile_path: data.profile_path,
         }, {
-                where: { user_id: user_id }
-            })
+            where: { user_id: user_id }
+        })
             .then(() => {
                 resolve()
             })
@@ -111,6 +196,33 @@ exports.updateUser = function (user_id, data) {
     })
 }
 
+
+exports.updateUserPw = function (user_id, password) {
+    return new Promise((resolve, reject) => {
+
+        if (!user_id) {
+            reject('user_id can not be null');
+        }
+        else if (!password) {
+            reject('password can not be null');
+        }
+        else {
+            models.User.update({
+                password: password
+            }, {
+                where: { user_id: user_id }
+            })
+                .then(() => {
+                    resolve()
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
+
 exports.deleteUser = function (user_id) {
     return new Promise((resolve, reject) => {
         if (!user_id) {
@@ -118,11 +230,11 @@ exports.deleteUser = function (user_id) {
         }
 
         models.User.destroy(
-        {
-            where: {
-                user_id: user_id
-            }    
-        })
+            {
+                where: {
+                    user_id: user_id
+                }
+            })
             .then(() => {
                 resolve();
             })
@@ -141,11 +253,11 @@ exports.updateLoginDate = function (user_id) {
         models.User.update({
             login_at: new Date()
         }, {
-                where: {
-                    user_id: user_id
-                },
-                silent: true
-            }
+            where: {
+                user_id: user_id
+            },
+            silent: true
+        }
         )
             .then(() => {
                 resolve();

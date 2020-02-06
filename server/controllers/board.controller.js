@@ -8,6 +8,13 @@ exports.retrieveBoard = function (board_id) {
         }
 
         models.Board.findOne({
+            include: [{
+                model: models.Tag,
+                as: 'tags'
+            }, {
+                model: models.Category,
+                as: 'categories'
+            }],
             where: { board_id: board_id }
         })
             .then((board) => {
@@ -42,11 +49,22 @@ exports.retrieveBoardsCanAccess = function (level) {
     return new Promise((resolve, reject) => {
 
         models.Board.findAll({
+            include: [{
+                model: models.Tag,
+                as: 'tags'
+            }, {
+                model: models.Category,
+                as: 'categories'
+            }],
             where: {
                 lv_read: {
                     [Op.lte]: level
                 }
-            }
+            },
+            order: [
+                ['menu', 'ASC'],
+                ['order', 'ASC']
+            ]
         })
             .then((boards) => {
                 resolve(boards);

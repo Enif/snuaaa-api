@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = models.Sequelize.Op;
 
 exports.retrieveComments = function (parent_id) {
     return new Promise((resolve, reject) => {
@@ -10,7 +11,7 @@ exports.retrieveComments = function (parent_id) {
             include: [{
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'nickname', 'profile_path']
+                attributes: ['user_id', 'user_uuid', 'nickname', 'profile_path']
             }],
             where: { parent_id: parent_id },
             order: ['created_at']
@@ -49,6 +50,38 @@ exports.retrieveRecentComments = function() {
     })
 }
 
+exports.retrieveAllComments = function(level, rowNum, offset) {
+    return new Promise((resolve, reject) => {
+
+        models.Comment.findAndCountAll({
+            include: [{
+                model: models.Content,
+                required: true,
+                include: [{
+                    model: models.Board,
+                    required: true,
+                    attributes: ['board_id', 'board_name'],
+                    where: {
+                        lv_read: {
+                            [Op.lte]: level
+                        }
+                    }
+                }]
+            }],
+            order: [['created_at', 'DESC']],
+            limit: rowNum,
+            offset: offset
+        })
+        .then((comments) => {
+            resolve(comments);    
+        })
+        .catch((err) => {
+            reject(err)
+        })
+    })
+}
+
+
 exports.retrieveCommentsByUser = function(user_id) {
     return new Promise((resolve, reject) => {
         if(!user_id) {
@@ -69,7 +102,46 @@ exports.retrieveCommentsByUser = function(user_id) {
                     author_id: user_id,
                 },
                 order: [['created_at', 'DESC']],
-                limit: 5
+                limit: 15
+            })
+            .then(function(posts){
+                resolve(posts);    
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        }
+    })
+};
+
+
+exports.retrieveCommentsByUserUuid = function(user_uuid) {
+    return new Promise((resolve, reject) => {
+        if(!user_uuid) {
+            reject('user_uuid can not be null');
+        }
+        else {
+            models.Comment.findAll({
+                include: [{
+                    model: models.Content,
+                    required: true,
+                    include: [{
+                        model: models.Board,
+                        required: true,
+                        attributes: ['board_id', 'board_name']
+                    }
+                    ]
+                },
+                {
+                    model: models.User,
+                    required: true,
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
+                    where: {
+                        user_uuid: user_uuid,
+                    }        
+                }],
+                order: [['created_at', 'DESC']],
+                limit: 15
             })
             .then(function(posts){
                 resolve(posts);    

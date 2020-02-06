@@ -9,7 +9,7 @@ function pad(num) {
 }
  
 function generator(time, index) {
-    if (!time) return "file.log";
+    if (!time) return "snuaaa.log";
  
     var month = time.getFullYear() + "" + pad(time.getMonth() + 1);
     var day = pad(time.getDate());

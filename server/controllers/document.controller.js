@@ -6,20 +6,19 @@ exports.retrieveDocument = function (doc_id) {
             reject('id can not be null')
         }
 
-        models.Document.findOne({
+        models.Content.findOne({
             include: [{
-                model: models.Content,
-                as: 'content',
+                model: models.Document,
+                as: 'document',
                 required: true,
-                include: [{
-                    model: models.User,
-                    required: true,
-                    attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
-                }, {
-                    model: models.AttachedFile,
-                    as: 'AttachedFiles',
-                    separate: true
-                }]
+            }, {
+                model: models.User,
+                required: true,
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+            }, {
+                model: models.AttachedFile,
+                as: 'attachedFiles',
+                separate: true
             }],
             where: { content_id: doc_id }
         })
@@ -91,7 +90,7 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
                     attributes: ['category_name']
                 }, {
                     model: models.AttachedFile,
-                    as: 'AttachedFiles',
+                    as: 'attachedFiles',
                     separate: true
                 }],
                 where: contentCondition
@@ -118,20 +117,28 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
     })
 }
 
-
-exports.createDocument = function (content_id, data) {
+exports.createDocument = function (data) {
     return new Promise((resolve, reject) => {
-        if (!content_id) {
-            reject('id can not be null')
-        }
 
-        models.Document.create({
-            content_id: content_id,
-            generation: data.generation,
-            file_path: data.file_path
+        models.Content.create({
+            content_uuid: data.content_uuid,
+            author_id: data.author_id,
+            board_id: data.board_id,
+            category_id: data.category_id,
+            title: data.title,
+            text: data.text,
+            type: data.type,
+            document: {
+                generation: data.generation
+            }
+        }, {
+            include: [{
+                model: models.Document,
+                as: 'document',
+            }]
         })
-            .then(() => {
-                resolve();
+            .then((content) => {
+                resolve(content.dataValues.content_id);
             })
             .catch((err) => {
                 reject(err);

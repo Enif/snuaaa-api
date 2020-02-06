@@ -4,10 +4,22 @@ var Sequelize = require('sequelize');
 var basename = path.basename(__filename);
 require('dotenv').config();
 
-var sequelize = new Sequelize(process.env.POSTGRESQL_URI, {
-    logging: false
-})
+// var sequelize = new Sequelize(process.env.POSTGRESQL_URI, {
+//     logging: false
+// })
+
+var sequelize = new Sequelize(
+    process.env.POSTGRESQL_DATABASE,
+    process.env.POSTGRESQL_USERNAME,
+    process.env.POSTGRESQL_PASSWORD,
+    {
+        host: 'localhost',
+        dialect: 'postgres',
+        logging: false
+    })
+
 var db = {};
+
 
 
 sequelize.authenticate()
@@ -37,11 +49,15 @@ sequelize.authenticate()
                 });
             })
             .then(() => {
-                Promise.all(Object.keys(db).map(modelName => {
-                    if (db[modelName].init) {
-                        return db[modelName].sync();
-                    }
-                }))
+                sequelize.sync();
+                // Promise.all(Object.keys(db).map(modelName => {
+                //     if (db[modelName].init) {
+                //         return db[modelName].sync();
+                //     }
+                // }))
+            })
+            .catch((err) => {
+                console.error("Failed to synchronized >>", err)
             })
     })
     .catch((e) => {
@@ -56,6 +72,7 @@ sequelize.authenticate()
 //         db[modelName].sync();
 //     }
 // });
+
 
 
 

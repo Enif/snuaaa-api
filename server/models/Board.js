@@ -18,7 +18,13 @@ module.exports = (sequelize, DataTypes) => {
                 board_type: {
                     type: DataTypes.STRING(16),
                 },
+                board_desc: {
+                    type: DataTypes.TEXT,
+                },
                 menu: {
+                    type: DataTypes.INTEGER,
+                },
+                order: {
                     type: DataTypes.INTEGER,
                 },
                 lv_read: {
@@ -38,6 +44,18 @@ module.exports = (sequelize, DataTypes) => {
                     underscored: true
                 }
             );
+        }
+
+        static associate(models) {
+            this.hasMany(models.Tag, {
+                as: 'tags',
+                foreignKey: 'board_id'
+            })
+
+            this.hasMany(models.Category, {
+                as: 'categories',
+                foreignKey: 'board_id'
+            })
         }
     }
 

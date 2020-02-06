@@ -2,7 +2,7 @@ import { Model } from 'sequelize';
 
 module.exports = (sequelize, DataTypes) => {
 
-    class Photo extends Model {
+    class ExhibitPhoto extends Model {
 
         static init() {
             super.init({
@@ -11,8 +11,17 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false,
                     primaryKey: true,
                 },
-                album_id: {
+                exhibition_id: {
                     type: DataTypes.INTEGER,
+                },
+                order: {
+                    type: DataTypes.INTEGER,
+                },
+                photographer_id: {
+                    type: DataTypes.INTEGER,
+                },
+                photographer_alt: {
+                    type: DataTypes.STRING(32),
                 },
                 file_path: {
                     type: DataTypes.STRING(256),
@@ -46,8 +55,8 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }, {
                     sequelize,
-                    modelName: 'photo',
-                    tableName: 'tb_photo',
+                    modelName: 'exhibitPhoto',
+                    tableName: 'tb_exhibit_photo',
                     timestamps: false,
                     underscored: true
                 }
@@ -56,17 +65,23 @@ module.exports = (sequelize, DataTypes) => {
 
         static associate(models) {
             // this.belongsTo(models.Content, {
-            //     as: 'photo',
             //     foreignKey: 'content_id',
             //     targetKey: 'content_id'
             // })
+            
             this.belongsTo(models.Content, {
-                as: 'album',
-                foreignKey: 'album_id',
+                as: 'exhibitionContent',
+                foreignKey: 'exhibition_id',
                 targetKey: 'content_id'
+            })
+
+            this.belongsTo(models.User, {
+                as: 'photographer',
+                foreignKey: 'photographer_id',
+                targetKey: 'user_id'
             })
         }
     }
 
-    return Photo;
+    return ExhibitPhoto;
 }

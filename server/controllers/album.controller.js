@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = models.Sequelize.Op;
 
 exports.createAlbum = function (content_id) {
     return new Promise((resolve, reject) => {
@@ -50,43 +51,72 @@ exports.retrieveAlbum = function (content_id) {
     })
 }
 
-// exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset) {
-//     return new Promise((resolve, reject) => {
-//         if (!board_id) {
-//             reject('id can not be null');
-//         }
 
-//         models.Album.findAndCountAll({
-//             include: [{
-//                 model: models.Content,
-//                 as: 'content',
-//                 where: { board_id: board_id },
-//                 required: true,
-//                 include: [{
-//                     model: models.User,
-//                     required: true,
-//                     attributes: ['nickname']
-//                 }]
-//             }],
-//             order: [
-//                 [{
-//                     model: models.Content,
-//                     as: 'content'
-//                 },
-//                     'updated_at', 'DESC'
-//                 ]
-//             ],
-//             limit: rowNum,
-//             offset: offset
-//         })
-//             .then((albumInfo) => {
-//                 resolve(albumInfo);
-//             })
-//             .catch((err) => {
-//                 reject(err);
-//             });
-//     })
-// }
+exports.retrievePrevAlbum = function (album_id, board_id) {
+    return new Promise((resolve, reject) => {
+        if (!board_id) {
+            reject('board_id can not be null')
+        }
+        else {
+            models.Content.findOne({
+                include: [{
+                    model: models.Album,
+                    as: 'album',
+                    required: true,
+                }],
+                where: {
+                    content_id: {
+                        [Op.lt]: album_id
+                    },
+                    board_id: board_id
+                },
+                order: [
+                    ['content_id', 'DESC']
+                ]
+            })
+                .then((album) => {
+                    resolve(album);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
+
+exports.retrieveNextAlbum = function (album_id, board_id) {
+    return new Promise((resolve, reject) => {
+        if (!board_id) {
+            reject('board_id can not be null')
+        }
+        else {
+            models.Content.findOne({
+                include: [{
+                    model: models.Album,
+                    as: 'album',
+                    required: true,
+                }],
+                where: {
+                    content_id: {
+                        [Op.gt]: album_id
+                    },
+                    board_id: board_id
+                },
+                order: [
+                    ['content_id', 'ASC']
+                ]
+            })
+                .then((album) => {
+                    resolve(album);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
 
 
 exports.retrieveAlbumCount = function (board_id, category_id) {

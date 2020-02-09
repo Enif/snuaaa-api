@@ -2,7 +2,7 @@ import express from 'express';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
-import { retrievePhoto, updatePhoto, deletePhoto, retrievePhotosInAlbum } from '../controllers/photo.controller';
+import { retrievePhoto, updatePhoto, deletePhoto, retrievePhotosInAlbum, retrieveNextPhoto, retrievePrevPhoto, retrievePrevAlbumPhoto, retrieveNextAlbumPhoto } from '../controllers/photo.controller';
 import { checkLike } from '../controllers/contentLike.controller';
 import { updateContent, deleteContent, increaseViewNum } from '../controllers/content.controller';
 import { retrieveTagsOnBoard } from '../controllers/tag.controller';
@@ -27,21 +27,15 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
                 next(err);
             }
             else {
-                if (photoInfo.photo && photoInfo.photo.album_id) {
-                    return Promise.all([
-                        checkLike(req.params.photo_id, req.decodedToken._id),
-                        retrieveTagsOnBoard(photoInfo.board_id),
-                        retrievePhotosInAlbum(photoInfo.photo.album_id),
-                        increaseViewNum(req.params.photo_id)
-                    ])
-                }
-                else {
-                    return Promise.all([
-                        checkLike(req.params.photo_id, req.decodedToken._id),
-                        retrieveTagsOnBoard(photoInfo.board_id),
-                        increaseViewNum(req.params.photo_id)
-                    ])
-                }
+                return Promise.all([
+                    checkLike(req.params.photo_id, req.decodedToken._id),
+                    retrieveTagsOnBoard(photoInfo.board_id),
+                    retrievePrevPhoto(req.params.photo_id, photoInfo.photo.album_id),
+                    retrieveNextPhoto(req.params.photo_id, photoInfo.photo.album_id),
+                    retrievePrevAlbumPhoto(photoInfo.photo.album_id, photoInfo.board_id),
+                    retrieveNextAlbumPhoto(photoInfo.photo.album_id, photoInfo.board_id),
+                    increaseViewNum(req.params.photo_id),
+                ])
             }
         })
         .then((infos) => {
@@ -49,7 +43,11 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
                 photoInfo: photoInfo,
                 likeInfo: infos[0],
                 boardTagInfo: infos[1],
-                albumPhotosInfo: infos[2]
+                // albumPhotosInfo: infos[],
+                prevPhoto: infos[2],
+                nextPhoto: infos[3],
+                prevAlbumPhoto: infos[4],
+                nextAlbumPhoto: infos[5]
             })
         })
         .catch((err) => {
@@ -71,7 +69,7 @@ router.patch('/:photo_id', verifyTokenMiddleware, (req, res) => {
         }
         const photoData = req.body.photo;
         const tagData = req.body.tags;
-    
+
         Promise.all([
             retrieveTagsByContent(req.params.photo_id),
             updateContent(req.params.photo_id, contentData),
@@ -81,7 +79,7 @@ router.patch('/:photo_id', verifyTokenMiddleware, (req, res) => {
                 const prevTags = infos[0].map(tag => tag.tag_id);
                 const newTags = tagData.map(tag => tag.tag_id);
                 const updateTag = [];
-    
+
                 if (prevTags && prevTags.length > 0) {
                     prevTags.forEach(tag => {
                         if (!newTags.includes(tag)) {

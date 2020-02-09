@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = models.Sequelize.Op;
 
 exports.retrievePhoto = function (photo_id) {
     return new Promise((resolve, reject) => {
@@ -43,6 +44,140 @@ exports.retrievePhoto = function (photo_id) {
             .catch((err) => {
                 reject(err);
             })
+    })
+}
+
+exports.retrievePrevPhoto = function (photo_id, album_id) {
+    return new Promise((resolve, reject) => {
+        if (!photo_id) {
+            reject('photo_id can not be null')
+        }
+        else {
+            models.Content.findOne({
+                include: [{
+                    model: models.Photo,
+                    as: 'photo',
+                    required: true,
+                    where: {
+                        content_id: {
+                            [Op.lt]: photo_id
+                        },
+                        album_id: album_id
+                    },
+                }],
+                order: [
+                    ['content_id', 'DESC']
+                ]
+            })
+                .then((photo) => {
+                    resolve(photo);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
+exports.retrieveNextPhoto = function (photo_id, album_id) {
+    return new Promise((resolve, reject) => {
+        if (!photo_id) {
+            reject('photo_id can not be null')
+        }
+        else {
+            models.Content.findOne({
+                include: [{
+                    model: models.Photo,
+                    as: 'photo',
+                    required: true,
+                    where: {
+                        content_id: {
+                            [Op.gt]: photo_id
+                        },
+                        album_id: album_id
+                    },
+                }],
+                order: [
+                    ['content_id', 'ASC']
+                ]
+            })
+                .then((photo) => {
+                    resolve(photo);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
+exports.retrievePrevAlbumPhoto = function (album_id, board_id) {
+    return new Promise((resolve, reject) => {
+        if (!board_id) {
+            reject('board_id can not be null')
+        }
+        else {
+            models.Content.findOne({
+                include: [{
+                    model: models.Photo,
+                    as: 'photo',
+                    required: true,
+                    where: {
+                        album_id: {
+                            [Op.lt]: album_id
+                        }
+                    },
+                }],
+                where: {
+                    board_id: board_id
+                },
+                order: [
+                    ['photo', 'album_id', 'DESC'],
+                    ['content_id', 'DESC'],
+                ]
+            })
+                .then((album) => {
+                    resolve(album);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
+    })
+}
+
+exports.retrieveNextAlbumPhoto = function (album_id, board_id) {
+    return new Promise((resolve, reject) => {
+        if (!board_id) {
+            reject('board_id can not be null')
+        }
+        else {
+            models.Content.findOne({
+                include: [{
+                    model: models.Photo,
+                    as: 'photo',
+                    required: true,
+                    where: {
+                        album_id: {
+                            [Op.gt]: album_id
+                        }
+                    },
+                }],
+                where: {
+                    board_id: board_id
+                },
+                order: [
+                    ['photo', 'album_id', 'ASC'],
+                    ['content_id', 'DESC'],
+                ]
+            })
+                .then((album) => {
+                    resolve(album);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        }
     })
 }
 

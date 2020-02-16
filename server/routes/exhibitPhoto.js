@@ -31,10 +31,18 @@ router.get('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
             })
             .catch((err) => {
                 console.error(err)
+                res.status(500).json({
+                    error: 'internal server error',
+                    code: 0
+                })
             })
     }
     catch (err) {
         console.error(err)
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
+        })
     }
 
 })
@@ -116,10 +124,18 @@ router.delete('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
             })
             .catch((err) => {
                 console.error(err)
+                res.status(500).json({
+                    error: 'internal server error',
+                    code: 0
+                })
             })
     }
     catch (err) {
         console.error(err)
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
+        })
     }
 
 })

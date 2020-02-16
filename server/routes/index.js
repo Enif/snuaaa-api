@@ -14,6 +14,7 @@ import comment from './comment';
 import image from './image';
 import exhibition from './exhibition';
 import exhibitPhoto from './exhibitPhoto';
+import file from './file';
 
 const router = express.Router();
 
@@ -31,5 +32,6 @@ router.use('/comment', comment);
 router.use('/image', image);
 router.use('/exhibition', exhibition);
 router.use('/exhibitPhoto', exhibitPhoto);
+router.use('/file', file);
 
 export default router;

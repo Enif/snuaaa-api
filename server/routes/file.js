@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyTokenMiddleware } from '../middlewares/auth';
-import { deleteFile } from '../controllers/file.controller';
+import { deleteAttachedFile } from '../controllers/attachedFile.controller';
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ router.delete('/:file_id', verifyTokenMiddleware, (req, res) => {
     console.log(`[DELETE] ${req.baseUrl + req.url}`);
 
     try {
-        deleteFile(req.params.file_id)
+        deleteAttachedFile(req.params.file_id)
             .then(() => {
                 res.json({
                     success: true

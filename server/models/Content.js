@@ -29,6 +29,9 @@ module.exports = (sequelize, DataTypes) => {
                 type: {
                     type: DataTypes.STRING(16),
                 },
+                parent_id: {
+                    type: DataTypes.INTEGER
+                },
                 title: {
                     type: DataTypes.STRING(64),
                 },
@@ -107,12 +110,18 @@ module.exports = (sequelize, DataTypes) => {
 
             this.hasOne(models.ExhibitPhoto, {
                 as: 'exhibitPhoto',
-                foreignKey: 'content_id'
+                foreignKey: 'content_id',
             })
 
-            this.hasMany(models.Photo, {
-                as: 'albumPhoto',
-                foreignKey: 'album_id',
+            this.hasOne(models.Content, {
+                as: 'parent',
+                foreignKey: 'content_id',
+                sourceKey: 'parent_id'
+            })
+
+            this.hasMany(models.Content, {
+                as: 'children',
+                foreignKey: 'parent_id',
                 sourceKey: 'content_id'
             })
 

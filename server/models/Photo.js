@@ -60,11 +60,11 @@ module.exports = (sequelize, DataTypes) => {
             //     foreignKey: 'content_id',
             //     targetKey: 'content_id'
             // })
-            this.belongsTo(models.Content, {
-                as: 'album',
-                foreignKey: 'album_id',
-                targetKey: 'content_id'
-            })
+            // this.belongsTo(models.Content, {
+            //     as: 'album',
+            //     foreignKey: 'album_id',
+            //     targetKey: 'content_id'
+            // })
         }
     }
 

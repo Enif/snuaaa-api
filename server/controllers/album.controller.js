@@ -180,13 +180,17 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id)
             }, {
                 model: models.Category
             }, {
-                model: models.Photo,
-                as: 'albumPhoto',
-                attributes: ['thumbnail_path'],
+                model: models.Content,
+                as: 'children',
                 required: false,
                 separate: true,
                 limit: 1,
-                order: [['content_id', 'DESC']]
+                order: [['content_id', 'DESC']],
+                include: [{
+                    model: models.Photo,
+                    as: 'photo',
+                    required: true
+                }]
             }],
             where: condition,
             order: [

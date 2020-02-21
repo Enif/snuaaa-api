@@ -12,9 +12,18 @@ exports.retrievePhoto = function (photo_id) {
                 model: models.Photo,
                 as: 'photo',
                 required: true,
+                // include: [{
+                //     as: 'album',
+                //     model: models.Content,
+                // }]
+            },
+            {
+                model: models.Content,
+                as: 'parent',
                 include: [{
+                    model: models.Album,
                     as: 'album',
-                    model: models.Content,
+                    require: true
                 }]
             },
             {
@@ -136,8 +145,8 @@ exports.retrievePrevAlbumPhoto = function (album_id, board_id) {
                     ['content_id', 'DESC'],
                 ]
             })
-                .then((album) => {
-                    resolve(album);
+                .then((photo) => {
+                    resolve(photo);
                 })
                 .catch((err) => {
                     reject(err);
@@ -171,8 +180,8 @@ exports.retrieveNextAlbumPhoto = function (album_id, board_id) {
                     ['content_id', 'DESC'],
                 ]
             })
-                .then((album) => {
-                    resolve(album);
+                .then((photo) => {
+                    resolve(photo);
                 })
                 .catch((err) => {
                     reject(err);

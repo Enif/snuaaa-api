@@ -30,10 +30,10 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
                 return Promise.all([
                     checkLike(req.params.photo_id, req.decodedToken._id),
                     retrieveTagsOnBoard(photoInfo.board_id),
-                    retrievePrevPhoto(req.params.photo_id, photoInfo.photo.album_id),
-                    retrieveNextPhoto(req.params.photo_id, photoInfo.photo.album_id),
-                    retrievePrevAlbumPhoto(photoInfo.photo.album_id, photoInfo.board_id),
-                    retrieveNextAlbumPhoto(photoInfo.photo.album_id, photoInfo.board_id),
+                    retrievePrevPhoto(req.params.photo_id, photoInfo.parent_id),
+                    retrieveNextPhoto(req.params.photo_id, photoInfo.parent_id),
+                    retrievePrevAlbumPhoto(photoInfo.parent_id, photoInfo.board_id),
+                    retrieveNextAlbumPhoto(photoInfo.parent_id, photoInfo.board_id),
                     increaseViewNum(req.params.photo_id),
                 ])
             }

@@ -18,7 +18,7 @@ router.get('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
                 exhibitPhotoInfo = info;
                 return Promise.all([
                     checkLike(req.params.exhibitPhoto_id, req.decodedToken._id),
-                    retrieveExhibitPhotosInExhibition(exhibitPhotoInfo.exhibitPhoto.exhibition_id),
+                    retrieveExhibitPhotosInExhibition(exhibitPhotoInfo.parent_id),
                     increaseViewNum(req.params.exhibitPhoto_id)
                 ])
             })
@@ -52,7 +52,7 @@ router.patch('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
     try {
         new Promise((resolve, reject) => {
             if (req.body.photographer) {
-                retrieveUserByUserUuid(req.body.photographer)
+                retrieveUserByUserUuid(req.body.photographer.user_uuid)
                 .then((photographer) => {
                     resolve(photographer);
                 })

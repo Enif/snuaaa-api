@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false,
                     primaryKey: true,
                 },
-                album_id: {
-                    type: DataTypes.INTEGER,
-                },
+                // album_id: {
+                //     type: DataTypes.INTEGER,
+                // },
                 file_path: {
                     type: DataTypes.STRING(256),
                 },
@@ -60,11 +60,11 @@ module.exports = (sequelize, DataTypes) => {
             //     foreignKey: 'content_id',
             //     targetKey: 'content_id'
             // })
-            this.belongsTo(models.Content, {
-                as: 'album',
-                foreignKey: 'album_id',
-                targetKey: 'content_id'
-            })
+            // this.belongsTo(models.Content, {
+            //     as: 'album',
+            //     foreignKey: 'album_id',
+            //     targetKey: 'content_id'
+            // })
         }
     }
 

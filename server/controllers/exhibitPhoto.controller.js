@@ -8,11 +8,12 @@ exports.createExhibitPhoto = function (data) {
             author_id: data.author_id,
             board_id: data.board_id,
             category_id: data.category_id,
+            parent_id: data.parent_id,
             title: data.title,
             text: data.text,
             type: data.type,
             exhibitPhoto: {
-                exhibition_id: data.exhibition_id,
+                // exhibition_id: data.exhibition_id,
                 order: data.order,
                 photographer_id: data.photographer_id,
                 photographer_alt: data.photographer_alt,
@@ -53,16 +54,17 @@ exports.retrieveExhibitPhoto = function (exhibitPhoto_id) {
                     content_id: exhibitPhoto_id
                 },
                 include: [{
-                    model: models.Content,
-                    as: 'exhibitionContent',
-                    include: [{
-                        model: models.Exhibition,
-                        as: 'exhibition'
-                    }]
-                }, {
                     model: models.User,
                     as: 'photographer',
                     attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path'],
+                }]
+            }, {
+                model: models.Content,
+                as: 'parent',
+                include: [{
+                    model: models.Exhibition,
+                    as: 'exhibition',
+                    required: true
                 }]
             }, {
                 model: models.User,
@@ -88,10 +90,11 @@ exports.retrieveExhibitPhotosInExhibition = function (exhibition_id) {
             include: [{
                 model: models.ExhibitPhoto,
                 as: 'exhibitPhoto',
-                where: {
-                    exhibition_id: exhibition_id
-                },
+                required: true
             }],
+            where: {
+                parent_id: exhibition_id
+            },
             order: [
                 ['exhibitPhoto', 'order', 'ASC'],
                 ['created_at', 'ASC']

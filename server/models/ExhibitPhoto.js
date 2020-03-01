@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false,
                     primaryKey: true,
                 },
-                exhibition_id: {
-                    type: DataTypes.INTEGER,
-                },
+                // exhibition_id: {
+                //     type: DataTypes.INTEGER,
+                // },
                 order: {
                     type: DataTypes.INTEGER,
                 },
@@ -69,11 +69,11 @@ module.exports = (sequelize, DataTypes) => {
             //     targetKey: 'content_id'
             // })
             
-            this.belongsTo(models.Content, {
-                as: 'exhibitionContent',
-                foreignKey: 'exhibition_id',
-                targetKey: 'content_id'
-            })
+            // this.belongsTo(models.Content, {
+            //     as: 'exhibitionContent',
+            //     foreignKey: 'exhibition_id',
+            //     targetKey: 'content_id'
+            // })
 
             this.belongsTo(models.User, {
                 as: 'photographer',

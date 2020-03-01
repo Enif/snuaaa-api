@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false,
                     primaryKey: true,
                 },
-                album_id: {
-                    type: DataTypes.INTEGER,
-                },
+                // album_id: {
+                //     type: DataTypes.INTEGER,
+                // },
                 file_path: {
                     type: DataTypes.STRING(256),
                 },

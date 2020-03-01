@@ -67,13 +67,13 @@ exports.retrievePrevPhoto = function (photo_id, album_id) {
                     model: models.Photo,
                     as: 'photo',
                     required: true,
-                    where: {
-                        content_id: {
-                            [Op.lt]: photo_id
-                        },
-                        album_id: album_id
-                    },
                 }],
+                where: {
+                    content_id: {
+                        [Op.lt]: photo_id
+                    },
+                    parent_id: album_id
+                },
                 order: [
                     ['content_id', 'DESC']
                 ]
@@ -99,13 +99,13 @@ exports.retrieveNextPhoto = function (photo_id, album_id) {
                     model: models.Photo,
                     as: 'photo',
                     required: true,
-                    where: {
-                        content_id: {
-                            [Op.gt]: photo_id
-                        },
-                        album_id: album_id
-                    },
                 }],
+                where: {
+                    content_id: {
+                        [Op.gt]: photo_id
+                    },
+                    parent_id: album_id
+                },
                 order: [
                     ['content_id', 'ASC']
                 ]
@@ -131,17 +131,15 @@ exports.retrievePrevAlbumPhoto = function (album_id, board_id) {
                     model: models.Photo,
                     as: 'photo',
                     required: true,
-                    where: {
-                        album_id: {
-                            [Op.lt]: album_id
-                        }
-                    },
                 }],
                 where: {
+                    parent_id: {
+                        [Op.lt]: album_id
+                    },
                     board_id: board_id
                 },
                 order: [
-                    ['photo', 'album_id', 'DESC'],
+                    ['parent_id', 'DESC'],
                     ['content_id', 'DESC'],
                 ]
             })
@@ -166,17 +164,15 @@ exports.retrieveNextAlbumPhoto = function (album_id, board_id) {
                     model: models.Photo,
                     as: 'photo',
                     required: true,
-                    where: {
-                        album_id: {
-                            [Op.gt]: album_id
-                        }
-                    },
                 }],
                 where: {
+                    parent_id: {
+                        [Op.gt]: album_id
+                    },
                     board_id: board_id
                 },
                 order: [
-                    ['photo', 'album_id', 'ASC'],
+                    ['parent_id', 'ASC'],
                     ['content_id', 'DESC'],
                 ]
             })
@@ -201,13 +197,13 @@ exports.retrievePhotosInAlbum = function (album_id) {
                     model: models.Photo,
                     as: 'photo',
                     required: true,
-                    where: { album_id: album_id },
                 },
                 {
                     model: models.User,
                     required: true,
                     attributes: ['nickname']
                 }],
+                where: { parent_id: album_id },
                 order: [
                     ['created_at', 'DESC'],
                     ['content_id', 'DESC']
@@ -426,8 +422,8 @@ exports.createPhoto = function (data) {
             title: data.title,
             text: data.text,
             type: 'PH',
+            parent_id: data.album_id,
             photo: {
-                album_id: data.album_id,
                 file_path: data.file_path,
                 thumbnail_path: data.thumbnail_path,
                 location: data.location,

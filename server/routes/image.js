@@ -45,35 +45,46 @@ const upload = multer({ storage })
 
 router.post('/', verifyTokenMiddleware, upload.single('attachedImage'), (req, res) => {
     console.log(`[POST] ${req.baseUrl + req.url}`);
-    if (!req.file) {
-        res.status(409).json({
-            error: 'PHOTO IS NOT ATTACHED',
-            code: 1
+
+    try {
+        if (!req.file) {
+            res.status(409).json({
+                error: 'PHOTO IS NOT ATTACHED',
+                code: 1
+            });
+        }
+        else {
+            resizeAttatchedImg(req.file.path)
+                .then(() => {
+                    let imgPath = '';
+                    path.relative('./upload/', req.file.path)
+                    .split(path.sep)
+                    .forEach((route) => {
+                        imgPath += ('/' + route)
+                    })
+                    res.json({
+                        imgPath: imgPath,
+                        result: 'success'
+                    });
+                })
+                .catch((err) => {
+                    // throw err;
+                    console.error(err)
+                    res.status(500).json({
+                        error: 'internal server error',
+                        code: 0
+                    });
+                })
+        }
+    }
+    catch (err) {
+        console.error(err)
+        res.status(500).json({
+            error: 'internal server error',
+            code: 0
         });
     }
-    else {
-        resizeAttatchedImg(req.file.path)
-            .then(() => {
-                let imgPath = '';
-                path.relative('./upload/', req.file.path)
-                .split(path.sep)
-                .forEach((route) => {
-                    imgPath += ('/' + route)
-                })
-                res.json({
-                    imgPath: imgPath,
-                    success: true
-                });
-            })
-            .catch((err) => {
-                // throw err;
-                console.error(err)
-                res.status(500).json({
-                    error: 'internal server error',
-                    code: 0
-                });
-            })
-    }
+
 })
 
 export default router;

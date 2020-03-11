@@ -100,16 +100,16 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
                 data.aaa_no = null;
             }
 
-            let level;
+            let grade;
 
-            if (userInfo.level > 1) {
-                level = userInfo.level;
+            if (userInfo.grade < 9) {
+                grade = userInfo.grade;
             }
             else if (data.aaa_no) {
-                level = 2;
+                grade = 8;
             }
             else {
-                level = 1;
+                grade = 9;
             }
 
             let userData = {
@@ -121,7 +121,7 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
                 email: data.email,
                 mobile: data.mobile,
                 introduction: data.introduction,
-                level: level,
+                grade: grade,
                 profile_path: data.profile_path
             }
 

@@ -24,7 +24,7 @@ exports.retrievePost = function (content_id) {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path']
+                attributes: ['user_uuid', 'nickname', 'introduction', 'grade', 'level', 'profile_path']
             },
             {
                 model: models.Board,
@@ -161,7 +161,7 @@ exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) 
 }
 
 
-exports.retrieveRecentPosts = function (level) {
+exports.retrieveRecentPosts = function (grade) {
     return new Promise((resolve, reject) => {
 
         models.Content.findAll({
@@ -177,7 +177,7 @@ exports.retrieveRecentPosts = function (level) {
                 attributes: ['board_id', 'board_name'],
                 where: {
                     lv_read: {
-                        [Op.lte]: level
+                        [Op.gte]: grade
                     }
                 }
             }],
@@ -202,7 +202,7 @@ exports.retrieveRecentPosts = function (level) {
     })
 }
 
-exports.retrieveAllPosts = function (level, rowNum, offset) {
+exports.retrieveAllPosts = function (grade, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
         models.Content.findAndCountAll({
@@ -216,7 +216,7 @@ exports.retrieveAllPosts = function (level, rowNum, offset) {
                 attributes: ['board_id', 'board_name'],
                 where: {
                     lv_read: {
-                        [Op.lte]: level
+                        [Op.gte]: grade
                     }
                 }
             }, {

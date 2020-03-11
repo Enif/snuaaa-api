@@ -35,7 +35,7 @@ const upload = multer({ storage })
 router.get('/', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveBoardsCanAccess(req.decodedToken.level)
+    retrieveBoardsCanAccess(req.decodedToken.grade)
         .then((boardInfo) => {
             return res.json(boardInfo)
         })
@@ -52,7 +52,7 @@ router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
     try {
         retrieveBoard(req.params.board_id)
             .then((boardInfo) => {
-                if (boardInfo.lv_read > req.decodedToken.level) {
+                if (boardInfo.lv_read < req.decodedToken.grade) {
                     const err = {
                         status: 403,
                         code: 4001

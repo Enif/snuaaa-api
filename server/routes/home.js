@@ -30,7 +30,7 @@ router.get('/soundbox', verifyTokenMiddleware, (req, res) => {
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);
-    retrieveRecentPosts(req.decodedToken.level)
+    retrieveRecentPosts(req.decodedToken.grade)
         .then((posts) => {
             res.json(posts)
         })
@@ -49,7 +49,7 @@ router.get('/posts/all', verifyTokenMiddleware, (req, res) => {
     if (req.query.page > 0) {
         offset = ROWNUM * (req.query.page - 1);
     }
-    retrieveAllPosts(req.decodedToken.level, ROWNUM, offset)
+    retrieveAllPosts(req.decodedToken.grade, ROWNUM, offset)
         .then((postInfo) => {
             res.json({
                 postCount: postInfo.count,
@@ -113,7 +113,7 @@ router.get('/comments/all', verifyTokenMiddleware, (req, res) => {
     if (req.query.page > 0) {
         offset = ROWNUM * (req.query.page - 1);
     }
-    retrieveAllComments(req.decodedToken.level, ROWNUM, offset)
+    retrieveAllComments(req.decodedToken.grade, ROWNUM, offset)
         .then((commentInfo) => {
             res.json({
                 commentCount: commentInfo.count,

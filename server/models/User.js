@@ -50,6 +50,9 @@ module.exports = (sequelize, DataTypes) => {
                 profile_path: {
                     type: DataTypes.STRING(256),
                 },
+                grade: {
+                    type: DataTypes.INTEGER,
+                },
                 level: {
                     type: DataTypes.INTEGER,
                 },

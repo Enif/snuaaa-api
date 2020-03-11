@@ -46,6 +46,7 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
             .then(() => {
                 return createToken({
                     _id: user.user_id,
+                    grade: user.grade,
                     level: user.level,
                     autoLogin: req.decodedToken.autoLogin
                 })
@@ -122,6 +123,7 @@ router.post('/login', (req, res) => {
                 delete userInfo.password
                 return createToken({
                     _id: userInfo.user_id,
+                    grade: userInfo.grade,
                     level: userInfo.level,
                     autoLogin: req.body.autoLogin ? true : false
                 })
@@ -166,6 +168,7 @@ router.get('/login/guest', (req, res) => {
     try {
         createToken({
             _id: -1,
+            grade: 10,
             level: 0,
             autoLogin: false
         })
@@ -178,6 +181,7 @@ router.get('/login/guest', (req, res) => {
                         sucess: true,
                         userInfo: {
                             user_id: -1,
+                            grade: 10,
                             level: 0,
                             profile_path: null,
                             nickname: 'guest',
@@ -254,7 +258,7 @@ router.post('/signup', upload.single('profile'), (req, res) => {
             req.body.aaaNum = null;
         }
     
-        let level = req.body.aaaNum ? 2 : 1;
+        let grade = req.body.aaaNum ? 8 : 9;
         let profilePath;
         if (req.file) {
             profilePath = '/profile/' + req.file.filename;
@@ -273,7 +277,8 @@ router.post('/signup', upload.single('profile'), (req, res) => {
             mobile: req.body.mobile,
             introduction: req.body.introduction,
             profile_path: profilePath,
-            level: level
+            grade: grade,
+            level: 0
         }
     
         createUser(userData)

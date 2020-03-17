@@ -106,6 +106,31 @@ exports.retrieveUserByUserUuid = function (user_uuid) {
     })
 }
 
+exports.retrieveUsers = function (sort, order, rowNum, offset) {
+    return new Promise((resolve, reject) => {
+
+        let condition = {
+            order: [
+                [sort ? sort : 'user_id', order === 'ASC' ? 'ASC' : 'DESC']
+            ],
+            limit: rowNum,
+            offset: offset
+        }
+
+        models.User.findAndCountAll({
+            attributes: ['user_uuid', 'id', 'username', 'nickname', 'aaa_no', 'grade', 'level',
+                'login_at', 'created_at'],
+            ...condition
+        })
+            .then((users) => {
+                resolve(users);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
 
 exports.retrieveUsersByEmailAndName = function (email, username) {
     return new Promise((resolve, reject) => {
@@ -150,7 +175,7 @@ exports.retrieveUserById = function (id) {
 
         models.User.findOne({
             attributes: ['user_id', 'user_uuid', 'id', 'password',
-            'username', 'nickname', 'grade', 'level', 'email', 'profile_path', 'login_at'],
+                'username', 'nickname', 'grade', 'level', 'email', 'profile_path', 'login_at'],
             where: { id: id }
         })
             .then((user) => {

@@ -19,7 +19,7 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
     retrievePhoto(req.params.photo_id)
         .then((info) => {
             photoInfo = info;
-            if (photoInfo.board.lv_read > req.decodedToken.level) {
+            if (photoInfo.board.lv_read < req.decodedToken.grade) {
                 const err = {
                     status: 403,
                     code: 4001

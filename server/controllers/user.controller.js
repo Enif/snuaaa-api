@@ -19,6 +19,7 @@ exports.createUser = function (userData) {
             mobile: userData.mobile,
             introduction: userData.introduction,
             profile_path: userData.profile_path,
+            grade: userData.grade,
             level: userData.level
         })
             .then(() => {
@@ -38,7 +39,7 @@ exports.retrieveUser = function (user_id) {
 
         models.User.findOne({
             attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
-                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path', 'login_at'],
+                'col_no', 'major', 'email', 'mobile', 'introduction', 'grade', 'level', 'profile_path', 'login_at'],
             where: { user_id: user_id }
         })
             .then((user) => {
@@ -88,7 +89,7 @@ exports.retrieveUserByUserUuid = function (user_uuid) {
 
         models.User.findOne({
             attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
-                'col_no', 'major', 'email', 'mobile', 'introduction', 'level', 'profile_path'],
+                'col_no', 'major', 'email', 'mobile', 'introduction', 'grade', 'level', 'profile_path'],
             where: { user_uuid: user_uuid }
         })
             .then((user) => {
@@ -98,6 +99,31 @@ exports.retrieveUserByUserUuid = function (user_uuid) {
                 else {
                     resolve(user);
                 }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    })
+}
+
+exports.retrieveUsers = function (sort, order, rowNum, offset) {
+    return new Promise((resolve, reject) => {
+
+        let condition = {
+            order: [
+                [sort ? sort : 'user_id', order === 'ASC' ? 'ASC' : 'DESC']
+            ],
+            limit: rowNum,
+            offset: offset
+        }
+
+        models.User.findAndCountAll({
+            attributes: ['user_uuid', 'id', 'username', 'nickname', 'aaa_no', 'grade', 'level',
+                'login_at', 'created_at'],
+            ...condition
+        })
+            .then((users) => {
+                resolve(users);
             })
             .catch((err) => {
                 reject(err);
@@ -149,7 +175,7 @@ exports.retrieveUserById = function (id) {
 
         models.User.findOne({
             attributes: ['user_id', 'user_uuid', 'id', 'password',
-            'username', 'nickname', 'level', 'email', 'profile_path', 'login_at'],
+                'username', 'nickname', 'grade', 'level', 'email', 'profile_path', 'login_at'],
             where: { id: id }
         })
             .then((user) => {
@@ -183,6 +209,7 @@ exports.updateUser = function (user_id, data) {
             email: data.email,
             mobile: data.mobile,
             introduction: data.introduction,
+            grade: data.grade,
             level: data.level,
             profile_path: data.profile_path,
         }, {

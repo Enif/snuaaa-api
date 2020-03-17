@@ -8,7 +8,7 @@ import { retrievePostsByUser, retrievePostsByUserUuid } from '../controllers/pos
 import { retrievePhotosByUser, retrievePhotosByUserUuid } from '../controllers/photo.controller';
 import { retrieveCommentsByUser, retrieveCommentsByUserUuid } from '../controllers/comment.controller';
 import { retrieveUser, updateUser, deleteUser, retrieveUserPw, updateUserPw, 
-    retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid, retrieveUsersByName } from '../controllers/user.controller';
+    retrieveUsers, retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid, retrieveUsersByName } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
 
@@ -100,16 +100,16 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
                 data.aaa_no = null;
             }
 
-            let level;
+            let grade;
 
-            if (userInfo.level > 1) {
-                level = userInfo.level;
+            if (userInfo.grade < 9) {
+                grade = userInfo.grade;
             }
             else if (data.aaa_no) {
-                level = 2;
+                grade = 8;
             }
             else {
-                level = 1;
+                grade = 9;
             }
 
             let userData = {
@@ -121,7 +121,7 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
                 email: data.email,
                 mobile: data.mobile,
                 introduction: data.introduction,
-                level: level,
+                grade: grade,
                 profile_path: data.profile_path
             }
 
@@ -227,8 +227,50 @@ router.delete('/', verifyTokenMiddleware, (req, res) => {
         });
 
     }
-
 })
+
+
+router.get('/all', verifyTokenMiddleware, (req, res) => {
+    console.log(`[GET] ${req.baseUrl + req.url}`);
+
+    let offset = 0;
+    const ROWNUM = 20;
+    // const user_id = req.decodedToken._id;
+    if(req.decodedToken.grade > 6) {
+        return res.status(403).json({
+            success: false
+        })
+    }
+    else {
+        try {
+            retrieveUsers(req.query.sort, req.query.order,
+                req.query.limit ? req.query.limit : ROWNUM,
+                req.query.offset ? req.query.offset : 0)
+                .then(({count, rows}) => {
+                    return res.json({
+                        success: true,
+                        userInfo: rows,
+                        count: count
+                    })
+                })
+                .catch(err => {
+                    console.error(err);
+                    res.status(500).json({
+                        error: 'internal server error',
+                        code: 0
+                    });
+                });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({
+                error: 'internal server error',
+                code: 0
+            });
+        }
+    }
+})
+
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {
     console.log(`[GET] ${req.baseUrl + req.url}`);

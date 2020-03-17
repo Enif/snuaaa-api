@@ -19,7 +19,7 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
             .then((postInfo) => {
                 resPostInfo = postInfo;
     
-                if (postInfo.board.lv_read > req.decodedToken.level) {
+                if (postInfo.board.lv_read < req.decodedToken.grade) {
                     const err = {
                         status: 403,
                         code: 4001

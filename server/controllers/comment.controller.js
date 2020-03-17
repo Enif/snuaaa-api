@@ -50,7 +50,7 @@ exports.retrieveRecentComments = function() {
     })
 }
 
-exports.retrieveAllComments = function(level, rowNum, offset) {
+exports.retrieveAllComments = function(grade, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
         models.Comment.findAndCountAll({
@@ -63,7 +63,7 @@ exports.retrieveAllComments = function(level, rowNum, offset) {
                     attributes: ['board_id', 'board_name'],
                     where: {
                         lv_read: {
-                            [Op.lte]: level
+                            [Op.gte]: grade
                         }
                     }
                 }]

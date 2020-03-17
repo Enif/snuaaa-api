@@ -45,7 +45,7 @@ exports.retrieveBoards = function () {
     })
 }
 
-exports.retrieveBoardsCanAccess = function (level) {
+exports.retrieveBoardsCanAccess = function (grade) {
     return new Promise((resolve, reject) => {
 
         models.Board.findAll({
@@ -58,7 +58,7 @@ exports.retrieveBoardsCanAccess = function (level) {
             }],
             where: {
                 lv_read: {
-                    [Op.lte]: level
+                    [Op.gte]: grade
                 }
             },
             order: [

@@ -11,7 +11,7 @@ exports.retrieveComments = function (parent_id) {
             include: [{
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'user_uuid', 'nickname', 'profile_path']
+                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
             }],
             where: { parent_id: parent_id },
             order: ['created_at']
@@ -25,7 +25,7 @@ exports.retrieveComments = function (parent_id) {
     })
 }
 
-exports.retrieveRecentComments = function() {
+exports.retrieveRecentComments = function () {
     return new Promise((resolve, reject) => {
 
         models.Comment.findAll({
@@ -41,16 +41,16 @@ exports.retrieveRecentComments = function() {
             order: [['created_at', 'DESC']],
             limit: 5
         })
-        .then((comments) => {
-            resolve(comments);    
-        })
-        .catch((err) => {
-            reject(err)
-        })
+            .then((comments) => {
+                resolve(comments);
+            })
+            .catch((err) => {
+                reject(err)
+            })
     })
 }
 
-exports.retrieveAllComments = function(grade, rowNum, offset) {
+exports.retrieveAllComments = function (grade, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
         models.Comment.findAndCountAll({
@@ -72,19 +72,19 @@ exports.retrieveAllComments = function(grade, rowNum, offset) {
             limit: rowNum,
             offset: offset
         })
-        .then((comments) => {
-            resolve(comments);    
-        })
-        .catch((err) => {
-            reject(err)
-        })
+            .then((comments) => {
+                resolve(comments);
+            })
+            .catch((err) => {
+                reject(err)
+            })
     })
 }
 
 
-exports.retrieveCommentsByUser = function(user_id) {
+exports.retrieveCommentsByUser = function (user_id) {
     return new Promise((resolve, reject) => {
-        if(!user_id) {
+        if (!user_id) {
             reject('id can not be null');
         }
         else {
@@ -104,20 +104,20 @@ exports.retrieveCommentsByUser = function(user_id) {
                 order: [['created_at', 'DESC']],
                 limit: 15
             })
-            .then(function(posts){
-                resolve(posts);    
-            })
-            .catch((err) => {
-                reject(err)
-            })
+                .then(function (posts) {
+                    resolve(posts);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 };
 
 
-exports.retrieveCommentsByUserUuid = function(user_uuid) {
+exports.retrieveCommentsByUserUuid = function (user_uuid) {
     return new Promise((resolve, reject) => {
-        if(!user_uuid) {
+        if (!user_uuid) {
             reject('user_uuid can not be null');
         }
         else {
@@ -138,17 +138,17 @@ exports.retrieveCommentsByUserUuid = function(user_uuid) {
                     attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
                     where: {
                         user_uuid: user_uuid,
-                    }        
+                    }
                 }],
                 order: [['created_at', 'DESC']],
                 limit: 15
             })
-            .then(function(posts){
-                resolve(posts);    
-            })
-            .catch((err) => {
-                reject(err)
-            })
+                .then(function (posts) {
+                    resolve(posts);
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         }
     })
 };

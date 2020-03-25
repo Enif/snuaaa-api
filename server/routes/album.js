@@ -40,11 +40,19 @@ router.get('/:album_id', verifyTokenMiddleware, (req, res) => {
         let albumInfo = {};
         retrieveAlbum(req.params.album_id)
             .then((info) => {
-                albumInfo = info;
-                return Promise.all([
-                    retrieveCategoryByBoard(albumInfo.board_id),
-                    retrieveTagsOnBoard(albumInfo.board_id)
-                ])
+
+                if(info.board.lv_read < req.decodedToken.grade) {
+                    res.status(403).json({
+                        code: 4001
+                    })
+                }
+                else {
+                    albumInfo = info;
+                    return Promise.all([
+                        retrieveCategoryByBoard(albumInfo.board_id),
+                        retrieveTagsOnBoard(albumInfo.board_id)
+                    ])
+                }
             })
             .then((infos) => {
                 res.json({

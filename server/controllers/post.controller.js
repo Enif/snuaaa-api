@@ -24,7 +24,7 @@ exports.retrievePost = function (content_id) {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['user_uuid', 'nickname', 'introduction', 'grade', 'level', 'profile_path']
+                attributes: ['user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
             },
             {
                 model: models.Board,

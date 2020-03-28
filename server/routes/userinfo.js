@@ -48,7 +48,10 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 
     retrieveUser(req.decodedToken._id)
         .then((userInfo) => {
-            return res.json(userInfo)
+            return res.json({
+                success: true,
+                userInfo: userInfo
+            })
         })
         .catch((err) => {
             console.error(err);
@@ -343,13 +346,7 @@ router.get('/:user_uuid', verifyTokenMiddleware, (req, res) => {
         .then((userInfo) => {
             return res.json({
                 success: true,
-                userInfo: {
-                    username: userInfo.username,
-                    nickname: userInfo.nickname,
-                    aaa_no: userInfo.aaa_no,
-                    introduction: userInfo.introduction,
-                    profile_path: userInfo.profile_path
-                }
+                userInfo: userInfo
             })
         })
         .catch((err) => {

@@ -44,7 +44,6 @@ const cryptoRandomString = require('crypto-random-string');
 
 
 router.get('/', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     retrieveUser(req.decodedToken._id)
         .then((userInfo) => {
@@ -67,7 +66,6 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 })
 
 router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     let user_id = req.decodedToken._id;
 
@@ -143,7 +141,6 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
 })
 
 router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
     let user_id = req.decodedToken._id;
     let data = req.body;
 
@@ -206,7 +203,6 @@ router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
 })
 
 router.delete('/', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
 
     try {
         deleteUser(req.decodedToken._id)
@@ -234,7 +230,6 @@ router.delete('/', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/all', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     let offset = 0;
     const ROWNUM = 20;
@@ -276,7 +271,6 @@ router.get('/all', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_id = req.decodedToken._id;
     retrievePostsByUser(user_id)
@@ -296,7 +290,6 @@ router.get('/posts', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/photos', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_id = req.decodedToken._id;
     retrievePhotosByUser(user_id)
@@ -317,7 +310,6 @@ router.get('/photos', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/comments', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_id = req.decodedToken._id;
     retrieveCommentsByUser(user_id)
@@ -339,7 +331,6 @@ router.get('/comments', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/:user_uuid', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_uuid = req.params.user_uuid;
     retrieveUserByUserUuid(user_uuid)
@@ -359,7 +350,6 @@ router.get('/:user_uuid', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:user_uuid/posts', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_uuid = req.params.user_uuid;
     retrievePostsByUserUuid(user_uuid)
@@ -379,7 +369,6 @@ router.get('/:user_uuid/posts', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:user_uuid/photos', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_uuid = req.params.user_uuid;
     retrievePhotosByUserUuid(user_uuid)
@@ -400,7 +389,6 @@ router.get('/:user_uuid/photos', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/:user_uuid/comments', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     const user_uuid = req.params.user_uuid;
     retrieveCommentsByUserUuid(user_uuid)
@@ -421,7 +409,6 @@ router.get('/:user_uuid/comments', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/search/mini', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     if(req.query.name) {
         retrieveUsersByName(req.query.name)
@@ -450,7 +437,6 @@ router.get('/search/mini', verifyTokenMiddleware, (req, res) => {
 
 
 router.post('/find/id', (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
 
     let data = req.body;
     retrieveUsersByEmailAndName(data.email, data.name)
@@ -503,8 +489,6 @@ router.post('/find/id', (req, res) => {
 
 
 router.post('/find/pw', (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
-
 
     let data = req.body;
     retrieveUserById(data.id)

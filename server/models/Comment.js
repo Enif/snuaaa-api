@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
                     type: DataTypes.INTEGER,
                     allowNull: false
                 },
+                parent_comment_id: {
+                    type: DataTypes.INTEGER,
+                },
                 author_id: {
                     type: DataTypes.INTEGER,
                     allowNull: false
@@ -50,6 +53,12 @@ module.exports = (sequelize, DataTypes) => {
             this.belongsTo(models.User, {
                 foreignKey: 'author_id',
                 targetKey: 'user_id'
+            })
+
+            this.hasMany(models.Comment, {
+                as: 'children',
+                foreignKey: 'parent_comment_id',
+                sourceKey: 'comment_id'
             })
 
             this.belongsToMany(models.User, {

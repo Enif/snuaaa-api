@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 router.get('/', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     retrieveBoardsCanAccess(req.decodedToken.grade)
         .then((boardInfo) => {
@@ -48,7 +48,7 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
     try {
         retrieveBoard(req.params.board_id)
             .then((boardInfo) => {
@@ -83,7 +83,7 @@ router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
 })
 
 router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     let offset = 0;
     const ROWNUM = 10;
@@ -110,7 +110,7 @@ router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:board_id/posts/search', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     let offset = 0;
     const ROWNUM = 10;
@@ -138,7 +138,7 @@ router.get('/:board_id/posts/search', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     retrieveTagsOnBoard(req.params.board_id)
         .then((tags) => {
@@ -156,7 +156,7 @@ router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
 
 
 router.post('/:board_id/post', verifyTokenMiddleware, (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     let postData = {
         ...req.body,
@@ -183,7 +183,7 @@ router.post('/:board_id/post', verifyTokenMiddleware, (req, res) => {
 
 
 router.post('/:board_id/document', verifyTokenMiddleware, (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     try {
         let user_id = req.decodedToken._id;
@@ -227,7 +227,7 @@ router.post('/:board_id/document', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:board_id/exhibitions', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     retrieveExhibitions()
         .then((exhibitionInfo) => {
@@ -247,7 +247,7 @@ router.post('/:board_id/exhibition',
     verifyTokenMiddleware,
     uploadMiddleware('EH').single('poster'),
     (req, res) => {
-        console.log(`[POST] ${req.baseUrl + req.url}`);
+        
 
         if (!req.file) {
             res.status(409).json({

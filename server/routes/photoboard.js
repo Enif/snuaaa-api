@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 router.get('/:board_id/albums', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     let offset = 0;
     let albumCount = 0;
@@ -62,7 +62,7 @@ router.get('/:board_id/albums', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:board_id/photos', (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     let offset = 0;
     let photoCount = 0;
@@ -116,7 +116,7 @@ router.get('/:board_id/photos', (req, res) => {
 
 
 router.post('/:board_id/album', verifyTokenMiddleware, (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     let user_id = req.decodedToken._id;
     createContent(user_id, req.params.board_id, req.body, 'AL')

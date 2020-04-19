@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 router.get('/check', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     try {
         let user = {};
@@ -78,7 +78,7 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
 
 router.post('/login', (req, res) => {
 
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     try {
         if (typeof req.body.password !== "string") {
@@ -210,7 +210,7 @@ router.get('/login/guest', (req, res) => {
 
 
 router.post('/signup', upload.single('profile'), (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     try {
         let usernameRegex = /^[a-zA-Z0-9]+$/;
@@ -304,7 +304,7 @@ router.post('/signup', upload.single('profile'), (req, res) => {
 });
 
 router.post('/signup/dupcheck', (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     try {
         checkDupId(req.body.check_id)

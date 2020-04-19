@@ -7,7 +7,7 @@ import { updateComment, deleteComment } from '../controllers/comment.controller'
 const router = express.Router();
 
 router.patch('/:comment_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    
 
     updateComment(req.params.comment_id, req.body)
         .then(() => {
@@ -24,7 +24,7 @@ router.patch('/:comment_id', verifyTokenMiddleware, (req, res) => {
 });
 
 router.delete('/:comment_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
 
     deleteComment(req.params.comment_id)
         .then(() => {

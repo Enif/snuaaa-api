@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 
 exports.verifyTokenMiddleware = function(req, res, next) {
 
+    console.log(`[${req.method}] ${req.baseUrl + req.url}`);
     const auth = req.headers.authorization.split(" ");
     let token;
 

@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 like_num: {
                     type: DataTypes.INTEGER,
+                    defaultValue: 0
                 }
             }, {
                     sequelize,
@@ -62,9 +63,10 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             this.belongsToMany(models.User, {
+                as: 'likeUsers',
                 through: 'commentLike',
                 foreignKey: 'comment_id',
-                otherKey: 'comment_id'
+                otherKey: 'user_id'
             })
         }
     }

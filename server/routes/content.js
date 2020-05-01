@@ -2,18 +2,17 @@ import express from 'express';
 import path from 'path';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
+import uploadMiddleware from '../middlewares/upload';
 
 import { checkLike, likeContent, dislikeContent } from '../controllers/contentLike.controller';
 import { retrieveComments, createComment } from '../controllers/comment.controller';
 import { retrieveAttachedFile, increaseDownloadCount, createAttachedFile } from "../controllers/attachedFile.controller";
-import uploadMiddleware from '../middlewares/upload';
 
 const router = express.Router();
 
 router.get('/:content_id/comments', verifyTokenMiddleware, (req, res) => {
-    
 
-    retrieveComments(req.params.content_id)
+    retrieveComments(req.params.content_id, req.decodedToken._id)
         .then((comments) => {
             res.json(comments)
         })
@@ -27,7 +26,7 @@ router.get('/:content_id/comments', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:content_id/file/:file_id', (req, res) => {
-    
+
 
     retrieveAttachedFile(req.params.file_id)
         .then((file) => {
@@ -47,7 +46,7 @@ router.post('/:content_id/file',
     verifyTokenMiddleware,
     uploadMiddleware('AF').single('attachedFile'),
     (req, res) => {
-        
+
 
         try {
             if (!req.file) {
@@ -121,7 +120,7 @@ router.post('/:content_id/comment', verifyTokenMiddleware, (req, res) => {
 });
 
 router.post('/:content_id/like', verifyTokenMiddleware, (req, res) => {
-    
+
 
     const content_id = req.params.content_id;
     let user_id = req.decodedToken._id

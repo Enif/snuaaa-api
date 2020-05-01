@@ -25,18 +25,6 @@ module.exports = (sequelize, DataTypes) => {
                 }
             );
         }
-
-        // static associate(models) {
-        //     this.belongsTo(models.Content, {
-        //         foreignKey: 'parent_id',
-        //         targetKey: 'content_id'
-        //     })
-
-        //     this.belongsTo(models.User, {
-        //         foreignKey: 'author_id',
-        //         targetKey: 'user_id'
-        //     })
-        // }
     }
 
     return CommentLike;

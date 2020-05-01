@@ -44,7 +44,7 @@ const upload = multer({ storage })
 
 
 router.post('/', verifyTokenMiddleware, upload.single('attachedImage'), (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+    
 
     try {
         if (!req.file) {

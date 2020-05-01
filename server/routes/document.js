@@ -9,7 +9,7 @@ import { checkLike } from "../controllers/contentLike.controller";
 const router = express.Router();
 
 router.get('/', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     let offset = 0;
     let docCount = 0;
@@ -40,7 +40,7 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     Promise.all([retrieveDocument(req.params.doc_id), checkLike(req.params.doc_id, req.decodedToken._id)])
         .then((infos) => {
@@ -59,7 +59,7 @@ router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.patch('/:doc_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    
 
     updateContent(req.params.doc_id, req.body)
         .then(() => {
@@ -77,7 +77,7 @@ router.patch('/:doc_id', verifyTokenMiddleware, (req, res) => {
 
 
 router.delete('/:doc_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
 
     deleteDocument(req.params.doc_id)
         .then(() => {
@@ -101,7 +101,7 @@ export default router;
 
 // @deprecated
 // router.get('/generation/:genNum', verifyTokenMiddleware, (req, res) => {
-//     console.log(`[GET] ${req.baseUrl + req.url}`);
+//     
 
 //     retrieveDocuments(req.params.genNum)
 //         .then((docuInfo) => {
@@ -118,7 +118,7 @@ export default router;
 
 // @deprecated
 // router.get('/:docuId/download/:index', (req, res) => {
-//     console.log(`[GET] ${req.baseUrl + req.url}`);
+//     
 
 //     retrieveDocument(req.params.docuId)
 //     .then((docuInfo) => {

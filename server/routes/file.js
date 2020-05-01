@@ -5,7 +5,7 @@ import { deleteAttachedFile } from '../controllers/attachedFile.controller';
 const router = express.Router();
 
 router.delete('/:file_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
 
     try {
         deleteAttachedFile(req.params.file_id)

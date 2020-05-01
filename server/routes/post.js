@@ -10,7 +10,7 @@ import { checkLike } from '../controllers/contentLike.controller';
 const router = express.Router();
 
 router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     try {
         let resPostInfo = {}
@@ -51,7 +51,7 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
 })
 
 router.patch('/:post_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    
 
     updateContent(req.params.post_id, req.body)
         .then(() => {
@@ -64,7 +64,7 @@ router.patch('/:post_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.delete('/:post_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
     
     deleteContent(req.params.post_id)
         .then(() => {

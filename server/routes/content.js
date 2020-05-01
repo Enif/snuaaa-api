@@ -2,28 +2,31 @@ import express from 'express';
 import path from 'path';
 
 import { verifyTokenMiddleware } from '../middlewares/auth';
+import uploadMiddleware from '../middlewares/upload';
 
 import { checkLike, likeContent, dislikeContent } from '../controllers/contentLike.controller';
 import { retrieveComments, createComment } from '../controllers/comment.controller';
 import { retrieveAttachedFile, increaseDownloadCount, createAttachedFile } from "../controllers/attachedFile.controller";
-import uploadMiddleware from '../middlewares/upload';
 
 const router = express.Router();
 
 router.get('/:content_id/comments', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
-    retrieveComments(req.params.content_id)
+    retrieveComments(req.params.content_id, req.decodedToken._id)
         .then((comments) => {
             res.json(comments)
         })
         .catch((err) => {
-            res.status(500).json({ error: err })
+            console.error(err);
+            res.status(500).json({
+                success: false,
+                message: 'INTERNAL SERVER ERROR'
+            });
         })
 })
 
 router.get('/:content_id/file/:file_id', (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+
 
     retrieveAttachedFile(req.params.file_id)
         .then((file) => {
@@ -31,7 +34,11 @@ router.get('/:content_id/file/:file_id', (req, res) => {
             res.download(file.file_path, file.original_name);
         })
         .catch((err) => {
-            res.status(500).json({ error: err })
+            console.error(err);
+            res.status(500).json({
+                success: false,
+                message: 'INTERNAL SERVER ERROR'
+            });
         })
 })
 
@@ -39,7 +46,7 @@ router.post('/:content_id/file',
     verifyTokenMiddleware,
     uploadMiddleware('AF').single('attachedFile'),
     (req, res) => {
-        console.log(`[POST] ${req.baseUrl + req.url}`);
+
 
         try {
             if (!req.file) {
@@ -82,9 +89,9 @@ router.post('/:content_id/file',
                     file_type: file_type
                 }
                 createAttachedFile(req.params.content_id, data)
-                .then(() => {
-                    res.json({ success: true });
-                })
+                    .then(() => {
+                        res.json({ success: true });
+                    })
             }
         }
         catch (err) {
@@ -113,7 +120,7 @@ router.post('/:content_id/comment', verifyTokenMiddleware, (req, res) => {
 });
 
 router.post('/:content_id/like', verifyTokenMiddleware, (req, res) => {
-    console.log(`[POST] ${req.baseUrl + req.url}`);
+
 
     const content_id = req.params.content_id;
     let user_id = req.decodedToken._id

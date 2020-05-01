@@ -11,7 +11,7 @@ import { retrieveTagsByContent, createContentTag, deleteContentTag } from '../co
 const router = express.Router();
 
 router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     let photoInfo = {};
     let likeInfo = {};
@@ -60,7 +60,7 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
 })
 
 router.patch('/:photo_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    
 
     try {
         const contentData = {
@@ -120,7 +120,7 @@ router.patch('/:photo_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.delete('/:photo_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
     deletePhoto(req.params.photo_id)
         .then(() => {
             return deleteContent(req.params.photo_id)

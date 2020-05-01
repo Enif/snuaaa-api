@@ -9,7 +9,7 @@ import { retrieveUserByUserUuid } from '../controllers/user.controller';
 const router = express.Router();
 
 router.get('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     try {
         let exhibitPhotoInfo = {};
@@ -48,7 +48,7 @@ router.get('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.patch('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    
     try {
         new Promise((resolve, reject) => {
             if (req.body.photographer) {
@@ -111,7 +111,7 @@ router.patch('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
 
 
 router.delete('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
     try {
         deleteExhibitPhoto(req.params.exhibitPhoto_id)
             .then(() => {

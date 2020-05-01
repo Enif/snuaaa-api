@@ -1,9 +1,9 @@
 const models = require('../models');
 const Op = models.Sequelize.Op;
 
-exports.retrieveComments = function (parent_id) {
+exports.retrieveComments = function (parent_id, user_id) {
     return new Promise((resolve, reject) => {
-        if (!parent_id) {
+        if (!parent_id || !user_id) {
             reject('id can not be null');
         }
 
@@ -12,9 +12,33 @@ exports.retrieveComments = function (parent_id) {
                 model: models.User,
                 required: true,
                 attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+            },
+            {
+                model: models.User,
+                through: models.CommentLike,
+                as: 'likeUsers',
+                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+            },
+            {
+                model: models.Comment,
+                as: 'children',
+                include: [{
+                    model: models.User,
+                    required: true,
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                },
+                {
+                    model: models.User,
+                    through: models.CommentLike,
+                    as: 'likeUsers',
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                }],
             }],
-            where: { parent_id: parent_id },
-            order: ['created_at']
+            where: {
+                parent_id: parent_id,
+                parent_comment_id: null
+            },
+            order: [['created_at'], ['children', 'created_at']]
         })
             .then((comments) => {
                 resolve(comments)
@@ -163,6 +187,7 @@ exports.createComment = function (user_id, parent_id, data) {
         let comment_id = ''
         models.Comment.create({
             parent_id: parent_id,
+            parent_comment_id: data.parent_comment_id ? data.parent_comment_id : null,
             author_id: user_id,
             text: data.text
         })

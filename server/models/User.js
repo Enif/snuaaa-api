@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
             this.belongsToMany(models.Content, {
                 through: 'contentLike',
                 foreignKey: 'user_id',
-                otherKey: 'user_id'
+                otherKey: 'content_id'
             })
 
             this.hasMany(models.StatsLogin, {

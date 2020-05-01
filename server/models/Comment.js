@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
                     type: DataTypes.INTEGER,
                     allowNull: false
                 },
+                parent_comment_id: {
+                    type: DataTypes.INTEGER,
+                },
                 author_id: {
                     type: DataTypes.INTEGER,
                     allowNull: false
@@ -29,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 like_num: {
                     type: DataTypes.INTEGER,
+                    defaultValue: 0
                 }
             }, {
                     sequelize,
@@ -52,10 +56,17 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: 'user_id'
             })
 
+            this.hasMany(models.Comment, {
+                as: 'children',
+                foreignKey: 'parent_comment_id',
+                sourceKey: 'comment_id'
+            })
+
             this.belongsToMany(models.User, {
+                as: 'likeUsers',
                 through: 'commentLike',
                 foreignKey: 'comment_id',
-                otherKey: 'comment_id'
+                otherKey: 'user_id'
             })
         }
     }

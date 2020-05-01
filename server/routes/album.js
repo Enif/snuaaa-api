@@ -34,7 +34,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 router.get('/:album_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
 
     try {
         let albumInfo = {};
@@ -79,7 +78,6 @@ router.get('/:album_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.patch('/:album_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     try {
         const contentData = {
@@ -116,7 +114,6 @@ router.patch('/:album_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.patch('/:album_id/thumbnail', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
 
     let tn_photo_id = req.body.tn_photo_id;
     updateAlbumThumbnail(req.params.album_id, tn_photo_id)
@@ -135,7 +132,7 @@ router.patch('/:album_id/thumbnail', verifyTokenMiddleware, (req, res) => {
 })
 
 router.delete('/:album_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
 
     deleteContent(req.params.album_id)
         .then(() => {
@@ -152,7 +149,7 @@ router.delete('/:album_id', verifyTokenMiddleware, (req, res) => {
 
 
 router.get('/:album_id/photos', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     retrievePhotosInAlbum(req.params.album_id)
         .then((photos) => {
@@ -171,7 +168,7 @@ router.post('/:album_id/photos',
     verifyTokenMiddleware,
     uploadMiddleware('PH').single('uploadPhoto'),
     (req, res) => {
-        console.log(`[POST] ${req.baseUrl + req.url}`);
+        
 
         try {
             if (!req.file) {

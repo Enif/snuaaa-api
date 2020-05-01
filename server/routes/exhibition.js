@@ -12,7 +12,7 @@ import { retrieveUserByUserUuid } from '../controllers/user.controller';
 const router = express.Router();
 
 router.get('/:exhibition_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
     retrieveExhibition(req.params.exhibition_id)
         .then((exhibitionInfo) => {
             res.json({
@@ -29,19 +29,19 @@ router.get('/:exhibition_id', verifyTokenMiddleware, (req, res) => {
 })
 
 router.patch('/:exhibition_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[PATCH] ${req.baseUrl + req.url}`);
+    
 
 })
 
 
 router.delete('/:exhibition_id', verifyTokenMiddleware, (req, res) => {
-    console.log(`[DELETE] ${req.baseUrl + req.url}`);
+    
 
 })
 
 
 router.get('/:exhibition_id/exhibitPhotos', verifyTokenMiddleware, (req, res) => {
-    console.log(`[GET] ${req.baseUrl + req.url}`);
+    
 
     retrieveExhibitPhotosInExhibition(req.params.exhibition_id)
         .then((exhibitPhotosInfo) => {
@@ -62,7 +62,7 @@ router.post('/:exhibition_id/exhibitPhoto',
     verifyTokenMiddleware,
     uploadMiddleware('EH').single('exhibitPhoto'),
     (req, res) => {
-        console.log(`[POST] ${req.baseUrl + req.url}`);
+        
 
         if (!req.file) {
             res.status(409).json({

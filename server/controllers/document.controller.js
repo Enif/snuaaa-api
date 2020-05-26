@@ -16,6 +16,10 @@ exports.retrieveDocument = function (doc_id) {
                 required: true,
                 attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
             }, {
+                model: models.Board,
+                required: true,
+                attributes: ['board_id', 'board_name', 'lv_read']
+            }, {
                 model: models.AttachedFile,
                 as: 'attachedFiles',
                 separate: true

@@ -3,7 +3,7 @@ import express from 'express';
 import { verifyTokenMiddleware } from '../middlewares/auth';
 
 import { retrieveDocumentCount, retrieveDocument, retrieveDocuments, deleteDocument } from "../controllers/document.controller";
-import { updateContent, deleteContent } from '../controllers/content.controller';
+import { updateContent, deleteContent, increaseViewNum } from '../controllers/content.controller';
 import { checkLike } from "../controllers/contentLike.controller";
 
 const router = express.Router();
@@ -40,13 +40,32 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
-    
 
-    Promise.all([retrieveDocument(req.params.doc_id), checkLike(req.params.doc_id, req.decodedToken._id)])
+    try {
+
+        let resDocInfo = {};
+        retrieveDocument(req.params.doc_id)
+        .then((docInfo) => {
+            resDocInfo = docInfo;
+
+            if(docInfo.board.lv_read < req.decodedToken.grade) {
+                const err = {
+                    status: 403,
+                    code: 4001
+                }
+                next(err);
+            }
+            else {
+                return Promise.all([
+                    checkLike(req.params.doc_id, req.decodedToken._id),
+                    increaseViewNum(req.params.doc_id)
+                ])
+            }
+        })
         .then((infos) => {
             res.json({
-                docuInfo: infos[0],
-                likeInfo: infos[1]
+                docuInfo: resDocInfo,
+                likeInfo: infos[0]
             })
         })
         .catch((err) => {
@@ -56,6 +75,16 @@ router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
                 code: 0
             });
         })
+    }
+    catch (err) {
+        console.error(err)
+        return res.status(500).json({
+            success: false,
+            message: 'INTERNAL SERVER ERROR'
+        });
+    }
+
+
 })
 
 router.patch('/:doc_id', verifyTokenMiddleware, (req, res) => {

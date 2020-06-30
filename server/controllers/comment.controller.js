@@ -11,13 +11,15 @@ exports.retrieveComments = function (parent_id, user_id) {
             include: [{
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
+                paranoid: false
             },
             {
                 model: models.User,
                 through: models.CommentLike,
                 as: 'likeUsers',
-                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
+                paranoid: false
             },
             {
                 model: models.Comment,
@@ -25,13 +27,15 @@ exports.retrieveComments = function (parent_id, user_id) {
                 include: [{
                     model: models.User,
                     required: true,
-                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
+                    paranoid: false
                 },
                 {
                     model: models.User,
                     through: models.CommentLike,
                     as: 'likeUsers',
-                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                    attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
+                    paranoid: false
                 }],
             }],
             where: {

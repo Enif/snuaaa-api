@@ -12,10 +12,6 @@ exports.retrievePhoto = function (photo_id) {
                 model: models.Photo,
                 as: 'photo',
                 required: true,
-                // include: [{
-                //     as: 'album',
-                //     model: models.Content,
-                // }]
             },
             {
                 model: models.Content,
@@ -29,7 +25,8 @@ exports.retrievePhoto = function (photo_id) {
             {
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path']
+                attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
+                paranoid: false
             },
             {
                 model: models.Board,
@@ -201,7 +198,8 @@ exports.retrievePhotosInAlbum = function (album_id) {
                 {
                     model: models.User,
                     required: true,
-                    attributes: ['nickname']
+                    attributes: ['nickname', 'deleted_at'],
+                    paranoid: false
                 }],
                 where: { parent_id: album_id },
                 order: [
@@ -258,8 +256,8 @@ exports.retrievePhotosInBoard = function (board_id, rowNum, offset) {
                 {
                     model: models.User,
                     required: true,
-                    attributes: ['nickname']
-
+                    attributes: ['nickname', 'deleted_at'],
+                    paranoid: false
                 }],
                 where: { board_id: board_id },
                 order: [

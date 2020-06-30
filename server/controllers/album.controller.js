@@ -176,7 +176,8 @@ exports.retrieveAlbumsInBoard = function (board_id, rowNum, offset, category_id)
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['nickname']
+                attributes: ['nickname', 'deleted_at'],
+                paranoid: false
             }, {
                 model: models.Category
             }, {

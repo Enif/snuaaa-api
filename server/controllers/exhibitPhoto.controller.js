@@ -56,7 +56,8 @@ exports.retrieveExhibitPhoto = function (exhibitPhoto_id) {
                 include: [{
                     model: models.User,
                     as: 'photographer',
-                    attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path'],
+                    attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
+                    paranoid: false
                 }]
             }, {
                 model: models.Content,
@@ -70,7 +71,8 @@ exports.retrieveExhibitPhoto = function (exhibitPhoto_id) {
                 model: models.User,
                 as: 'user',
                 required: true,
-                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
+                paranoid: false
             }]
         })
             .then((info) => {

@@ -60,7 +60,8 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['nickname']
+                attributes: ['nickname'],
+                paranoid: false
             }],
             where: { board_id: board_id },
             order: [
@@ -143,7 +144,8 @@ exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) 
                 model: models.User,
                 required: true,
                 attributes: ['nickname'],
-                where: userCondition
+                where: userCondition,
+                paranoid: false
             }],
             where: contentCondition,
             order: [
@@ -223,7 +225,8 @@ exports.retrieveAllPosts = function (grade, rowNum, offset) {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['nickname']
+                attributes: ['nickname'],
+                paranoid: false
             }],
             order: [
                 ['updated_at', 'DESC']

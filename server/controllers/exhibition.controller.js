@@ -14,7 +14,8 @@ exports.retrieveExhibition = function (exhibition_id) {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
+                paranoid: false
             },
             {
                 model: models.Board,
@@ -42,7 +43,8 @@ exports.retrieveExhibitions = function () {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+                attributes: ['user_id', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
+                paranoid: false
             }, {
                 model: models.Board,
                 required: true,

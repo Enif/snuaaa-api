@@ -14,7 +14,8 @@ exports.retrieveDocument = function (doc_id) {
             }, {
                 model: models.User,
                 required: true,
-                attributes: ['user_id', 'nickname', 'introduction', 'profile_path']
+                attributes: ['user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
+                paranoid: false
             }, {
                 model: models.Board,
                 required: true,
@@ -51,7 +52,8 @@ exports.retrieveDocumentCount = function (category_id, generation) {
                 include: [{
                     model: models.User,
                     required: true,
-                    attributes: ['nickname']
+                    attributes: ['nickname', 'deleted_at'],
+                    paranoid: false
                 }, {
                     model: models.Category,
                     required: true,
@@ -87,7 +89,8 @@ exports.retrieveDocuments = function (rowNum, offset, category_id, generation) {
                 include: [{
                     model: models.User,
                     required: true,
-                    attributes: ['nickname']
+                    attributes: ['nickname', 'deleted_at'],
+                    paranoid: false
                 }, {
                     model: models.Category,
                     required: true,

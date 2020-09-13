@@ -164,19 +164,20 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
             request.get(riseSetUrl + riseSetQueryParams, (err, response, body) => {
                 if (err) {
                     console.error(err);
-                    res.status(500).json({
+                    return res.status(500).json({
                         success: false,
                         code: 0
                     });
                 }
                 else if (!xmlParser.validate(body)) {
                     console.error('xml parse error');
-                    res.status(500).json({
+                    return res.status(500).json({
                         success: false,
                         code: 0
                     });
                 }
                 else {
+                    console.log(response)
                     let riseSetData = xmlParser.parse(body);
                     let riseSetItem = {};
                     if (riseSetData.response
@@ -188,7 +189,7 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                     }
                     else {
                         console.error('api error');
-                        res.status(500).json({
+                        return res.status(500).json({
                             success: false,
                             code: 0
                         });
@@ -203,19 +204,20 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                     request.get(moonPhaseUrl + moonPhaseQueryParams, (err, response, body) => {
                         if (err) {
                             console.error(err);
-                            res.status(500).json({
+                            return res.status(500).json({
                                 success: false,
                                 code: 0
                             });
                         }
                         else if (!xmlParser.validate(body)) {
                             console.error('xml parse error');
-                            res.status(500).json({
+                            return res.status(500).json({
                                 success: false,
                                 code: 0
                             });
                         }
                         else {
+                            console.log(response)
                             let moonPhaseData = xmlParser.parse(body);
                             let moonPhaseItem = {};
                             if (moonPhaseData.response
@@ -227,7 +229,7 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                             }
                             else {
                                 console.error('api error');
-                                res.status(500).json({
+                                return res.status(500).json({
                                     success: false,
                                     code: 0
                                 });

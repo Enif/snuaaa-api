@@ -15,7 +15,7 @@ import { retrieveAlbumsInBoard } from '../controllers/album.controller';
 const router = express.Router();
 
 router.get('/soundbox', verifyTokenMiddleware, (req, res) => {
-    
+
     retrieveSoundBox()
         .then((post) => {
             res.json(post)
@@ -29,7 +29,7 @@ router.get('/soundbox', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {
-    
+
     retrieveRecentPosts(req.decodedToken.grade)
         .then((posts) => {
             res.json(posts)
@@ -43,7 +43,7 @@ router.get('/posts', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/posts/all', verifyTokenMiddleware, (req, res) => {
-    
+
     const ROWNUM = 10;
     let offset = 0;
     if (req.query.page > 0) {
@@ -65,7 +65,7 @@ router.get('/posts/all', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/memory', verifyTokenMiddleware, (req, res) => {
-    
+
     retrieveAlbumsInBoard('brd31', 4, 0)
         .then((albums) => {
             res.json(albums)
@@ -79,7 +79,7 @@ router.get('/memory', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/astrophoto', verifyTokenMiddleware, (req, res) => {
-    
+
     retrievePhotosInBoard('brd32', 9, 0)
         .then((photos) => {
             res.json(photos)
@@ -93,7 +93,7 @@ router.get('/astrophoto', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/comments', verifyTokenMiddleware, (req, res) => {
-    
+
     retrieveRecentComments()
         .then((commentInfo) => {
             res.json(commentInfo)
@@ -107,7 +107,7 @@ router.get('/comments', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/comments/all', verifyTokenMiddleware, (req, res) => {
-    
+
     const ROWNUM = 10;
     let offset = 0;
     if (req.query.page > 0) {
@@ -129,7 +129,7 @@ router.get('/comments/all', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/riseset', verifyTokenMiddleware, (req, res) => {
-    
+
 
     const today = new Date();
     let year = today.getFullYear().toString();
@@ -177,7 +177,6 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                     });
                 }
                 else {
-                    console.log(response)
                     let riseSetData = xmlParser.parse(body);
                     let riseSetItem = {};
                     if (riseSetData.response
@@ -217,7 +216,6 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                             });
                         }
                         else {
-                            console.log(response)
                             let moonPhaseData = xmlParser.parse(body);
                             let moonPhaseItem = {};
                             if (moonPhaseData.response

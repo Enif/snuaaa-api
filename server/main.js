@@ -27,7 +27,7 @@ if (process.env.NODE_ENV == 'develop') {
 }
 else {
     const corsOptions = {
-        origin: ['https://www.snuaaa.net', 'https://community.snuaaa.net'],
+        origin: ['https://www.snuaaa.net', 'https://our.snuaaa.net'],
         optionsSuccessStatus: 200
     }
     app.use(cors(corsOptions));

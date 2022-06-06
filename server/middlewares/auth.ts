@@ -35,7 +35,7 @@ export function verifyTokenMiddleware(req, res, next) {
     });
 };
 
-exports.authMiddleware = (req, res, next) => {
+export function authMiddleware(req, res, next) {
     // 토큰 취득
     const token = req.cookies.token
 

@@ -22,7 +22,7 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
     }
 
     retrieveDocumentCount(req.query.category, req.query.generation)
-        .then((count) => {
+        .then((count: any) => {
             docCount = count;
             return retrieveDocuments(ROWNUM, offset, req.query.category, req.query.generation)
         })
@@ -48,7 +48,7 @@ router.get('/:doc_id', verifyTokenMiddleware, (req, res, next) => {
     try {
         let resDocInfo = {};
         retrieveDocument(req.params.doc_id)
-        .then((docInfo) => {
+        .then((docInfo: any) => {
             resDocInfo = docInfo;
 
             if(docInfo.board.lv_read < decodedToken.grade) {

@@ -72,7 +72,7 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
     let user_id = decodedToken._id;
 
     retrieveUser(user_id)
-        .then((userInfo) => {
+        .then((userInfo: any) => {
             let data = req.body;
             if ((req as any).file) {
                 data.profile_path = '/profile/' + (req as any).file.filename;;
@@ -148,7 +148,7 @@ router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
     let data = req.body;
 
     retrieveUserPw(user_id)
-        .then((userInfo) => {
+        .then((userInfo: any) => {
             return new Promise<void>((resolve, reject) => {
                 if (!bcrypt.compareSync(data.password, userInfo.password)) {
                     const err = {
@@ -449,7 +449,7 @@ router.post('/find/id', (req, res) => {
 
     let data = req.body;
     retrieveUsersByEmailAndName(data.email, data.name)
-    .then((users) => {
+    .then((users: any) => {
         if(users && users.length > 0) {
             res.json({
                 success: true
@@ -501,7 +501,7 @@ router.post('/find/pw', (req, res) => {
 
     let data = req.body;
     retrieveUserById(data.id)
-    .then((user) => {
+    .then((user: any) => {
         if(user) {
             if(user.email === data.email && user.username === data.name) {
                 let resetPw = cryptoRandomString({length: 10});

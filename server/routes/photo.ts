@@ -77,7 +77,7 @@ router.patch('/:photo_id', verifyTokenMiddleware, (req, res) => {
             updateContent(req.params.photo_id, contentData),
             updatePhoto(req.params.photo_id, photoData)
         ])
-            .then((infos) => {
+            .then((infos: any) => {
                 const prevTags = infos[0].map(tag => tag.tag_id);
                 const newTags = tagData.map(tag => tag.tag_id);
                 const updateTag = [];

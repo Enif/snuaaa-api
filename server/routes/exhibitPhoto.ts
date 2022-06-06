@@ -54,7 +54,7 @@ router.patch('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
         new Promise<void>((resolve, reject) => {
             if (req.body.photographer) {
                 retrieveUserByUserUuid(req.body.photographer.user_uuid)
-                .then((photographer) => {
+                .then((photographer: any) => {
                     resolve(photographer);
                 })
                 .catch((err) => {

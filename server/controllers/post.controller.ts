@@ -1,6 +1,6 @@
 const models = require('../models');
 const uuid4 = require('uuid4');
-const Op = models.Sequelize.Op;
+import { Op } from 'sequelize';
 import ContentTypeEnum from '../enums/contentTypeEnum';
 
 const SearchTypeEnum = Object.freeze({

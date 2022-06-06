@@ -43,7 +43,7 @@ router.get('/:board_id/albums', verifyTokenMiddleware, (req, res) => {
     }
 
     retrieveAlbumCount(req.params.board_id, req.query.category)
-        .then((count) => {
+        .then((count: any) => {
             albumCount = count;
             return retrieveAlbumsInBoard(req.params.board_id, ROWNUM, offset, req.query.category)
         })
@@ -155,7 +155,7 @@ router.post('/:board_id/photos',
 
                 const photoInfo = JSON.parse(req.body.photoInfo)
                 let basename = path.basename(file.filename, path.extname(file.filename));
-                resizeForThumbnail(file.path)
+                resizeForThumbnail(file.path, null)
                     .then(() => {
                         let photoData = {
                             ...photoInfo,

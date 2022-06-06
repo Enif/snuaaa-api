@@ -76,13 +76,13 @@ router.post('/:exhibition_id/exhibitPhoto',
             let basename = path.basename(file.filename, path.extname(file.filename));
             const photoInfo = JSON.parse(req.body.photoInfo)
 
-            resizeForThumbnail(file.path)
+            resizeForThumbnail(file.path, null)
                 .then(() => {
                     if(photoInfo.photographer.user_uuid) {
                         return retrieveUserByUserUuid(photoInfo.photographer.user_uuid)
                     }
                 })
-                .then((photographer) => {
+                .then((photographer: any) => {
                     // console.log(photographer)
 
                     let data = {

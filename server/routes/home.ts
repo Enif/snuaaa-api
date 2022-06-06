@@ -70,7 +70,7 @@ router.get('/posts/all', verifyTokenMiddleware, (req, res) => {
 
 router.get('/memory', verifyTokenMiddleware, (req, res) => {
 
-    retrieveAlbumsInBoard('brd31', 4, 0)
+    retrieveAlbumsInBoard('brd31', 4, 0, null)
         .then((albums) => {
             res.json(albums)
         })
@@ -120,7 +120,7 @@ router.get('/comments/all', verifyTokenMiddleware, (req, res) => {
         offset = ROWNUM * (query.page - 1);
     }
     retrieveAllComments(decodedToken.grade, ROWNUM, offset)
-        .then((commentInfo) => {
+        .then((commentInfo: any) => {
             res.json({
                 commentCount: commentInfo.count,
                 commentInfo: commentInfo.rows

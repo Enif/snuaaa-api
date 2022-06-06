@@ -1,5 +1,5 @@
 const models = require('../models');
-const Op = models.Sequelize.Op;
+import { Op } from 'sequelize';
 
 export function retrievePhoto(photo_id) {
     return new Promise((resolve, reject) => {

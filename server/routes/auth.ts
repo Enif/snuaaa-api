@@ -30,7 +30,7 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
         const decodedToken = (req as any).decodedToken;
 
         retrieveUser(decodedToken._id)
-            .then((userInfo) => {
+            .then((userInfo: any) => {
                 user = userInfo;
                 if (userInfo.login_at) {
                     let recentLogin = new Date(userInfo.login_at).getTime();
@@ -92,7 +92,7 @@ router.post('/login', (req, res) => {
         let userInfo = {} as any;
 
         retrieveUserById(req.body.id)
-            .then((user) => {
+            .then((user: any) => {
                 return new Promise<void>((resolve, reject) => {
                     if (!user) {
                         reject('id is not correct');

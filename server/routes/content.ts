@@ -31,7 +31,7 @@ router.get('/:content_id/file/:file_id', (req, res) => {
 
 
     retrieveAttachedFile(req.params.file_id)
-        .then((file) => {
+        .then((file: any) => {
             increaseDownloadCount(req.params.file_id)
             res.download(file.file_path, file.original_name);
         })

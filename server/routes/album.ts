@@ -40,7 +40,7 @@ router.get('/:album_id', verifyTokenMiddleware, (req, res) => {
     try {
         let albumInfo = {} as any;
         retrieveAlbum(req.params.album_id)
-            .then((info) => {
+            .then((info: any) => {
 
                 if(info.board.lv_read < decodedToken.grade) {
                     res.status(403).json({
@@ -192,7 +192,7 @@ router.post('/:album_id/photos',
                 const photoInfo = JSON.parse(req.body.photoInfo)
 
                 let basename = path.basename(file.filename, path.extname(file.filename));
-                resizeForThumbnail(file.path)
+                resizeForThumbnail(file.path, null)
                     .then(() => {
                         let photoData = {
                             ...photoInfo,

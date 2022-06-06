@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const uploadMiddleware = function (type) {
+const uploadMiddleware = function(type) {
 
     const storage = multer.diskStorage({
         destination: function (req, file, cb) {

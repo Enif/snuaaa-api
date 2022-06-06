@@ -53,7 +53,7 @@ router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
 
     try {
         retrieveBoard(req.params.board_id)
-            .then((boardInfo) => {
+            .then((boardInfo: any) => {
                 if (boardInfo.lv_read < decodedToken.grade) {
                     const err = {
                         status: 403,

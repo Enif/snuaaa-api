@@ -13,13 +13,15 @@ const router = express.Router();
 router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
     
 
-    let photoInfo = {};
-    let likeInfo = {};
+    let photoInfo = {} as any;
+    let likeInfo = {} as any;
+    const { decodedToken } = req as any;
+
 
     retrievePhoto(req.params.photo_id)
         .then((info) => {
             photoInfo = info;
-            if (photoInfo.board.lv_read < req.decodedToken.grade) {
+            if (photoInfo.board.lv_read < decodedToken.grade) {
                 const err = {
                     status: 403,
                     code: 4001
@@ -28,7 +30,7 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
             }
             else {
                 return Promise.all([
-                    checkLike(req.params.photo_id, req.decodedToken._id),
+                    checkLike(req.params.photo_id, decodedToken._id),
                     retrieveTagsOnBoard(photoInfo.board_id),
                     retrievePrevPhoto(req.params.photo_id, photoInfo.parent_id),
                     retrieveNextPhoto(req.params.photo_id, photoInfo.parent_id),

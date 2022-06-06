@@ -30,7 +30,9 @@ router.get('/soundbox', verifyTokenMiddleware, (req, res) => {
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {
 
-    retrieveRecentPosts(req.decodedToken.grade)
+    const { decodedToken } = (req as any);
+
+    retrieveRecentPosts(decodedToken.grade)
         .then((posts) => {
             res.json(posts)
         })
@@ -46,14 +48,16 @@ router.get('/posts/all', verifyTokenMiddleware, (req, res) => {
 
     const ROWNUM = 10;
     let offset = 0;
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+    const { query, decodedToken } = (req as any);
+
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
-    retrieveAllPosts(req.decodedToken.grade, ROWNUM, offset)
+    retrieveAllPosts(decodedToken.grade, ROWNUM, offset)
         .then((postInfo) => {
             res.json({
-                postCount: postInfo.count,
-                postInfo: postInfo.rows
+                postCount: (postInfo as any).count,
+                postInfo: (postInfo as any).rows
             })
         })
         .catch((err) => {
@@ -110,10 +114,12 @@ router.get('/comments/all', verifyTokenMiddleware, (req, res) => {
 
     const ROWNUM = 10;
     let offset = 0;
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+    const { query, decodedToken } = (req as any);
+
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
-    retrieveAllComments(req.decodedToken.grade, ROWNUM, offset)
+    retrieveAllComments(decodedToken.grade, ROWNUM, offset)
         .then((commentInfo) => {
             res.json({
                 commentCount: commentInfo.count,
@@ -133,8 +139,8 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
 
     const today = new Date();
     let year = today.getFullYear().toString();
-    let month = today.getMonth() + 1;
-    let day = today.getDate();
+    let month: any = today.getMonth() + 1;
+    let day: any = today.getDate();
     month = month < 10 ? '0' + month : month;
     day = day < 10 ? '0' + day : day;
 
@@ -178,7 +184,7 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                 }
                 else {
                     let riseSetData = xmlParser.parse(body);
-                    let riseSetItem = {};
+                    let riseSetItem = {} as any;
                     if (riseSetData.response
                         && riseSetData.response.body
                         && riseSetData.response.body.items
@@ -217,7 +223,7 @@ router.get('/riseset', verifyTokenMiddleware, (req, res) => {
                         }
                         else {
                             let moonPhaseData = xmlParser.parse(body);
-                            let moonPhaseItem = {};
+                            let moonPhaseItem = {} as any;
                             if (moonPhaseData.response
                                 && moonPhaseData.response.body
                                 && moonPhaseData.response.body.items

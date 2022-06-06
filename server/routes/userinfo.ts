@@ -45,7 +45,8 @@ const cryptoRandomString = require('crypto-random-string');
 
 router.get('/', verifyTokenMiddleware, (req, res) => {
 
-    retrieveUser(req.decodedToken._id)
+    const decodedToken = (req as any).decodedToken;
+    retrieveUser(decodedToken._id)
         .then((userInfo) => {
             return res.json({
                 success: true,
@@ -67,14 +68,15 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 
 router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res) => {
 
-    let user_id = req.decodedToken._id;
+    const decodedToken = (req as any).decodedToken;
+    let user_id = decodedToken._id;
 
     retrieveUser(user_id)
         .then((userInfo) => {
             let data = req.body;
-            if (req.file) {
-                data.profile_path = '/profile/' + req.file.filename;;
-                resize(req.file.path);
+            if ((req as any).file) {
+                data.profile_path = '/profile/' + (req as any).file.filename;;
+                resize((req as any).file.path);
             }
             else {
                 data.profile_path = userInfo.profile_path;
@@ -141,12 +143,13 @@ router.patch('/', verifyTokenMiddleware, upload.single('profileImg'), (req, res)
 })
 
 router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
-    let user_id = req.decodedToken._id;
+    const decodedToken = (req as any).decodedToken;
+    let user_id = decodedToken._id;
     let data = req.body;
 
     retrieveUserPw(user_id)
         .then((userInfo) => {
-            return new Promise((resolve, reject) => {
+            return new Promise<void>((resolve, reject) => {
                 if (!bcrypt.compareSync(data.password, userInfo.password)) {
                     const err = {
                         status: 403,
@@ -204,8 +207,9 @@ router.patch('/password', verifyTokenMiddleware, (req, res, next) => {
 
 router.delete('/', verifyTokenMiddleware, (req, res) => {
 
+    const decodedToken = (req as any).decodedToken;
     try {
-        deleteUser(req.decodedToken._id)
+        deleteUser(decodedToken._id)
         .then(() => {
             return res.json({ success: true })
         })
@@ -234,7 +238,8 @@ router.get('/all', verifyTokenMiddleware, (req, res) => {
     let offset = 0;
     const ROWNUM = 20;
     // const user_id = req.decodedToken._id;
-    if(req.decodedToken.grade > 6) {
+    const decodedToken = (req as any).decodedToken;
+    if(decodedToken.grade > 6) {
         return res.status(403).json({
             success: false
         })
@@ -272,7 +277,8 @@ router.get('/all', verifyTokenMiddleware, (req, res) => {
 
 router.get('/posts', verifyTokenMiddleware, (req, res) => {
 
-    const user_id = req.decodedToken._id;
+    const decodedToken = (req as any).decodedToken;
+    const user_id = decodedToken._id;
     retrievePostsByUser(user_id)
         .then((info) => {
             return res.json({
@@ -291,7 +297,8 @@ router.get('/posts', verifyTokenMiddleware, (req, res) => {
 
 router.get('/photos', verifyTokenMiddleware, (req, res) => {
 
-    const user_id = req.decodedToken._id;
+    const decodedToken = (req as any).decodedToken;
+    const user_id = decodedToken._id;
     retrievePhotosByUser(user_id)
         .then((info) => {
             return res.json({
@@ -311,7 +318,9 @@ router.get('/photos', verifyTokenMiddleware, (req, res) => {
 
 router.get('/comments', verifyTokenMiddleware, (req, res) => {
 
-    const user_id = req.decodedToken._id;
+    const decodedToken = (req as any).decodedToken;
+    const user_id = decodedToken._id;
+
     retrieveCommentsByUser(user_id)
         .then((info) => {
             return res.json({

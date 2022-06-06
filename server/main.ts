@@ -1,10 +1,9 @@
 // [LOAD PACKAGES]
-import express from 'express';
+const express = require('express')
 import api from './routes';
 import cors from 'cors';
-import path from 'path';
 import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
+import * as bodyParser from 'body-parser';
 import { errorHandler } from './middlewares/errorHandler';
 import logger from './middlewares/logger';
 import helmet from 'helmet';

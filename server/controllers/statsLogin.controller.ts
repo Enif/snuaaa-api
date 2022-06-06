@@ -1,8 +1,8 @@
 const models = require('../models');
 
-exports.createStatsLogin = function (user_id) {
+export function createStatsLogin(user_id) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         if (!user_id) {
             reject('user_id can not be null')
         }
@@ -20,9 +20,9 @@ exports.createStatsLogin = function (user_id) {
     })
 }
 
-exports.retrieveRecentLogin = function (user_id) {
+export function retrieveRecentLogin(user_id) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         if (!user_id) {
             reject('user_id can not be null')
         }

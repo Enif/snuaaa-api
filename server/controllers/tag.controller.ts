@@ -1,7 +1,7 @@
 const models = require('../models');
 
 
-exports.retrieveTagsOnBoard = function (board_id) {
+export function retrieveTagsOnBoard(board_id) {
     return new Promise((resolve, reject) => {
 
         if (!board_id) {

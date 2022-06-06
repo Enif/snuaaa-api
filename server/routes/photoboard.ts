@@ -36,9 +36,10 @@ router.get('/:board_id/albums', verifyTokenMiddleware, (req, res) => {
     let offset = 0;
     let albumCount = 0;
     const ROWNUM = 12;
+    const query = (req as any).query;
 
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
 
     retrieveAlbumCount(req.params.board_id, req.query.category)
@@ -68,15 +69,16 @@ router.get('/:board_id/photos', (req, res) => {
     let photoCount = 0;
     const tags = req.query.tags;
     const ROWNUM = 12;
+    const query = (req as any).query;
 
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
 
     if (tags) {
         retrievePhotoCountByTag(tags)
             .then((count) => {
-                photoCount = count;
+                photoCount = count as number;
                 return retrievePhotosByTag(tags, ROWNUM, offset)
             })
             .then((photoInfo) => {
@@ -96,7 +98,7 @@ router.get('/:board_id/photos', (req, res) => {
     else {
         retrievePhotoCountInBoard(req.params.board_id)
             .then((count) => {
-                photoCount = count;
+                photoCount = count as number;
                 return retrievePhotosInBoard(req.params.board_id, ROWNUM, offset)
             })
             .then((photoInfo) => {
@@ -117,8 +119,8 @@ router.get('/:board_id/photos', (req, res) => {
 
 router.post('/:board_id/album', verifyTokenMiddleware, (req, res) => {
     
-
-    let user_id = req.decodedToken._id;
+    const decodedToken = (req as any).decodedToken
+    let user_id = decodedToken._id;
     createContent(user_id, req.params.board_id, req.body, 'AL')
         .then((content_id) => {
             return createAlbum(content_id, req.body)
@@ -139,8 +141,11 @@ router.post('/:board_id/photos',
     (req, res) => {
         console.info(`[POST] ${req.baseUrl + req.url}`);
 
+        const file = (req as any).file;
+        const decodedToken = (req as any).decodedToken;
+
         try {
-            if (!req.file) {
+            if (!file) {
                 res.status(409).json({
                     error: 'PHOTO IS NOT ATTACHED',
                     code: 1
@@ -149,16 +154,16 @@ router.post('/:board_id/photos',
             else {
 
                 const photoInfo = JSON.parse(req.body.photoInfo)
-                let basename = path.basename(req.file.filename, path.extname(req.file.filename));
-                resizeForThumbnail(req.file.path)
+                let basename = path.basename(file.filename, path.extname(file.filename));
+                resizeForThumbnail(file.path)
                     .then(() => {
                         let photoData = {
                             ...photoInfo,
                             type: 'PH',
-                            author_id: req.decodedToken._id,
+                            author_id: decodedToken._id,
                             date: req.body.date ? new Date(req.body.date) : null,
                             board_id: req.params.board_id,
-                            file_path: '/album/default/' + req.file.filename,
+                            file_path: '/album/default/' + file.filename,
                             thumbnail_path: `/album/default/${basename}_thumb.jpeg`
                         }
                         return createPhoto(photoData)

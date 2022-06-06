@@ -14,8 +14,8 @@ const storage = multer.diskStorage({
 
         const today = new Date();
         let year = today.getFullYear().toString();
-        let month = today.getMonth() + 1;
-        let day = today.getDate();
+        let month: any = today.getMonth() + 1;
+        let day: any = today.getDate();
         month = month < 10 ? '0' + month : month;
         day = day < 10 ? '0' + day : day;
         let dayformat = `${year}${month}${day}`;
@@ -45,19 +45,20 @@ const upload = multer({ storage })
 
 router.post('/', verifyTokenMiddleware, upload.single('attachedImage'), (req, res) => {
     
+    const { file } = req as any;
 
     try {
-        if (!req.file) {
+        if (!file) {
             res.status(409).json({
                 error: 'PHOTO IS NOT ATTACHED',
                 code: 1
             });
         }
         else {
-            resizeAttatchedImg(req.file.path)
+            resizeAttatchedImg(file.path)
                 .then(() => {
                     let imgPath = '';
-                    path.relative('./upload/', req.file.path)
+                    path.relative('./upload/', file.path)
                     .split(path.sep)
                     .forEach((route) => {
                         imgPath += ('/' + route)

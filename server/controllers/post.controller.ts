@@ -10,7 +10,7 @@ const SearchTypeEnum = Object.freeze({
     USER: 'U'
 })
 
-exports.retrievePost = function (content_id) {
+export function retrievePost(content_id) {
     return new Promise((resolve, reject) => {
         if (!content_id) {
             reject('id can not be null');
@@ -47,7 +47,7 @@ exports.retrievePost = function (content_id) {
     })
 }
 
-exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
+export function retrievePostsInBoard(board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('id can not be null');
@@ -80,7 +80,7 @@ exports.retrievePostsInBoard = function (board_id, rowNum, offset) {
 }
 
 
-exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) {
+export function searchPostsInBoard(board_id, type, keyword, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('id can not be null');
@@ -164,7 +164,7 @@ exports.searchPostsInBoard = function (board_id, type, keyword, rowNum, offset) 
 }
 
 
-exports.retrieveRecentPosts = function (grade) {
+export function retrieveRecentPosts(grade) {
     return new Promise((resolve, reject) => {
 
         models.Content.findAll({
@@ -205,7 +205,7 @@ exports.retrieveRecentPosts = function (grade) {
     })
 }
 
-exports.retrieveAllPosts = function (grade, rowNum, offset) {
+export function retrieveAllPosts(grade, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
         models.Content.findAndCountAll({
@@ -243,7 +243,7 @@ exports.retrieveAllPosts = function (grade, rowNum, offset) {
     })
 }
 
-exports.retrievePostsByUser = function (user_id) {
+export function retrievePostsByUser(user_id) {
     return new Promise((resolve, reject) => {
         if (!user_id) {
             reject('id can not be null');
@@ -278,7 +278,7 @@ exports.retrievePostsByUser = function (user_id) {
     })
 };
 
-exports.retrievePostsByUserUuid = function (user_uuid) {
+export function retrievePostsByUserUuid(user_uuid) {
     return new Promise((resolve, reject) => {
         if (!user_uuid) {
             reject('id can not be null');
@@ -318,7 +318,7 @@ exports.retrievePostsByUserUuid = function (user_uuid) {
 };
 
 
-exports.retrieveSoundBox = function () {
+export function retrieveSoundBox() {
     return new Promise((resolve, reject) => {
 
         models.Content.findOne({
@@ -347,7 +347,7 @@ exports.retrieveSoundBox = function () {
     })
 }
 
-exports.createPost = function (data) {
+export function createPost(data) {
     return new Promise((resolve, reject) => {
         models.Content.create({
             content_uuid: uuid4(),

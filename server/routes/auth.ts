@@ -26,14 +26,15 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
     
 
     try {
-        let user = {};
+        let user = {} as any;
+        const decodedToken = (req as any).decodedToken;
 
-        retrieveUser(req.decodedToken._id)
+        retrieveUser(decodedToken._id)
             .then((userInfo) => {
                 user = userInfo;
                 if (userInfo.login_at) {
-                    let recentLogin = Date.parse(new Date(userInfo.login_at));
-                    let current = Date.parse(new Date());
+                    let recentLogin = new Date(userInfo.login_at).getTime();
+                    let current = new Date().getTime();
                     // Update login history only after later than 1hours from last history.
                     if (current - recentLogin > 60 * 60 * 1000) {
                         return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
@@ -48,14 +49,14 @@ router.get('/check', verifyTokenMiddleware, (req, res) => {
                     _id: user.user_id,
                     grade: user.grade,
                     level: user.level,
-                    autoLogin: req.decodedToken.autoLogin
+                    autoLogin: decodedToken.autoLogin
                 })
             })
             .then((token) => {
                 return res.status(200).json({
                     success: true,
                     userInfo: user,
-                    autoLogin: req.decodedToken.autoLogin,
+                    autoLogin: decodedToken.autoLogin,
                     token
                 });
             })
@@ -88,11 +89,11 @@ router.post('/login', (req, res) => {
             });
         }
 
-        let userInfo = {};
+        let userInfo = {} as any;
 
         retrieveUserById(req.body.id)
             .then((user) => {
-                return new Promise((resolve, reject) => {
+                return new Promise<void>((resolve, reject) => {
                     if (!user) {
                         reject('id is not correct');
                     }
@@ -107,8 +108,8 @@ router.post('/login', (req, res) => {
             })
             .then(() => {
                 if (userInfo.login_at) {
-                    let recentLogin = Date.parse(new Date(userInfo.login_at));
-                    let current = Date.parse(new Date());
+                    let recentLogin = new Date(userInfo.login_at).getTime();
+                    let current = new Date().getTime();
                     // Update login history only after later than 1hours from last history.
                     if (current - recentLogin > 60 * 60 * 1000) {
                         return Promise.all([createStatsLogin(userInfo.user_id), updateLoginDate(userInfo.user_id)])
@@ -260,9 +261,9 @@ router.post('/signup', upload.single('profile'), (req, res) => {
     
         let grade = req.body.aaaNum ? 8 : 9;
         let profilePath;
-        if (req.file) {
-            profilePath = '/profile/' + req.file.filename;
-            resize(req.file.path)
+        if ((req as any).file) {
+            profilePath = '/profile/' + (req as any).file.filename;
+            resize((req as any).file.path)
         }
     
         const userData = {

@@ -63,8 +63,9 @@ router.post('/:exhibition_id/exhibitPhoto',
     uploadMiddleware('EH').single('exhibitPhoto'),
     (req, res) => {
         
+        const { file, decodedToken } = req as any;
 
-        if (!req.file) {
+        if (!file) {
             res.status(409).json({
                 error: 'EXHIBITPHOTO IS NOT ATTACHED',
                 code: 1
@@ -72,10 +73,10 @@ router.post('/:exhibition_id/exhibitPhoto',
         }
 
         else {
-            let basename = path.basename(req.file.filename, path.extname(req.file.filename));
+            let basename = path.basename(file.filename, path.extname(file.filename));
             const photoInfo = JSON.parse(req.body.photoInfo)
 
-            resizeForThumbnail(req.file.path)
+            resizeForThumbnail(file.path)
                 .then(() => {
                     if(photoInfo.photographer.user_uuid) {
                         return retrieveUserByUserUuid(photoInfo.photographer.user_uuid)
@@ -86,7 +87,7 @@ router.post('/:exhibition_id/exhibitPhoto',
 
                     let data = {
                         content_uuid: uuid4(),
-                        author_id: req.decodedToken._id,
+                        author_id: decodedToken._id,
                         board_id: req.body.board_id,
                         category_id: req.body.category_id,
                         title: photoInfo.title,
@@ -96,7 +97,7 @@ router.post('/:exhibition_id/exhibitPhoto',
                         order: photoInfo.order,
                         photographer_id: photographer ? photographer.user_id : null,
                         photographer_alt: photographer ? null : photoInfo.photographer_alt,
-                        file_path: `/exhibition/${req.body.exhibition_no}/${req.file.filename}`,
+                        file_path: `/exhibition/${req.body.exhibition_no}/${file.filename}`,
                         thumbnail_path: `/exhibition/${req.body.exhibition_no}/${basename}_thumb.jpeg`,
                         location: photoInfo.location,
                         camera: photoInfo.camera,

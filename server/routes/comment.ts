@@ -40,8 +40,9 @@ router.delete('/:comment_id', verifyTokenMiddleware, (req, res) => {
 
 router.post('/:comment_id/like', verifyTokenMiddleware, (req, res) => {
     
+    const { decodedToken } = req as any;
     const comment_id = req.params.comment_id;
-    const user_id = req.decodedToken._id
+    const user_id = decodedToken._id
 
     checkCommentLike(comment_id, user_id)
         .then((isLiked) => {

@@ -12,7 +12,9 @@ const router = express.Router();
 
 router.get('/:content_id/comments', verifyTokenMiddleware, (req, res) => {
 
-    retrieveComments(req.params.content_id, req.decodedToken._id)
+    const { decodedToken } = req as any;
+
+    retrieveComments(req.params.content_id, decodedToken._id)
         .then((comments) => {
             res.json(comments)
         })
@@ -47,9 +49,10 @@ router.post('/:content_id/file',
     uploadMiddleware('AF').single('attachedFile'),
     (req, res) => {
 
+        const { file } = req as any;
 
         try {
-            if (!req.file) {
+            if (!file) {
                 res.status(409).json({
                     error: 'FILE IS NOT ATTACHED',
                     code: 1
@@ -57,7 +60,7 @@ router.post('/:content_id/file',
             }
             else {
                 let file_type = ''
-                let extention = path.extname(req.file.path).substr(1);
+                let extention = path.extname(file.path).substr(1);
                 if (['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG'].includes(extention)) {
                     file_type = 'IMG';
                 }
@@ -84,8 +87,8 @@ router.post('/:content_id/file',
                     console.error(extention)
                 }
                 let data = {
-                    original_name: req.file.originalname,
-                    file_path: req.file.path,
+                    original_name: file.originalname,
+                    file_path: file.path,
                     file_type: file_type
                 }
                 createAttachedFile(req.params.content_id, data)
@@ -106,7 +109,10 @@ router.post('/:content_id/file',
 )
 
 router.post('/:content_id/comment', verifyTokenMiddleware, (req, res) => {
-    createComment(req.decodedToken._id, req.params.content_id, req.body)
+    
+    const { decodedToken } = req as any;
+
+    createComment(decodedToken._id, req.params.content_id, req.body)
         .then(() => {
             res.json({ success: true });
         })
@@ -121,9 +127,9 @@ router.post('/:content_id/comment', verifyTokenMiddleware, (req, res) => {
 
 router.post('/:content_id/like', verifyTokenMiddleware, (req, res) => {
 
-
+    const { decodedToken } = req as any;
     const content_id = req.params.content_id;
-    let user_id = req.decodedToken._id
+    let user_id = decodedToken._id
 
     checkLike(content_id, user_id)
         .then((isLiked) => {

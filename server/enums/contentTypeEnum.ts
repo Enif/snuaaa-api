@@ -8,4 +8,4 @@ const ContentTypeEnum = Object.freeze({
     EXHIBITI_PHOTO: 'EP'
 })
 
-export default ContentTypeEnum
+export default ContentTypeEnum;

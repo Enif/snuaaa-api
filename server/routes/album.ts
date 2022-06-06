@@ -35,12 +35,14 @@ const upload = multer({ storage })
 
 router.get('/:album_id', verifyTokenMiddleware, (req, res) => {
 
+    const decodedToken = (req as any).decodedToken;
+
     try {
-        let albumInfo = {};
+        let albumInfo = {} as any;
         retrieveAlbum(req.params.album_id)
             .then((info) => {
 
-                if(info.board.lv_read < req.decodedToken.grade) {
+                if(info.board.lv_read < decodedToken.grade) {
                     res.status(403).json({
                         code: 4001
                     })
@@ -169,9 +171,11 @@ router.post('/:album_id/photos',
     uploadMiddleware('PH').single('uploadPhoto'),
     (req, res) => {
         
+        const file = (req as any).file;
+        const decodedToken = (req as any).decodedToken;
 
         try {
-            if (!req.file) {
+            if (!file) {
                 res.status(409).json({
                     error: 'PHOTO IS NOT ATTACHED',
                     code: 1
@@ -187,16 +191,16 @@ router.post('/:album_id/photos',
 
                 const photoInfo = JSON.parse(req.body.photoInfo)
 
-                let basename = path.basename(req.file.filename, path.extname(req.file.filename));
-                resizeForThumbnail(req.file.path)
+                let basename = path.basename(file.filename, path.extname(file.filename));
+                resizeForThumbnail(file.path)
                     .then(() => {
                         let photoData = {
                             ...photoInfo,
                             type: 'PH',
-                            author_id: req.decodedToken._id,
+                            author_id: decodedToken._id,
                             date: photoInfo.date ? new Date(photoInfo.date) : null,
                             album_id: req.params.album_id,
-                            file_path: `/album/${req.params.album_id}/${req.file.filename}`,
+                            file_path: `/album/${req.params.album_id}/${file.filename}`,
                             thumbnail_path: `/album/${req.params.album_id}/${basename}_thumb.jpeg`
                         }
                         return createPhoto(photoData)

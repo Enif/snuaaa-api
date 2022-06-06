@@ -34,8 +34,8 @@ const upload = multer({ storage })
 
 router.get('/', verifyTokenMiddleware, (req, res) => {
     
-
-    retrieveBoardsCanAccess(req.decodedToken.grade)
+    const decodedToken = (req as any).decodedToken;
+    retrieveBoardsCanAccess(decodedToken.grade)
         .then((boardInfo) => {
             return res.json(boardInfo)
         })
@@ -48,11 +48,13 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
 })
 
 router.get('/:board_id', verifyTokenMiddleware, (req, res, next) => {
-    
+
+    const decodedToken = (req as any).decodedToken;
+
     try {
         retrieveBoard(req.params.board_id)
             .then((boardInfo) => {
-                if (boardInfo.lv_read < req.decodedToken.grade) {
+                if (boardInfo.lv_read < decodedToken.grade) {
                     const err = {
                         status: 403,
                         code: 4001
@@ -87,16 +89,16 @@ router.get('/:board_id/posts', verifyTokenMiddleware, (req, res) => {
 
     let offset = 0;
     const ROWNUM = 10;
-
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+    const query = (req as any).query;
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
 
     retrievePostsInBoard(req.params.board_id, ROWNUM, offset)
         .then((postInfo) => {
             res.json({
-                postCount: postInfo.count,
-                postInfo: postInfo.rows
+                postCount: (postInfo as any).count,
+                postInfo: (postInfo as any).rows
             })
         })
         .catch((err) => {
@@ -114,16 +116,17 @@ router.get('/:board_id/posts/search', verifyTokenMiddleware, (req, res) => {
 
     let offset = 0;
     const ROWNUM = 10;
+    const query = (req as any).query;
 
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
 
     searchPostsInBoard(req.params.board_id, req.query.type, req.query.keyword, ROWNUM, offset)
         .then((postInfo) => {
             res.json({
-                postCount: postInfo.count,
-                postInfo: postInfo.rows
+                postCount: (postInfo as any).count,
+                postInfo: (postInfo as any).rows
             })
         })
         .catch((err) => {
@@ -157,10 +160,11 @@ router.get('/:board_id/tags', verifyTokenMiddleware, (req, res) => {
 
 router.post('/:board_id/post', verifyTokenMiddleware, (req, res) => {
     
+    const decodedToken = (req as any).decodedToken;
 
     let postData = {
         ...req.body,
-        author_id: req.decodedToken._id,
+        author_id: decodedToken._id,
         board_id: req.params.board_id
     }
 
@@ -184,9 +188,10 @@ router.post('/:board_id/post', verifyTokenMiddleware, (req, res) => {
 
 router.post('/:board_id/document', verifyTokenMiddleware, (req, res) => {
     
+    const decodedToken = (req as any).decodedToken;
 
     try {
-        let user_id = req.decodedToken._id;
+        let user_id = decodedToken._id;
 
         let data = {
             content_uuid: uuid4(),
@@ -248,20 +253,22 @@ router.post('/:board_id/exhibition',
     uploadMiddleware('EH').single('poster'),
     (req, res) => {
         
+        const decodedToken = (req as any).decodedToken;
+        const file = (req as any).file;
 
-        if (!req.file) {
+        if (!file) {
             res.status(409).json({
                 error: 'POSTER IS NOT ATTACHED',
                 code: 1
             });
         }
 
-        let basename = path.basename(req.file.filename, path.extname(req.file.filename));
-        resizeForThumbnail(req.file.path, 'P')
+        let basename = path.basename(file.filename, path.extname(file.filename));
+        resizeForThumbnail(file.path, 'P')
             .then(() => {
-                req.body.poster_path = `/exhibition/${req.body.exhibition_no}/${req.file.filename}`;
+                req.body.poster_path = `/exhibition/${req.body.exhibition_no}/${file.filename}`;
                 req.body.poster_thumbnail_path = `/exhibition/${req.body.exhibition_no}/${basename}_thumb.jpeg`;
-                return createContent(req.decodedToken._id, req.params.board_id, req.body, 'EH')
+                return createContent(decodedToken._id, req.params.board_id, req.body, 'EH')
             })
             .then((content_id) => {
                 return createExhibition(content_id, req.body)

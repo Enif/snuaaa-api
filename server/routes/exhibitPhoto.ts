@@ -10,14 +10,15 @@ const router = express.Router();
 
 router.get('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
     
+    const { decodedToken } = req as any;
 
     try {
-        let exhibitPhotoInfo = {};
+        let exhibitPhotoInfo: any = {};
         retrieveExhibitPhoto(req.params.exhibitPhoto_id)
             .then((info) => {
                 exhibitPhotoInfo = info;
                 return Promise.all([
-                    checkLike(req.params.exhibitPhoto_id, req.decodedToken._id),
+                    checkLike(req.params.exhibitPhoto_id, decodedToken._id),
                     retrieveExhibitPhotosInExhibition(exhibitPhotoInfo.parent_id),
                     increaseViewNum(req.params.exhibitPhoto_id)
                 ])
@@ -50,7 +51,7 @@ router.get('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
 router.patch('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
     
     try {
-        new Promise((resolve, reject) => {
+        new Promise<void>((resolve, reject) => {
             if (req.body.photographer) {
                 retrieveUserByUserUuid(req.body.photographer.user_uuid)
                 .then((photographer) => {
@@ -64,7 +65,7 @@ router.patch('/:exhibitPhoto_id', verifyTokenMiddleware, (req, res) => {
                 resolve();
             }
         })
-            .then((photographer) => {
+            .then((photographer: any) => {
                 let data = {
                     title: req.body.title,
                     text: req.body.text,

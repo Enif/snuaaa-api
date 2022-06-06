@@ -1,7 +1,7 @@
 const models = require('../models');
 const Op = models.Sequelize.Op;
 
-exports.retrievePhoto = function (photo_id) {
+export function retrievePhoto(photo_id) {
     return new Promise((resolve, reject) => {
         if (!photo_id) {
             reject('id can not be null')
@@ -53,7 +53,7 @@ exports.retrievePhoto = function (photo_id) {
     })
 }
 
-exports.retrievePrevPhoto = function (photo_id, album_id) {
+export function retrievePrevPhoto(photo_id, album_id) {
     return new Promise((resolve, reject) => {
         if (!photo_id) {
             reject('photo_id can not be null')
@@ -85,7 +85,7 @@ exports.retrievePrevPhoto = function (photo_id, album_id) {
     })
 }
 
-exports.retrieveNextPhoto = function (photo_id, album_id) {
+export function retrieveNextPhoto(photo_id, album_id) {
     return new Promise((resolve, reject) => {
         if (!photo_id) {
             reject('photo_id can not be null')
@@ -117,7 +117,7 @@ exports.retrieveNextPhoto = function (photo_id, album_id) {
     })
 }
 
-exports.retrievePrevAlbumPhoto = function (album_id, board_id) {
+export function retrievePrevAlbumPhoto(album_id, board_id) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('board_id can not be null')
@@ -150,7 +150,7 @@ exports.retrievePrevAlbumPhoto = function (album_id, board_id) {
     })
 }
 
-exports.retrieveNextAlbumPhoto = function (album_id, board_id) {
+export function retrieveNextAlbumPhoto(album_id, board_id) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('board_id can not be null')
@@ -183,7 +183,7 @@ exports.retrieveNextAlbumPhoto = function (album_id, board_id) {
     })
 }
 
-exports.retrievePhotosInAlbum = function (album_id) {
+export function retrievePhotosInAlbum(album_id) {
     return new Promise((resolve, reject) => {
         if (!album_id) {
             reject('id can not be null')
@@ -217,7 +217,7 @@ exports.retrievePhotosInAlbum = function (album_id) {
     })
 }
 
-exports.retrievePhotoCountInBoard = function (board_id) {
+export function retrievePhotoCountInBoard(board_id) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('id can not be null');
@@ -241,7 +241,7 @@ exports.retrievePhotoCountInBoard = function (board_id) {
     })
 }
 
-exports.retrievePhotosInBoard = function (board_id, rowNum, offset) {
+export function retrievePhotosInBoard(board_id, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if (!board_id) {
             reject('id can not be null');
@@ -277,7 +277,7 @@ exports.retrievePhotosInBoard = function (board_id, rowNum, offset) {
     })
 }
 
-exports.retrievePhotoCountByTag = function (tags) {
+export function retrievePhotoCountByTag(tags) {
     return new Promise((resolve, reject) => {
         if (!tags) {
             reject('tag can not be null');
@@ -307,7 +307,7 @@ exports.retrievePhotoCountByTag = function (tags) {
     })
 }
 
-exports.retrievePhotosByTag = function (tags, rowNum, offset) {
+export function retrievePhotosByTag(tags, rowNum, offset) {
     return new Promise((resolve, reject) => {
         if (!tags) {
             reject('tag can not be null');
@@ -345,7 +345,7 @@ exports.retrievePhotosByTag = function (tags, rowNum, offset) {
 }
 
 
-exports.retrievePhotosByUser = function (user_id) {
+export function retrievePhotosByUser(user_id) {
     return new Promise((resolve, reject) => {
         if (!user_id) {
             reject('id can not be null');
@@ -375,7 +375,7 @@ exports.retrievePhotosByUser = function (user_id) {
     })
 };
 
-exports.retrievePhotosByUserUuid = function (user_uuid) {
+export function retrievePhotosByUserUuid(user_uuid) {
     return new Promise((resolve, reject) => {
         if (!user_uuid) {
             reject('user_uuid can not be null');
@@ -409,7 +409,7 @@ exports.retrievePhotosByUserUuid = function (user_uuid) {
     })
 };
 
-exports.createPhoto = function (data) {
+export function createPhoto(data) {
     return new Promise((resolve, reject) => {
 
         models.Content.create({
@@ -448,8 +448,8 @@ exports.createPhoto = function (data) {
     })
 }
 
-exports.updatePhoto = function (photo_id, data) {
-    return new Promise((resolve, reject) => {
+export function updatePhoto(photo_id, data) {
+    return new Promise<void>((resolve, reject) => {
 
         if (!photo_id) {
             reject('id can not be null')
@@ -481,8 +481,8 @@ exports.updatePhoto = function (photo_id, data) {
     })
 }
 
-exports.deletePhoto = function (photo_id) {
-    return new Promise((resolve, reject) => {
+export function deletePhoto(photo_id) {
+    return new Promise<void>((resolve, reject) => {
 
         if (!photo_id) {
             reject('id can not be null')

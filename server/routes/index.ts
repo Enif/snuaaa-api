@@ -1,4 +1,4 @@
-import express from 'express';
+const express = require('express')
 
 import auth from './auth';
 import userinfo from './userinfo';

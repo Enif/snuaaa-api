@@ -14,9 +14,11 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
     let offset = 0;
     let docCount = 0;
     const ROWNUM = 10;
+    const { query } = req as any;
 
-    if (req.query.page > 0) {
-        offset = ROWNUM * (req.query.page - 1);
+
+    if (query.page > 0) {
+        offset = ROWNUM * (query.page - 1);
     }
 
     retrieveDocumentCount(req.query.category, req.query.generation)
@@ -39,16 +41,17 @@ router.get('/', verifyTokenMiddleware, (req, res) => {
         })
 })
 
-router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
+router.get('/:doc_id', verifyTokenMiddleware, (req, res, next) => {
+
+    const { decodedToken } = req as any;
 
     try {
-
         let resDocInfo = {};
         retrieveDocument(req.params.doc_id)
         .then((docInfo) => {
             resDocInfo = docInfo;
 
-            if(docInfo.board.lv_read < req.decodedToken.grade) {
+            if(docInfo.board.lv_read < decodedToken.grade) {
                 const err = {
                     status: 403,
                     code: 4001
@@ -57,7 +60,7 @@ router.get('/:doc_id', verifyTokenMiddleware, (req, res) => {
             }
             else {
                 return Promise.all([
-                    checkLike(req.params.doc_id, req.decodedToken._id),
+                    checkLike(req.params.doc_id, decodedToken._id),
                     increaseViewNum(req.params.doc_id)
                 ])
             }

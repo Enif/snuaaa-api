@@ -11,6 +11,7 @@ const router = express.Router();
 
 router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
     
+    const decodedToken = (req as any).decodedToken;
 
     try {
         let resPostInfo = {}
@@ -19,7 +20,7 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
             .then((postInfo) => {
                 resPostInfo = postInfo;
     
-                if (postInfo.board.lv_read < req.decodedToken.grade) {
+                if ((postInfo as any).board.lv_read < decodedToken.grade) {
                     const err = {
                         status: 403,
                         code: 4001
@@ -28,7 +29,7 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
                 }
                 else {
                     return Promise.all([
-                        checkLike(req.params.post_id, req.decodedToken._id),
+                        checkLike(req.params.post_id, decodedToken._id),
                         increaseViewNum(req.params.post_id)
                     ])
                 }

@@ -1,4 +1,11 @@
-const models = require('../models');
+import {
+    AlbumModel,
+    BoardModel,
+    CategoryModel,
+    ContentModel,
+    PhotoModel,
+    UserModel,
+} from '../models';
 import { Op } from 'sequelize';
 
 export function retrieveAlbum(content_id) {
@@ -7,18 +14,18 @@ export function retrieveAlbum(content_id) {
             reject('id can not be null');
         }
 
-        models.ContentModel.findOne({
+        ContentModel.findOne({
             include: [{
-                model: models.Album,
+                model: AlbumModel,
                 as: 'album',
                 required: true
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['user_id', 'nickname', 'introduction', 'profile_path'],
                 paranoid: false
             }, {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name', 'lv_read']
             }],
@@ -40,9 +47,9 @@ export function retrievePrevAlbum(album_id, board_id) {
             reject('board_id can not be null')
         }
         else {
-            models.ContentModel.findOne({
+            ContentModel.findOne({
                 include: [{
-                    model: models.Album,
+                    model: AlbumModel,
                     as: 'album',
                     required: true,
                 }],
@@ -73,9 +80,9 @@ export function retrieveNextAlbum(album_id, board_id) {
             reject('board_id can not be null')
         }
         else {
-            models.ContentModel.findOne({
+            ContentModel.findOne({
                 include: [{
-                    model: models.Album,
+                    model: AlbumModel,
                     as: 'album',
                     required: true,
                 }],
@@ -111,9 +118,9 @@ export function retrieveAlbumCount(board_id, category_id) {
         board_id && (condition.board_id = board_id);
         category_id && (condition.category_id = category_id);
 
-        models.ContentModel.count({
+        ContentModel.count({
             include: [{
-                model: models.Album,
+                model: AlbumModel,
                 as: 'album',
                 required: true
             }],
@@ -140,37 +147,37 @@ export function retrieveAlbumsInBoard(board_id, rowNum, offset, category_id) {
         };
         category_id && (condition.category_id = category_id);
 
-        models.ContentModel.findAll({
+        ContentModel.findAll({
             include: [{
-                model: models.Album,
+                model: AlbumModel,
                 as: 'album',
                 required: true,
                 include: [
                     {
-                        model: models.Content,
+                        model: ContentModel,
                         as: 'thumbnail',
                         include: [{
-                            model: models.Photo,
+                            model: PhotoModel,
                             as: 'photo',
                             required: true
                         }]
                     }]
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['nickname', 'deleted_at'],
                 paranoid: false
             }, {
-                model: models.Category
+                model: CategoryModel
             }, {
-                model: models.Content,
+                model: ContentModel,
                 as: 'children',
                 required: false,
                 separate: true,
                 limit: 1,
                 order: [['content_id', 'DESC']],
                 include: [{
-                    model: models.Photo,
+                    model: PhotoModel,
                     as: 'photo',
                     required: true
                 }]
@@ -198,7 +205,7 @@ export function createAlbum(content_id, data) {
             reject('id can not be null')
         }
 
-        models.AlbumModel.create({
+        AlbumModel.create({
             content_id: content_id,
             is_private: data.is_private
         })
@@ -217,7 +224,7 @@ export function updateAlbum(album_id, data) {
             reject('album_id can not be null')
         }
 
-        models.AlbumModel.update({
+        AlbumModel.update({
             is_private: data.is_private
         },
             {
@@ -241,7 +248,7 @@ export function updateAlbumThumbnail(album_id, photo_id) {
             reject('album_id can not be null')
         }
 
-        models.AlbumModel.update({
+        AlbumModel.update({
             tn_photo_id: photo_id
         },
             {

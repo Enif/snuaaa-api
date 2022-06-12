@@ -1,4 +1,4 @@
-const models = require('../models');
+import { ContentTagModel } from '../models';
 
 export function retrieveTagsByContent(content_id) {
 
@@ -7,7 +7,7 @@ export function retrieveTagsByContent(content_id) {
             reject('id can not be null')
         }
 
-        models.ContentTag.findAll({
+        ContentTagModel.findAll({
             where: {
                 content_id: content_id
             }
@@ -28,7 +28,7 @@ export function createContentTag(content_id, tag_id) {
             reject('id can not be null')
         }
 
-        models.ContentTag.create({
+        ContentTagModel.create({
             content_id: content_id,
             tag_id: tag_id
         })
@@ -48,7 +48,7 @@ export function deleteContentTag(content_id, tag_id) {
             reject('id can not be null')
         }
 
-        models.ContentTag.destroy({
+        ContentTagModel.destroy({
             where: {
                 content_id: content_id,
                 tag_id: tag_id
@@ -70,7 +70,7 @@ export function checkContentTag(content_id, tag_id) {
             reject('id can not be null')
         }
 
-        models.ContentTag.findOne({
+        ContentTagModel.findOne({
             where: {
                 content_id: content_id,
                 tag_id: tag_id

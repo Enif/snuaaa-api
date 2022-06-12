@@ -1,4 +1,6 @@
-const models = require('../models');
+import {
+    AttachedFileModel,
+} from '../models';
 
 export function createAttachedFile(content_id, data) {
     return new Promise<void>((resolve, reject) => {
@@ -7,7 +9,7 @@ export function createAttachedFile(content_id, data) {
             reject('id can not be null')
         }
         else {
-            models.AttachedFile.create({
+            AttachedFileModel.create({
                 parent_id: content_id,
                 original_name: data.original_name,
                 file_path: data.file_path,
@@ -29,7 +31,7 @@ export function retrieveAttachedFile(file_id) {
             reject('id can not be null')
         }
         else {
-            models.AttachedFile.findOne({
+            AttachedFileModel.findOne({
                 attributes: ['file_id', 'original_name', 'file_path', 'file_type'],
                 where: { file_id: file_id }
             })
@@ -49,7 +51,7 @@ export function retrieveAttachedFilesInContent(content_id) {
             reject('id can not be null')
         }
         else {
-            models.AttachedFile.findAll({
+            AttachedFileModel.findAll({
                 attributes: ['file_id', 'original_name', 'file_type', 'download_count'],
                 where: { parent_id: content_id },
                 order: [
@@ -72,7 +74,7 @@ export function increaseDownloadCount(file_id) {
             reject('file_id can not be null')
         }
 
-        models.AttachedFile.increment('download_count',
+        AttachedFileModel.increment('download_count',
             {
                 where: { file_id: file_id },
                 silent: true
@@ -92,7 +94,7 @@ export function deleteAttachedFile(file_id) {
             reject('file_id can not be null')
         }
         else {
-            models.AttachedFile.destroy({
+            AttachedFileModel.destroy({
                 where: {
                     file_id: file_id
                 }

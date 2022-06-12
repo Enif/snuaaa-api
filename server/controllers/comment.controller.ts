@@ -1,4 +1,10 @@
-const models = require('../models');
+import {
+    BoardModel,
+    CommentLikeModel,
+    CommentModel,
+    ContentModel,
+    UserModel,
+} from '../models';
 import { Op } from 'sequelize';
 
 export function retrieveComments(parent_id, user_id) {
@@ -7,32 +13,32 @@ export function retrieveComments(parent_id, user_id) {
             reject('id can not be null');
         }
 
-        models.Comment.findAll({
+        CommentModel.findAll({
             include: [{
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
                 paranoid: false
             },
             {
-                model: models.User,
-                through: models.CommentLike,
+                model: UserModel,
+                // through: CommentLikeModel,
                 as: 'likeUsers',
                 attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
                 paranoid: false
             },
             {
-                model: models.Comment,
+                model: CommentModel,
                 as: 'children',
                 include: [{
-                    model: models.User,
+                    model: UserModel,
                     required: true,
                     attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
                     paranoid: false
                 },
                 {
-                    model: models.User,
-                    through: models.CommentLike,
+                    model: UserModel,
+                    // through: CommentLikeModel,
                     as: 'likeUsers',
                     attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
                     paranoid: false
@@ -42,7 +48,7 @@ export function retrieveComments(parent_id, user_id) {
                 parent_id: parent_id,
                 parent_comment_id: null
             },
-            order: [['created_at'], ['children', 'created_at']]
+            order: [['created_at', 'desc'], ['children', 'created_at']]
         })
             .then((comments) => {
                 resolve(comments)
@@ -56,12 +62,12 @@ export function retrieveComments(parent_id, user_id) {
 export function retrieveRecentComments() {
     return new Promise((resolve, reject) => {
 
-        models.Comment.findAll({
+        CommentModel.findAll({
             include: [{
-                model: models.Content,
+                model: ContentModel,
                 required: true,
                 include: [{
-                    model: models.Board,
+                    model: BoardModel,
                     required: true,
                     attributes: ['board_id', 'board_name']
                 }]
@@ -81,12 +87,12 @@ export function retrieveRecentComments() {
 export function retrieveAllComments(grade, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
-        models.Comment.findAndCountAll({
+        CommentModel.findAndCountAll({
             include: [{
-                model: models.Content,
+                model: ContentModel,
                 required: true,
                 include: [{
-                    model: models.Board,
+                    model: BoardModel,
                     required: true,
                     attributes: ['board_id', 'board_name'],
                     where: {
@@ -116,12 +122,12 @@ export function retrieveCommentsByUser(user_id) {
             reject('id can not be null');
         }
         else {
-            models.Comment.findAll({
+            CommentModel.findAll({
                 include: [{
-                    model: models.Content,
+                    model: ContentModel,
                     required: true,
                     include: [{
-                        model: models.Board,
+                        model: BoardModel,
                         required: true,
                         attributes: ['board_id', 'board_name']
                     }]
@@ -149,19 +155,18 @@ export function retrieveCommentsByUserUuid(user_uuid) {
             reject('user_uuid can not be null');
         }
         else {
-            models.Comment.findAll({
+            CommentModel.findAll({
                 include: [{
-                    model: models.Content,
+                    model: ContentModel,
                     required: true,
                     include: [{
-                        model: models.Board,
+                        model: BoardModel,
                         required: true,
                         attributes: ['board_id', 'board_name']
-                    }
-                    ]
+                    }]
                 },
                 {
-                    model: models.User,
+                    model: UserModel,
                     required: true,
                     attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
                     where: {
@@ -189,15 +194,15 @@ export function createComment(user_id, parent_id, data) {
         }
 
         let comment_id = ''
-        models.Comment.create({
+        CommentModel.create({
             parent_id: parent_id,
             parent_comment_id: data.parent_comment_id ? data.parent_comment_id : null,
             author_id: user_id,
             text: data.text
         })
             .then((comment) => {
-                comment_id = comment.dataValues.comment_id;
-                return models.Content.increment('comment_num',
+                comment_id = comment.getDataValue('comment_id');
+                return ContentModel.increment('comment_num',
                     {
                         where: { content_id: parent_id },
                         silent: true
@@ -219,7 +224,7 @@ export function updateComment(comment_id, data) {
             reject('id can not be null')
         }
 
-        models.Comment.update({
+        CommentModel.update({
             text: data.text,
         },
             {
@@ -242,21 +247,21 @@ export function deleteComment(comment_id) {
             reject('id can not be null')
         }
 
-        models.Comment.findOne({
+        CommentModel.findOne({
             where: {
                 comment_id: comment_id
             }
         })
             .then((comment) => {
-                return models.Content.decrement('comment_num', {
+                return ContentModel.decrement('comment_num', {
                     where: {
-                        content_id: comment.parent_id
+                        content_id: comment.getDataValue('parent_id'),
                     },
                     silent: true
                 })
             })
             .then(() => {
-                return models.Comment.destroy(
+                return CommentModel.destroy(
                     {
                         where: {
                             comment_id: comment_id

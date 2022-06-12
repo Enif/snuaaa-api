@@ -1,4 +1,7 @@
-const models = require('../models');
+import {
+    CommentLikeModel,
+    UserModel,
+} from '../models';
 
 export function checkCommentLike(comment_id, user_id) {
 
@@ -7,7 +10,7 @@ export function checkCommentLike(comment_id, user_id) {
             reject('id can not be null')
         }
 
-        models.CommentLike.findOne({
+        CommentLikeModel.findOne({
             where: {
                 comment_id: comment_id,
                 user_id: user_id
@@ -34,7 +37,7 @@ export function likeComment(comment_id, user_id) {
             reject('id can not be null')
         }
 
-        models.CommentLike.create({
+        CommentLikeModel.create({
             comment_id: comment_id,
             user_id: user_id
         })
@@ -54,7 +57,7 @@ export function dislikeComment(comment_id, user_id) {
             reject('id can not be null')
         }
 
-        models.CommentLike.destroy({
+        CommentLikeModel.destroy({
             where: {
                 comment_id: comment_id,
                 user_id: user_id

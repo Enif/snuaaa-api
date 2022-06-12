@@ -1,4 +1,9 @@
-const models = require('../models');
+import {
+    BoardModel,
+    ContentModel,
+    ExhibitionModel,
+    UserModel,
+} from '../models';
 
 export function retrieveExhibition(exhibition_id) {
     return new Promise((resolve, reject) => {
@@ -6,19 +11,19 @@ export function retrieveExhibition(exhibition_id) {
             reject('exhibition_id can not be null');
         }
 
-        models.Content.findOne({
+        ContentModel.findOne({
             include: [{
-                model: models.Exhibition,
+                model: ExhibitionModel,
                 as: 'exhibition',
-                require: true
+                // require: true
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['user_id', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
                 paranoid: false
             },
             {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name', 'lv_read', 'lv_write']
             }],
@@ -35,18 +40,18 @@ export function retrieveExhibition(exhibition_id) {
 
 export function retrieveExhibitions() {
     return new Promise((resolve, reject) => {
-        models.Content.findAll({
+        ContentModel.findAll({
             include: [{
-                model: models.Exhibition,
+                model: ExhibitionModel,
                 as: 'exhibition',
                 required: true
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['user_id', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
                 paranoid: false
             }, {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name', 'lv_read']
             }
@@ -71,7 +76,7 @@ export function createExhibition(content_id, data) {
             reject('content_id can not be null')
         }
         else {
-            models.Exhibition.create({
+            ExhibitionModel.create({
                 content_id: content_id,
                 exhibition_no: data.exhibition_no,
                 slogan: data.slogan,

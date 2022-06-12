@@ -1,4 +1,11 @@
-const models = require('../models');
+import {
+    AttachedFileModel,
+    BoardModel,
+    CategoryModel,
+    ContentModel,
+    DocumentModel,
+    UserModel,
+} from '../models';
 
 export function retrieveDocument(doc_id) {
     return new Promise((resolve, reject) => {
@@ -6,22 +13,22 @@ export function retrieveDocument(doc_id) {
             reject('id can not be null')
         }
 
-        models.Content.findOne({
+        ContentModel.findOne({
             include: [{
-                model: models.Document,
+                model: DocumentModel,
                 as: 'document',
                 required: true,
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
                 paranoid: false
             }, {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name', 'lv_read']
             }, {
-                model: models.AttachedFile,
+                model: AttachedFileModel,
                 as: 'attachedFiles',
                 separate: true
             }],
@@ -44,18 +51,18 @@ export function retrieveDocumentCount(category_id, generation) {
         category_id && (contentCondition.category_id = category_id);
         generation && (docCondition.generation = generation);
 
-        models.Document.count({
+        DocumentModel.count({
             include: [{
-                model: models.Content,
+                model: ContentModel,
                 as: 'content',
                 required: true,
                 include: [{
-                    model: models.User,
+                    model: UserModel,
                     required: true,
                     attributes: ['nickname', 'deleted_at'],
                     paranoid: false
                 }, {
-                    model: models.Category,
+                    model: CategoryModel,
                     required: true,
                     attributes: ['category_name']
                 }],
@@ -80,23 +87,23 @@ export function retrieveDocuments(rowNum, offset, category_id, generation) {
         category_id && (contentCondition.category_id = category_id);
         generation && (docCondition.generation = generation);
 
-        models.Document.findAll({
+        DocumentModel.findAll({
             include: [{
-                model: models.Content,
+                model: ContentModel,
                 as: 'content',
                 required: true,
                 attributes: ['content_id', 'title', 'text'],
                 include: [{
-                    model: models.User,
+                    model: UserModel,
                     required: true,
                     attributes: ['nickname', 'deleted_at'],
                     paranoid: false
                 }, {
-                    model: models.Category,
+                    model: CategoryModel,
                     required: true,
                     attributes: ['category_name']
                 }, {
-                    model: models.AttachedFile,
+                    model: AttachedFileModel,
                     as: 'attachedFiles',
                     separate: true
                 }],
@@ -108,7 +115,7 @@ export function retrieveDocuments(rowNum, offset, category_id, generation) {
             offset: offset,
             order: [
                 [{
-                    model: models.Content,
+                    model: ContentModel,
                     as: 'content'
                 },
                     'updated_at', 'DESC'
@@ -127,7 +134,7 @@ export function retrieveDocuments(rowNum, offset, category_id, generation) {
 export function createDocument(data) {
     return new Promise((resolve, reject) => {
 
-        models.Content.create({
+        ContentModel.create({
             content_uuid: data.content_uuid,
             author_id: data.author_id,
             board_id: data.board_id,
@@ -140,12 +147,12 @@ export function createDocument(data) {
             }
         }, {
             include: [{
-                model: models.Document,
+                model: DocumentModel,
                 as: 'document',
             }]
         })
             .then((content) => {
-                resolve(content.dataValues.content_id);
+                resolve(content.getDataValue('content_id'));
             })
             .catch((err) => {
                 reject(err);
@@ -160,7 +167,7 @@ export function deleteDocument(doc_id) {
             reject('id can not be null')
         }
         else {
-            models.Document.destroy({
+            DocumentModel.destroy({
                 where: {
                     content_id: doc_id
                 }

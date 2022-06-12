@@ -1,9 +1,14 @@
-const models = require('../models');
+import {
+    ContentModel,
+    ExhibitionModel,
+    ExhibitPhotoModel,
+    UserModel,
+} from '../models';
 
 export function createExhibitPhoto(data) {
     return new Promise<void>((resolve, reject) => {
 
-        models.Content.create({
+        ContentModel.create({
             content_uuid: data.content_uuid,
             author_id: data.author_id,
             board_id: data.board_id,
@@ -30,7 +35,7 @@ export function createExhibitPhoto(data) {
             }
         }, {
             include: [{
-                model: models.ExhibitPhoto,
+                model: ExhibitPhotoModel,
                 as: 'exhibitPhoto',
             }]
         })
@@ -46,29 +51,29 @@ export function createExhibitPhoto(data) {
 export function retrieveExhibitPhoto(exhibitPhoto_id) {
     return new Promise((resolve, reject) => {
 
-        models.Content.findOne({
+        ContentModel.findOne({
             include: [{
-                model: models.ExhibitPhoto,
+                model: ExhibitPhotoModel,
                 as: 'exhibitPhoto',
                 where: {
                     content_id: exhibitPhoto_id
                 },
                 include: [{
-                    model: models.User,
+                    model: UserModel,
                     as: 'photographer',
                     attributes: ['user_uuid', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
                     paranoid: false
                 }]
             }, {
-                model: models.Content,
+                model: ContentModel,
                 as: 'parent',
                 include: [{
-                    model: models.Exhibition,
+                    model: ExhibitionModel,
                     as: 'exhibition',
                     required: true
                 }]
             }, {
-                model: models.User,
+                model: UserModel,
                 as: 'user',
                 required: true,
                 attributes: ['user_id', 'nickname', 'introduction', 'profile_path', 'deleted_at'],
@@ -88,9 +93,9 @@ export function retrieveExhibitPhoto(exhibitPhoto_id) {
 export function retrieveExhibitPhotosInExhibition(exhibition_id) {
     return new Promise((resolve, reject) => {
 
-        models.Content.findAll({
+        ContentModel.findAll({
             include: [{
-                model: models.ExhibitPhoto,
+                model: ExhibitPhotoModel,
                 as: 'exhibitPhoto',
                 required: true
             }],
@@ -117,7 +122,7 @@ export function updateExhibitPhoto(exhibitPhoto_id, data) {
             reject('exhibitPhoto_id can not be null')
         }
         else {
-            models.ExhibitPhoto.update({
+            ExhibitPhotoModel.update({
                 photographer_id: data.photographer_id,
                 photographer_alt: data.photographer_alt,
                 order: data.order,
@@ -153,7 +158,7 @@ export function deleteExhibitPhoto(exhibitPhoto_id) {
             reject('exhibitPhoto_id can not be null')
         }
         else {
-            models.ExhibitPhoto.destroy({
+            ExhibitPhotoModel.destroy({
                 where: {
                     content_id: exhibitPhoto_id
                 }

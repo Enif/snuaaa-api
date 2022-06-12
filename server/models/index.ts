@@ -6,6 +6,7 @@ import CommentModel from './Comment';
 import CommentLikeModel from './CommentLike';
 import ContentModel from './Content';
 import ContentTagModel from './ContentTag';
+import ContentLikeModel from './ContentLike';
 import DocumentModel from './Document';
 import ExhibitionModel from './Exhibition';
 import ExhibitPhotoModel from './ExhibitPhoto';
@@ -24,6 +25,7 @@ export {
     CommentLikeModel,
     ContentModel,
     ContentTagModel,
+    ContentLikeModel,
     DocumentModel,
     ExhibitionModel,
     ExhibitPhotoModel,

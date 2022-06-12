@@ -1,4 +1,6 @@
-const models = require('../models');
+import {
+    BoardModel, CategoryModel, TagModel,
+} from '../models';
 import { Op } from 'sequelize';
 
 export function retrieveBoard(board_id) {
@@ -7,12 +9,12 @@ export function retrieveBoard(board_id) {
             reject('id can not be null');
         }
 
-        models.Board.findOne({
+        BoardModel.findOne({
             include: [{
-                model: models.Tag,
+                model: TagModel,
                 as: 'tags'
             }, {
-                model: models.Category,
+                model: CategoryModel,
                 as: 'categories'
             }],
             where: { board_id: board_id }
@@ -34,7 +36,7 @@ export function retrieveBoard(board_id) {
 export function retrieveBoards() {
     return new Promise((resolve, reject) => {
 
-        models.Board.findAll({
+        BoardModel.findAll({
         })
             .then((boards) => {
                 resolve(boards);
@@ -48,12 +50,12 @@ export function retrieveBoards() {
 export function retrieveBoardsCanAccess(grade) {
     return new Promise((resolve, reject) => {
 
-        models.Board.findAll({
+        BoardModel.findAll({
             include: [{
-                model: models.Tag,
+                model: TagModel,
                 as: 'tags'
             }, {
-                model: models.Category,
+                model: CategoryModel,
                 as: 'categories'
             }],
             where: {

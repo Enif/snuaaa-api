@@ -1,5 +1,6 @@
-const models = require('../models');
-
+import {
+    StatsLoginModel,
+} from '../models';
 export function createStatsLogin(user_id) {
 
     return new Promise<void>((resolve, reject) => {
@@ -7,7 +8,7 @@ export function createStatsLogin(user_id) {
             reject('user_id can not be null')
         }
 
-        models.StatsLogin.create({
+        StatsLoginModel.create({
             user_id: user_id,
             login_at: new Date()
         })
@@ -27,7 +28,7 @@ export function retrieveRecentLogin(user_id) {
             reject('user_id can not be null')
         }
 
-        models.StatsLogin.max('login_at', {
+        StatsLoginModel.max('login_at', {
             where: { user_id: user_id }
         })
             .then(() => {

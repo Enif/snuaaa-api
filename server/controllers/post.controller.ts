@@ -1,4 +1,11 @@
-const models = require('../models');
+import {
+    AttachedFileModel,
+    BoardModel,
+    ContentModel,
+    DocumentModel,
+    PostModel,
+    UserModel,
+} from '../models';
 const uuid4 = require('uuid4');
 import { Op } from 'sequelize';
 import ContentTypeEnum from '../enums/contentTypeEnum';
@@ -16,24 +23,24 @@ export function retrievePost(content_id) {
             reject('id can not be null');
         }
 
-        models.Content.findOne({
+        ContentModel.findOne({
             include: [{
-                model: models.Post,
+                model: PostModel,
                 as: 'post',
                 required: true
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['user_uuid', 'nickname', 'introduction', 'grade', 'level', 'email', 'profile_path', 'deleted_at'],
                 paranoid: false
             },
             {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name', 'lv_read']
             },
             {
-                model: models.AttachedFile,
+                model: AttachedFileModel,
                 as: 'attachedFiles',
             }],
             where: { content_id: content_id }
@@ -53,12 +60,12 @@ export function retrievePostsInBoard(board_id, rowNum, offset) {
             reject('id can not be null');
         }
 
-        models.Content.findAndCountAll({
+        ContentModel.findAndCountAll({
             include: [{
-                model: models.Post,
+                model: PostModel,
                 as: 'post',
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['nickname'],
                 paranoid: false
@@ -135,13 +142,13 @@ export function searchPostsInBoard(board_id, type, keyword, rowNum, offset) {
             }
         }
 
-        models.Content.findAndCountAll({
+        ContentModel.findAndCountAll({
             include: [{
-                model: models.Post,
+                model: PostModel,
                 required: true,
                 as: 'post'
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['nickname'],
                 where: userCondition,
@@ -167,15 +174,15 @@ export function searchPostsInBoard(board_id, type, keyword, rowNum, offset) {
 export function retrieveRecentPosts(grade) {
     return new Promise((resolve, reject) => {
 
-        models.Content.findAll({
+        ContentModel.findAll({
             include: [{
-                model: models.Post,
+                model: PostModel,
                 as: 'post',
             }, {
-                model: models.Document,
+                model: DocumentModel,
                 as: 'document'
             }, {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name'],
                 where: {
@@ -208,13 +215,13 @@ export function retrieveRecentPosts(grade) {
 export function retrieveAllPosts(grade, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
-        models.Content.findAndCountAll({
+        ContentModel.findAndCountAll({
             include: [{
-                model: models.Post,
+                model: PostModel,
                 as: 'post',
                 required: true
             }, {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: ['board_id', 'board_name'],
                 where: {
@@ -223,7 +230,7 @@ export function retrieveAllPosts(grade, rowNum, offset) {
                     }
                 }
             }, {
-                model: models.User,
+                model: UserModel,
                 required: true,
                 attributes: ['nickname'],
                 paranoid: false
@@ -249,13 +256,13 @@ export function retrievePostsByUser(user_id) {
             reject('id can not be null');
         }
         else {
-            models.Content.findAll({
+            ContentModel.findAll({
                 include: [{
-                    model: models.Post,
+                    model: PostModel,
                     as: 'post',
                     required: true
                 }, {
-                    model: models.Board,
+                    model: BoardModel,
                     required: true,
                     attributes: ['board_id', 'board_name']
                 },
@@ -284,18 +291,18 @@ export function retrievePostsByUserUuid(user_uuid) {
             reject('id can not be null');
         }
         else {
-            models.Content.findAll({
+            ContentModel.findAll({
                 include: [{
-                    model: models.Post,
+                    model: PostModel,
                     as: 'post',
                     required: true,
                 }, {
-                    model: models.Board,
+                    model: BoardModel,
                     required: true,
                     attributes: ['board_id', 'board_name']
                 },
                 {
-                    model: models.User,
+                    model: UserModel,
                     required: true,
                     attributes: ['user_id', 'user_uuid', 'nickname', 'introduction', 'profile_path'],
                     where: {
@@ -321,14 +328,14 @@ export function retrievePostsByUserUuid(user_uuid) {
 export function retrieveSoundBox() {
     return new Promise((resolve, reject) => {
 
-        models.Content.findOne({
+        ContentModel.findOne({
             attributes: ['content_id', 'title', 'text'],
             include: [{
-                model: models.Post,
+                model: PostModel,
                 as: 'post',
                 required: true,
             }, {
-                model: models.Board,
+                model: BoardModel,
                 required: true,
                 attributes: [],
             }],
@@ -349,7 +356,7 @@ export function retrieveSoundBox() {
 
 export function createPost(data) {
     return new Promise((resolve, reject) => {
-        models.Content.create({
+        ContentModel.create({
             content_uuid: uuid4(),
             author_id: data.author_id,
             board_id: data.board_id,
@@ -361,12 +368,12 @@ export function createPost(data) {
             }
         }, {
             include: [{
-                model: models.Post,
+                model: PostModel,
                 as: 'post'
             }]
         })
             .then((content) => {
-                resolve(content.dataValues.content_id);
+                resolve(content.getDataValue('content_id'));
             })
             .catch((err) => {
                 reject(err);

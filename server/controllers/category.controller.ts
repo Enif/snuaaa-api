@@ -1,4 +1,6 @@
-const models = require('../models');
+import {
+    CategoryModel,
+} from '../models';
 
 export function retrieveCategoryByBoard(board_id) {
     return new Promise((resolve, reject) => {
@@ -6,7 +8,7 @@ export function retrieveCategoryByBoard(board_id) {
             reject('id can not be null');
         }
 
-        models.Category.findAll({
+        CategoryModel.findAll({
             where: { board_id: board_id }
         })
             .then((categories) => {

@@ -1,4 +1,6 @@
-const models = require('../models');
+import {
+    ContentModel,
+} from '../models';
 const uuid4 = require('uuid4');
 
 export function createContent(user_id, board_id, data, type) {
@@ -7,7 +9,7 @@ export function createContent(user_id, board_id, data, type) {
             reject('id can not be null')
         }
 
-        models.Content.create({
+        ContentModel.create({
             content_uuid: uuid4(),
             author_id: user_id,
             board_id: board_id,
@@ -17,7 +19,7 @@ export function createContent(user_id, board_id, data, type) {
             type: type
         })
             .then((content) => {
-                resolve(content.dataValues.content_id);
+                resolve(content.getDataValue('content_id'));
             })
             .catch((err) => {
                 reject(err);
@@ -31,7 +33,7 @@ export function updateContent(content_id, data) {
             reject('id can not be null')
         }
 
-        models.Content.update({
+        ContentModel.update({
             title: data.title,
             text: data.text,
             category_id: data.category_id
@@ -56,7 +58,7 @@ export function deleteContent(content_id) {
             reject('id can not be null')
         }
 
-        models.Content.destroy(
+        ContentModel.destroy(
             {
                 where: {
                     content_id: content_id
@@ -77,7 +79,7 @@ export function increaseViewNum(content_id) {
             reject('id can not be null')
         }
 
-        models.Content.increment('view_num',
+        ContentModel.increment('view_num',
             {
                 where: { content_id: content_id },
                 silent: true

@@ -1,4 +1,6 @@
-const models = require('../models');
+import {
+    UserModel,
+} from '../models';
 const uuid4 = require('uuid4');
 import { Op } from 'sequelize';
 
@@ -6,7 +8,7 @@ export function createUser(userData) {
 
     return new Promise<void>((resolve, reject) => {
 
-        models.UserModel.create({
+        UserModel.create({
             user_uuid: uuid4(),
             id: userData.id,
             password: userData.password,
@@ -37,7 +39,7 @@ export function retrieveUser(user_id) {
             reject('user_id can not be null');
         }
 
-        models.UserModel.findOne({
+        UserModel.findOne({
             attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
                 'col_no', 'major', 'email', 'mobile', 'introduction', 'grade', 'level', 'profile_path', 'login_at'],
             where: { user_id: user_id }
@@ -62,7 +64,7 @@ export function retrieveUserPw(user_id) {
             reject('user_id can not be null');
         }
 
-        models.UserModel.findOne({
+        UserModel.findOne({
             attributes: ['password'],
             where: { user_id: user_id }
         })
@@ -87,7 +89,7 @@ export function retrieveUserByUserUuid(user_uuid) {
             reject('user_uuid can not be null');
         }
 
-        models.UserModel.findOne({
+        UserModel.findOne({
             attributes: ['user_id', 'id', 'username', 'nickname', 'aaa_no',
                 'col_no', 'major', 'email', 'mobile', 'introduction', 'grade', 'level', 'profile_path'],
             where: { user_uuid: user_uuid }
@@ -109,7 +111,7 @@ export function retrieveUserByUserUuid(user_uuid) {
 export function retrieveUsers(sort, order, rowNum, offset) {
     return new Promise((resolve, reject) => {
 
-        let condition = {
+        let condition: any = {
             order: [
                 [sort ? sort : 'user_id', order === 'ASC' ? 'ASC' : 'DESC']
             ],
@@ -117,9 +119,18 @@ export function retrieveUsers(sort, order, rowNum, offset) {
             offset: offset
         }
 
-        models.UserModel.findAndCountAll({
-            attributes: ['user_uuid', 'id', 'username', 'nickname', 'aaa_no', 'grade', 'level',
-                'login_at', 'created_at'],
+        UserModel.findAndCountAll({
+            attributes: [
+                'user_uuid',
+                'id',
+                'username',
+                'nickname',
+                'aaa_no',
+                'grade',
+                'level',
+                'login_at',
+                'created_at'
+            ],
             ...condition
         })
             .then((users) => {
@@ -138,7 +149,7 @@ export function retrieveUsersByEmailAndName(email, username) {
             reject('email can not be null');
         }
 
-        models.UserModel.findAll({
+        UserModel.findAll({
             attributes: ['id'],
             where: { email: email, username: username }
         })
@@ -153,7 +164,7 @@ export function retrieveUsersByEmailAndName(email, username) {
 
 export function retrieveUsersByName(username) {
     return new Promise((resolve, reject) => {
-        models.UserModel.findAll({
+        UserModel.findAll({
             attributes: ['user_uuid', 'username', 'nickname', 'profile_path'],
             where: { username: { [Op.like]: `%${username}%` } },
             limit: 5
@@ -173,7 +184,7 @@ export function retrieveUserById(id) {
             reject('id can not be null');
         }
 
-        models.UserModel.findOne({
+        UserModel.findOne({
             attributes: ['user_id', 'user_uuid', 'id', 'password',
                 'username', 'nickname', 'grade', 'level', 'email', 'profile_path', 'login_at'],
             where: { id: id }
@@ -200,7 +211,7 @@ export function updateUser(user_id, data) {
             reject('user_id can not be null');
         }
 
-        models.UserModel.update({
+        UserModel.update({
             username: data.username,
             nickname: data.nickname,
             aaa_no: data.aaa_no,
@@ -235,7 +246,7 @@ export function updateUserPw(user_id, password) {
             reject('password can not be null');
         }
         else {
-            models.UserModel.update({
+            UserModel.update({
                 password: password
             }, {
                 where: { user_id: user_id }
@@ -257,7 +268,7 @@ export function deleteUser(user_id) {
             reject('id can not be null')
         }
 
-        models.UserModel.destroy(
+        UserModel.destroy(
             {
                 where: {
                     user_id: user_id
@@ -278,7 +289,7 @@ export function updateLoginDate(user_id) {
             reject('id can not be null');
         }
 
-        models.UserModel.update({
+        UserModel.update({
             login_at: new Date()
         }, {
             where: {
@@ -302,7 +313,7 @@ export function checkDupId(id) {
             reject('id can not be null');
         }
 
-        models.UserModel.findOne({
+        UserModel.findOne({
             where: { id: id }
         })
             .then((user) => {

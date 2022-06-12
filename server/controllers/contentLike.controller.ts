@@ -1,4 +1,4 @@
-const models = require('../models');
+import { ContentLikeModel, ContentModel } from '../models';
 
 export function checkLike(content_id, user_id) {
 
@@ -7,7 +7,7 @@ export function checkLike(content_id, user_id) {
             reject('id can not be null')
         }
 
-        models.ContentLike.findOne({
+        ContentLikeModel.findOne({
             where: {
                 content_id: content_id,
                 user_id: user_id
@@ -34,12 +34,12 @@ export function likeContent(content_id, user_id) {
             reject('id can not be null')
         }
 
-        models.ContentLike.create({
+        ContentLikeModel.create({
             content_id: content_id,
             user_id: user_id
         })
             .then(() => {
-                models.Content.increment('like_num',
+                ContentModel.increment('like_num',
                     {
                         where: { content_id: content_id },
                         silent: true
@@ -61,14 +61,14 @@ export function dislikeContent(content_id, user_id) {
             reject('id can not be null')
         }
 
-        models.ContentLike.destroy({
+        ContentLikeModel.destroy({
             where: {
                 content_id: content_id,
                 user_id: user_id
             }
         })
             .then(() => {
-                models.Content.decrement('like_num',
+                ContentModel.decrement('like_num',
                     {
                         where: { content_id: content_id },
                         silent: true

@@ -36,9 +36,3 @@ AttachedFileModel.init({
     paranoid: true,
     underscored: true
 });
-
-
-// AttachedFileModel.belongsTo(ContentModel, {
-//     foreignKey: 'parent_id',
-//     targetKey: 'content_id'
-// });

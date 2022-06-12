@@ -19,9 +19,3 @@ PostModel.init({
     timestamps: false,
     underscored: true
 });
-
-PostModel.belongsTo(ContentModel, {
-    // as: 'content',
-    foreignKey: 'content_id',
-    targetKey: 'content_id'
-})

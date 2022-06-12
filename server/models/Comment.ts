@@ -43,27 +43,3 @@ CommentModel.init({
     paranoid: true,
     underscored: true
 });
-
-
-// CommentModel.belongsTo(ContentModel, {
-//     foreignKey: 'parent_id',
-//     targetKey: 'content_id'
-// });
-
-// CommentModel.belongsTo(UserModel, {
-//     foreignKey: 'author_id',
-//     targetKey: 'user_id'
-// });
-
-// CommentModel.hasMany(CommentModel, {
-//     as: 'children',
-//     foreignKey: 'parent_comment_id',
-//     sourceKey: 'comment_id'
-// });
-
-// CommentModel.belongsToMany(UserModel, {
-//     as: 'likeUsers',
-//     through: 'commentLike',
-//     foreignKey: 'comment_id',
-//     otherKey: 'user_id'
-// });

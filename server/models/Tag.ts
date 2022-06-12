@@ -30,17 +30,3 @@ TagModel.init({
     timestamps: false,
     underscored: true
 });
-
-
-TagModel.belongsTo(BoardModel, {
-    foreignKey: 'board_id',
-    targetKey: 'board_id'
-});
-
-TagModel.belongsToMany(ContentModel, {
-    through: ContentTagModel,
-    // through: 'contentTag',
-    as: 'tagContents',
-    foreignKey: 'tag_id',
-    otherKey: 'content_id'
-})

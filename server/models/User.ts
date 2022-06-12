@@ -69,20 +69,3 @@ UserModel.init({
     paranoid: true,
     underscored: true
 });
-
-
-// UserModel.belongsToMany(CommentModel, {
-//     through: 'commentLike',
-//     foreignKey: 'user_id',
-//     otherKey: 'user_id'
-// });
-
-// UserModel.belongsToMany(ContentModel, {
-//     through: 'contentLike',
-//     foreignKey: 'user_id',
-//     otherKey: 'content_id'
-// });
-
-// UserModel.hasMany(StatsLoginModel, {
-//     foreignKey: 'user_id'
-// });

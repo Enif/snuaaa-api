@@ -44,13 +44,3 @@ BoardModel.init({
     timestamps: false,
     underscored: true
 });
-
-// BoardModel.hasMany(TagModel, {
-//     as: 'tags',
-//     foreignKey: 'board_id'
-// })
-
-// BoardModel.hasMany(CategoryModel, {
-//     as: 'categories',
-//     foreignKey: 'board_id'
-// })

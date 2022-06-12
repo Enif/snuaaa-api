@@ -25,8 +25,3 @@ DocumentModel.init({
     timestamps: false,
     underscored: true
 });
-
-DocumentModel.belongsTo(ContentModel, {
-    foreignKey: 'content_id',
-    targetKey: 'content_id'
-})

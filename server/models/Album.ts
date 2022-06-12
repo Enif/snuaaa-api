@@ -26,8 +26,3 @@ AlbumModel.init({
     underscored: true
 });
 
-// AlbumModel.belongsTo(ContentModel, {
-//     as: 'thumbnail',
-//     targetKey: 'content_id',
-//     foreignKey: 'tn_photo_id'
-// })

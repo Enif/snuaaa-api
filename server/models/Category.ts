@@ -29,8 +29,3 @@ CategoryModel.init({
     timestamps: false,
     underscored: true
 });
-
-CategoryModel.belongsTo(BoardModel, {
-    foreignKey: 'board_id',
-    targetKey: 'board_id'
-});

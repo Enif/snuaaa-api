@@ -25,8 +25,3 @@ StatsLoginModel.init({
     timestamps: false,
     underscored: true
 });
-
-// StatsLoginModel.belongsTo(UserModel, {
-//     foreignKey: 'user_id',
-//     targetKey: 'user_id'
-// });

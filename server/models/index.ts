@@ -185,6 +185,12 @@ UserModel.hasMany(StatsLoginModel, {
     foreignKey: 'user_id'
 });
 
+ExhibitPhotoModel.belongsTo(UserModel, {
+    as: 'photographer',
+    foreignKey: 'photographer_id',
+    targetKey: 'user_id'
+});
+
 export {
     AlbumModel,
     AttachedFileModel,

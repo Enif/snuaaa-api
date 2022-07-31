@@ -11,6 +11,7 @@ import { retrieveUser, updateUser, deleteUser, retrieveUserPw, updateUserPw,
     retrieveUsers, retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid, retrieveUsersByName } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
+import { sendMail } from '../lib/gmail';
 
 require('dotenv').config();
 
@@ -27,18 +28,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-const nodemailer = require('nodemailer');
-const smtpTransport = require('nodemailer-smtp-transport');
-const transporter = nodemailer.createTransport(smtpTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.GOOGLE_EMAIL_ADDR,
-        pass: process.env.GOOGLE_EMAIL_PW
-    }
-}));
 
 const cryptoRandomString = require('crypto-random-string');
 
@@ -449,40 +438,38 @@ router.post('/find/id', (req, res) => {
 
     let data = req.body;
     retrieveUsersByEmailAndName(data.email, data.name)
-    .then((users: any) => {
-        if(users && users.length > 0) {
-            res.json({
-                success: true
-            })
-            
+    .then((users) => {
+        if(users && users.length > 0) {            
             let text = '회원님의 ID는 ';
             users.map((user, i) => {
+                const id = user.getDataValue('id');
                 if(i === 0) {
-                    text += user.id;
+                    text += id;
                 }
                 else {
-                    text += `, ${user.id}`;
+                    text += `, ${id}`;
                 }
             })
             text += '입니다.'
 
-            let mailOptions = {
-                from: process.env.GOOGLE_EMAIL_ADDR,
+            const mailOptions = {
                 to: data.email,
                 subject: '[SNUAAA] 회원님의 ID를 알려드립니다.',
                 text: text
             };
-        
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.error(error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
-        }
-        else {
-            res.status(400).json({
+
+            sendMail(mailOptions)
+                .then(() => {
+                    res.json({
+                        success: true
+                    })
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.status(500);
+                })
+        } else {
+            res.status(404).json({
                 code: 0
             });
         }
@@ -499,56 +486,45 @@ router.post('/find/id', (req, res) => {
 
 router.post('/find/pw', (req, res) => {
 
-    let data = req.body;
+    const data = req.body;
     retrieveUserById(data.id)
     .then((user: any) => {
-        if(user) {
-            if(user.email === data.email && user.username === data.name) {
-                let resetPw = cryptoRandomString({length: 10});
-                updateUserPw(user.user_id, bcrypt.hashSync(resetPw, 10))
-                .then(() => {
-                    res.json({
-                        success: true
+        if(user && user.email === data.email && user.username === data.name) {
+            const resetPw = cryptoRandomString({length: 10});
+            updateUserPw(user.user_id, bcrypt.hashSync(resetPw, 10))
+            .then(() => {
+                const text = `임시비밀번호는 ${resetPw}입니다.\n
+                로그인 하신 후 원하시는 비밀번호로 변경해주세요.`;
+                const mailOptions = {
+                    to: data.email,
+                    subject: '[SNUAAA] 회원님의 임시 비밀번호를 알려드립니다.',
+                    text: text
+                };
+
+                sendMail(mailOptions)
+                    .then(() => {
+                        res.json({
+                            success: true
+                        });
                     })
-    
-                    let text = `임시비밀번호는 ${resetPw}입니다.\n
-                    로그인 하신 후 원하시는 비밀번호로 변경해주세요.`;
-                    let mailOptions = {
-                        from: process.env.GOOGLE_EMAIL_ADDR,
-                        to: data.email,
-                        subject: '[SNUAAA] 회원님의 임시 비밀번호를 알려드립니다.',
-                        text: text
-                    };
-                    
-                    transporter.sendMail(mailOptions, function (error, info) {
-                        if (error) {
-                            console.error(error);
-                        } else {
-                            console.log('Email sent: ' + info.response);
-                        }
-                    });
-                })
-                .catch((err) => {
-                    console.error(err);
-                })    
-            }
-            else {
-                // 
-                res.status(400).json({
-                    code: 0
-                });
-            }
-        }
-        else {
-            res.status(400).json({
+                    .catch((err) => {
+                        console.error(err);
+                        res.status(500);
+                    })
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500);
+            })    
+        } else {
+            res.status(404).json({
                 code: 0
             });
         }
-
     })
     .catch((err) => {
         console.error(err);
-        res.status(400).json({
+        res.status(500).json({
             code: 0
         });
     })

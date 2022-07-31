@@ -143,23 +143,20 @@ export function retrieveUsers(sort, order, rowNum, offset) {
 }
 
 
-export function retrieveUsersByEmailAndName(email, username) {
-    return new Promise((resolve, reject) => {
-        if (!email) {
-            reject('email can not be null');
-        }
+export async function retrieveUsersByEmailAndName(email, username) {
+    if (!email) {
+        throw Error('email can not be null');
+    }
 
-        UserModel.findAll({
+    try {
+        const users = await UserModel.findAll({
             attributes: ['id'],
             where: { email: email, username: username }
-        })
-            .then((users) => {
-                resolve(users);
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    })
+        });
+        return users;
+    } catch (err) {
+        throw err;
+    }    
 }
 
 export function retrieveUsersByName(username) {

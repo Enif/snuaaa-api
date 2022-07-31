@@ -27,6 +27,7 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
                     code: 4001
                 }
                 next(err);
+                return;
             }
             else {
                 return Promise.all([
@@ -41,16 +42,20 @@ router.get('/:photo_id', verifyTokenMiddleware, (req, res, next) => {
             }
         })
         .then((infos) => {
-            res.json({
-                photoInfo: photoInfo,
-                likeInfo: infos[0],
-                boardTagInfo: infos[1],
-                // albumPhotosInfo: infos[],
-                prevPhoto: infos[2],
-                nextPhoto: infos[3],
-                prevAlbumPhoto: infos[4],
-                nextAlbumPhoto: infos[5]
-            })
+            if (infos) {
+                res.json({
+                    photoInfo: photoInfo,
+                    likeInfo: infos[0],
+                    boardTagInfo: infos[1],
+                    // albumPhotosInfo: infos[],
+                    prevPhoto: infos[2],
+                    nextPhoto: infos[3],
+                    prevAlbumPhoto: infos[4],
+                    nextAlbumPhoto: infos[5]
+                })                    
+            } else {
+                res.status(404).json();
+            }
         })
         .catch((err) => {
             console.error(err);

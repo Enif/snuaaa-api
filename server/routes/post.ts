@@ -26,6 +26,7 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
                         code: 4001
                     }
                     next(err);
+                    return;
                 }
                 else {
                     return Promise.all([
@@ -35,7 +36,11 @@ router.get('/:post_id', verifyTokenMiddleware, (req, res, next) => {
                 }
             })
             .then((infos) => {
-                res.json({ postInfo: resPostInfo, likeInfo: infos[0] })
+                if (infos) {
+                    res.json({ postInfo: resPostInfo, likeInfo: infos[0] })                    
+                } else {
+                    res.status(404).json();   
+                }
             })
             .catch((err) => {
                 console.error(err)

@@ -5,13 +5,13 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "build": "babel server -d build",
-    "serve": "node ./build/main.js",
+    "build": "tsc",
+    "serve": "node ./dist/main.js",
     "babel-node": "babel-node server/main.js",
     "start": "nodemon",
     "debug": "nodemon --exec --inspect npm run babel-node",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rm -rf ./build"
+    "clean": "rm -rf ./dist"
   },
   "keywords": [],
   "license": "UNLICENSED",

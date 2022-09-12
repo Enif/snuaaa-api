@@ -48,7 +48,7 @@ export function retrieveComments(parent_id, user_id) {
                 parent_id: parent_id,
                 parent_comment_id: null
             },
-            order: [['created_at', 'desc'], ['children', 'created_at']]
+            order: [['created_at', 'asc'], ['children', 'created_at']]
         })
             .then((comments) => {
                 resolve(comments)

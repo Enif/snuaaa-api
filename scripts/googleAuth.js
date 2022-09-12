@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { google } = require('googleapis');
 
 const client_secret = process.env.OAUTH_CREDENTIALS_CLIENT_SECRET;
@@ -12,6 +14,7 @@ const getUrl = () => {
     access_type: 'offline',
     prompt: 'consent',
     scope: GMAIL_SCOPES,
+    client_id: client_id,
   });
   return url;
 }
@@ -26,4 +29,8 @@ const getToken = async (code) => {
 }
 
 // console.log(getUrl());
-// console.log(getToken(CODE));
+getToken('')
+.then((tokens) => {
+  console.log(tokens);
+});
+

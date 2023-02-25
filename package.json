@@ -39,7 +39,7 @@
     "pg-promise": "^8.7.5",
     "request": "^2.88.2",
     "rotating-file-stream": "^1.4.6",
-    "sequelize": "^6.20.1",
+    "sequelize": "^6.29.0",
     "sharp": "^0.26.0",
     "uuid4": "^1.1.4"
   },

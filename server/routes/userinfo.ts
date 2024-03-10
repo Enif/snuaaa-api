@@ -11,7 +11,7 @@ import { retrieveUser, updateUser, deleteUser, retrieveUserPw, updateUserPw,
     retrieveUsers, retrieveUserById, retrieveUsersByEmailAndName, retrieveUserByUserUuid, retrieveUsersByName } from '../controllers/user.controller';
 
 import { resize } from '../lib/resize';
-import { sendMail } from '../lib/gmail';
+import { sendMail } from '../lib/mail';
 
 require('dotenv').config();
 

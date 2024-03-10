@@ -20,17 +20,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-if (process.env.NODE_ENV == 'develop') {
-    // for local test
-    app.use(cors());
-}
-else {
-    const corsOptions = {
-        origin: ['https://www.snuaaa.net', 'https://our.snuaaa.net'],
-        optionsSuccessStatus: 200
-    }
-    app.use(cors(corsOptions));
-}
+const devServerOrigins = ['https://dev.snuaaa.net', 'http://localhost:3000'];
+const prodServerOrigins = ['https://www.snuaaa.net', 'https://our.snuaaa.net'];
+
+const origin = process.env.NODE_ENV == 'develop' ? devServerOrigins : prodServerOrigins;
+
+app.use(cors({ origin, optionsSuccessStatus: 200 }));
 
 app.use('/static', express.static(__dirname + '/../upload'));
 

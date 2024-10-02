@@ -161,7 +161,6 @@ router.post('/:board_id/photos',
                             ...photoInfo,
                             type: 'PH',
                             author_id: decodedToken._id,
-                            date: req.body.date ? new Date(req.body.date) : null,
                             board_id: req.params.board_id,
                             file_path: '/album/default/' + file.filename,
                             thumbnail_path: `/album/default/${basename}_thumb.jpeg`
